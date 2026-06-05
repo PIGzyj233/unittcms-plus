@@ -1,7 +1,7 @@
 export type PageType = {
-  params: {
+  params: Promise<{
     locale: string;
-  };
+  }>;
 };
 
 export type GlobalRoleType = {

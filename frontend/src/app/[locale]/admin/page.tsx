@@ -1,3 +1,4 @@
+import { use } from "react";
 import { getTranslations } from 'next-intl/server';
 import { useTranslations } from 'next-intl';
 import AdminPage from './AdminPage';
@@ -5,7 +6,13 @@ import { PageType } from '@/types/base';
 import { LocaleCodeType } from '@/types/locale';
 import { AdminMessages } from '@/types/user';
 
-export async function generateMetadata({ params: { locale } }: { params: { locale: LocaleCodeType } }) {
+export async function generateMetadata(props: { params: Promise<{ locale: string }> }) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'Admin' });
   return {
     title: `${t('user_management')} | UnitTCMS`,
@@ -13,7 +20,8 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   };
 }
 
-export default function Page({ params }: PageType) {
+export default function Page(props: PageType) {
+  const params = use(props.params);
   const t = useTranslations('Admin');
   const messages: AdminMessages = {
     userManagement: t('user_management'),

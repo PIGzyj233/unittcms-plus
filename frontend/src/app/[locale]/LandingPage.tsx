@@ -4,11 +4,16 @@ import PaneMainTitle from './PaneMainTitle';
 import PaneMainFeatures from './PaneMainFeatures';
 import DemoImage from './DemoImage';
 import { title, subtitle } from '@/components/primitives';
-import { PageType } from '@/types/base';
 import { LocaleCodeType } from '@/types/locale';
 import Footer from '@/components/Footer';
 
-export default function LandingPage({ params }: PageType) {
+type LandingPageProps = {
+  params: {
+    locale: string;
+  };
+};
+
+export default function LandingPage({ params }: LandingPageProps) {
   const t = useTranslations('Index');
 
   const demoImages = [

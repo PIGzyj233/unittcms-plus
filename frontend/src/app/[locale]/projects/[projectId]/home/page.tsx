@@ -1,7 +1,7 @@
+import { use } from "react";
 import { getTranslations } from 'next-intl/server';
 import { useTranslations } from 'next-intl';
 import { ProjectHome } from './ProjectHome';
-import { LocaleCodeType } from '@/types/locale';
 import { PriorityMessages } from '@/types/priority';
 import { TestTypeMessages } from '@/types/testType';
 import { TestRunCaseStatusMessages } from '@/types/status';
@@ -16,7 +16,13 @@ export type HomeMessages = {
   byPriority: string;
 };
 
-export async function generateMetadata({ params: { locale } }: { params: { locale: LocaleCodeType } }) {
+export async function generateMetadata(props: { params: Promise<{ locale: string }> }) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'Home' });
   return {
     title: `${t('home')} | UnitTCMS`,
@@ -24,7 +30,8 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   };
 }
 
-export default function Page({ params }: { params: { projectId: string } }) {
+export default function Page(props: { params: Promise<{ projectId: string }> }) {
+  const params = use(props.params);
   const t = useTranslations('Home');
   const messages = {
     folders: t('Folders'),

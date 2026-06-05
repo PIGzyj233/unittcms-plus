@@ -14,8 +14,8 @@ import {
 import { logError } from './errorHandler';
 import { ProjectRoleType, TokenContextType, TokenType } from '@/types/user';
 import { TokenProps } from '@/types/user';
-import { useRouter, usePathname } from '@/src/i18n/routing';
 const LOCAL_STORAGE_KEY = 'unittcms-auth-token';
+const NAVIGATION_EVENT = 'unittcms:navigation';
 
 function storeTokenToLocalStorage(token: TokenType) {
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(token));
@@ -23,6 +23,21 @@ function storeTokenToLocalStorage(token: TokenType) {
 
 function removeTokenFromLocalStorage() {
   localStorage.removeItem(LOCAL_STORAGE_KEY);
+}
+
+function getUnlocalizedPathname(locale: string) {
+  const localePrefix = `/${locale}`;
+  const pathname = window.location.pathname;
+
+  if (pathname === localePrefix) {
+    return '/';
+  }
+
+  if (pathname.startsWith(`${localePrefix}/`)) {
+    return pathname.slice(localePrefix.length);
+  }
+
+  return pathname;
 }
 
 const defaultContext = {
@@ -53,9 +68,8 @@ const defaultContext = {
 const TokenContext = createContext<TokenContextType>(defaultContext);
 
 const TokenProvider = ({ toastMessages, locale, children }: TokenProps) => {
-  const router = useRouter();
-  const pathname = usePathname();
-
+  const currentLocale = locale ?? 'en';
+  const [pathname, setPathname] = useState('');
   const [hasRestoreFinished, setHasRestoreFinished] = useState(false);
   const [token, setToken] = useState<TokenType>({
     access_token: '',
@@ -130,7 +144,38 @@ const TokenProvider = ({ toastMessages, locale, children }: TokenProps) => {
   }, []);
 
   useEffect(() => {
-    if (!hasRestoreFinished) {
+    const updatePathname = () => {
+      setPathname(getUnlocalizedPathname(currentLocale));
+    };
+    const originalPushState = window.history.pushState;
+    const originalReplaceState = window.history.replaceState;
+    const notifyNavigation = () => window.dispatchEvent(new Event(NAVIGATION_EVENT));
+
+    window.history.pushState = function pushState(...args) {
+      const result = originalPushState.apply(this, args);
+      notifyNavigation();
+      return result;
+    };
+    window.history.replaceState = function replaceState(...args) {
+      const result = originalReplaceState.apply(this, args);
+      notifyNavigation();
+      return result;
+    };
+
+    updatePathname();
+    window.addEventListener('popstate', updatePathname);
+    window.addEventListener(NAVIGATION_EVENT, updatePathname);
+
+    return () => {
+      window.history.pushState = originalPushState;
+      window.history.replaceState = originalReplaceState;
+      window.removeEventListener('popstate', updatePathname);
+      window.removeEventListener(NAVIGATION_EVENT, updatePathname);
+    };
+  }, [currentLocale]);
+
+  useEffect(() => {
+    if (!hasRestoreFinished || !pathname) {
       return;
     }
 
@@ -154,7 +199,7 @@ const TokenProvider = ({ toastMessages, locale, children }: TokenProps) => {
         }
       }
 
-      router.push(ret.redirectPath, { locale: locale });
+      window.location.assign(`/${currentLocale}${ret.redirectPath}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, hasRestoreFinished]);

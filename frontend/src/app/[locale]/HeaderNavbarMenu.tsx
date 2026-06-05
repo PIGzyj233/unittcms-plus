@@ -1,7 +1,7 @@
 'use client';
 import { useState, useContext } from 'react';
-import { usePathname } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import {
   Navbar,
   NavbarContent,
@@ -19,7 +19,6 @@ import DropdownLanguage from './DropdownLanguage';
 import { ThemeSwitch } from '@/components/ThemeSwitch';
 import { GithubIcon } from '@/components/icons';
 import { locales } from '@/config/selection';
-import { Link, useRouter } from '@/src/i18n/routing';
 import { TokenContext } from '@/utils/TokenProvider';
 import UserAvatar from '@/components/UserAvatar';
 import { LocaleCodeType } from '@/types/locale';
@@ -43,6 +42,25 @@ type Props = {
   messages: NabbarMenuMessages;
   locale: LocaleCodeType;
 };
+
+function getLocalizedPath(pathname: string, locale: string) {
+  return pathname === '/' ? `/${locale}` : `/${locale}${pathname}`;
+}
+
+function getUnlocalizedPathname(locale: string) {
+  const localePrefix = `/${locale}`;
+  const pathname = window.location.pathname;
+
+  if (pathname === localePrefix) {
+    return '/';
+  }
+
+  if (pathname.startsWith(`${localePrefix}/`)) {
+    return pathname.slice(localePrefix.length);
+  }
+
+  return pathname;
+}
 
 export default function HeaderNavbarMenu({ messages, locale }: Props) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -74,25 +92,19 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
     );
   }
 
-  const router = useRouter();
-  const pathname = usePathname();
+  function navigateTo(pathname: string, nextLocale: string = locale) {
+    window.location.assign(getLocalizedPath(pathname, nextLocale));
+  }
+
   async function changeLocale(nextLocale: string) {
-    let newPathname;
-    if (pathname.length < 4) {
-      // when root path
-      router.push('/', { locale: nextLocale });
-    } else {
-      // when not root path, trim first "/en" from pathname = "/en/projects"
-      newPathname = pathname.slice(locale.length + 1);
-      router.push(newPathname, { locale: nextLocale });
-    }
+    navigateTo(getUnlocalizedPathname(locale), nextLocale);
   }
 
   return (
     <Navbar isMenuOpen={isMenuOpen} maxWidth="full" position="sticky" className="bg-inherit">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
-          <Link className="flex justify-start items-center gap-1" href="/" locale={locale}>
+          <Link className="flex justify-start items-center gap-1" href={getLocalizedPath('/', locale)}>
             <Image src="/favicon/icon-192.png" width={32} height={32} alt="Logo" />
             <p className="font-bold text-inherit ms-1">UnitTCMS</p>
           </Link>
@@ -108,8 +120,7 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
             <NavbarItem key={link.uid} className="hidden md:block">
               <Link
                 className="data-[active=true]:text-primary data-[active=true]:font-medium"
-                href={link.href}
-                locale={locale}
+                href={getLocalizedPath(link.href, locale)}
               >
                 {link.label}
               </Link>
@@ -120,8 +131,7 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
           <NavbarItem key="admin" className="hidden md:block">
             <Link
               className="data-[active=true]:text-primary data-[active=true]:font-medium"
-              href="/admin"
-              locale={locale}
+              href={getLocalizedPath('/admin', locale)}
             >
               {messages.admin}
             </Link>
@@ -167,7 +177,7 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
                   title={link.label}
                   startContent={<File size={12} />}
                   onPress={() => {
-                    router.push(link.href, { locale: locale });
+                    navigateTo(link.href);
                     setIsMenuOpen(false);
                   }}
                 />
@@ -194,7 +204,7 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
                   />
                 }
                 onPress={() => {
-                  router.push('/account', { locale: locale });
+                  navigateTo('/account');
                   setIsMenuOpen(false);
                 }}
               />
@@ -203,7 +213,7 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
                 title={messages.profileSettings}
                 startContent={<Settings size={16} />}
                 onPress={() => {
-                  router.push('/account/settings', { locale: locale });
+                  navigateTo('/account/settings');
                   setIsMenuOpen(false);
                 }}
               />
@@ -218,7 +228,7 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
                     user: null,
                   });
                   context.removeTokenFromLocalStorage();
-                  router.push(`/account/signin`, { locale: locale });
+                  navigateTo('/account/signin');
                   setIsMenuOpen(false);
                 }}
               />
@@ -236,7 +246,7 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
                   startContent={<ArrowRightToLine size={16} />}
                   title={messages.signIn}
                   onPress={() => {
-                    router.push('/account/signin', { locale: locale });
+                    navigateTo('/account/signin');
                     setIsMenuOpen(false);
                   }}
                 />
@@ -245,7 +255,7 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
                   title={messages.signUp}
                   startContent={<PenTool size={16} />}
                   onPress={() => {
-                    router.push('/account/signup', { locale: locale });
+                    navigateTo('/account/signup');
                     setIsMenuOpen(false);
                   }}
                 />

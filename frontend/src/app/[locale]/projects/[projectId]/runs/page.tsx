@@ -1,9 +1,16 @@
+import { use } from "react";
 import { getTranslations } from 'next-intl/server';
 import { useTranslations } from 'next-intl';
 import RunsPage from './RunsPage';
 import { LocaleCodeType } from '@/types/locale';
 
-export async function generateMetadata({ params: { locale } }: { params: { locale: LocaleCodeType } }) {
+export async function generateMetadata(props: { params: Promise<{ locale: string }> }) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'Runs' });
   return {
     title: `${t('run_list')} | UnitTCMS`,
@@ -11,7 +18,8 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   };
 }
 
-export default function Page({ params }: { params: { projectId: string; locale: string } }) {
+export default function Page(props: { params: Promise<{ projectId: string; locale: string }> }) {
+  const params = use(props.params);
   const t = useTranslations('Runs');
   const messages = {
     runList: t('run_list'),

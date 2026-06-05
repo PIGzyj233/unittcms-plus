@@ -1,4 +1,4 @@
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -41,11 +41,13 @@ ENV PORT=8000
 ENV FRONTEND_ORIGIN=http://localhost:8000
 
 # Create a non-root user
+RUN apk add --no-cache libc6-compat
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy backend files
 COPY backend ./backend
+COPY --from=deps /app/backend/node_modules ./backend/node_modules
 
 # Copy frontend build
 COPY --from=frontend-builder /app/frontend/.next/standalone ./
@@ -55,17 +57,11 @@ COPY --from=frontend-builder /app/frontend/public ./public
 # Copy Next.js module for the server
 COPY --from=deps /app/frontend/node_modules/next ./node_modules/next
 
-# Install backend dependencies directly in the container to ensure native modules are built correctly
-WORKDIR /app/backend
-COPY backend/package.json backend/package-lock.json* ./
-RUN npm ci
-WORKDIR /app
-
-# Copy custom entrypoint.js that combines frontend and backend
-COPY entrypoint.js ./
+# Copy custom entrypoint that combines frontend and backend
+COPY entrypoint.mjs ./
 
 # Expose the port
 EXPOSE 8000
 
 # Run database migrations and start the combined server
-CMD ["node", "entrypoint.js"]
+CMD ["node", "entrypoint.mjs"]

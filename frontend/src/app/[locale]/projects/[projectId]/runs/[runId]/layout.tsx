@@ -1,3 +1,4 @@
+import { use } from "react";
 import { useTranslations } from 'next-intl';
 import RunEditor from './RunEditor';
 import ResizablePanes from '@/components/ResizablePane';
@@ -6,13 +7,24 @@ import { PriorityMessages } from '@/types/priority';
 import { RunStatusMessages, TestRunCaseStatusMessages } from '@/types/status';
 import { TestTypeMessages } from '@/types/testType';
 
-export default function RunLayout({
-  children,
-  params: { projectId, runId, locale },
-}: {
-  children: React.ReactNode;
-  params: { projectId: string; runId: string; locale: string };
-}) {
+export default function RunLayout(
+  props: {
+    children: React.ReactNode;
+    params: Promise<{ projectId: string; runId: string; locale: string }>;
+  }
+) {
+  const params = use(props.params);
+
+  const {
+    projectId,
+    runId,
+    locale
+  } = params;
+
+  const {
+    children
+  } = props;
+
   const t = useTranslations('Run');
   const messages: RunMessages = {
     backToRuns: t('back_to_runs'),
