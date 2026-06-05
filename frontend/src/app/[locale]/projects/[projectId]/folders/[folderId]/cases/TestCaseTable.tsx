@@ -1,5 +1,18 @@
 import { useState, useMemo, useCallback, ReactNode, useEffect } from 'react';
 import {
+  Plus,
+  MoreVertical,
+  Trash,
+  FileUp,
+  FileDown,
+  ChevronUp,
+  ChevronDown,
+  Filter,
+  FileJson,
+  FileSpreadsheet,
+} from 'lucide-react';
+import TestCaseFilter from './TestCaseFilter';
+import {
   Button,
   DropdownTrigger,
   Dropdown,
@@ -15,21 +28,7 @@ import {
   Card,
   CardBody,
   Chip,
-} from '@heroui/react';
-import {
-  Plus,
-  MoreVertical,
-  Trash,
-  FileUp,
-  FileDown,
-  ChevronUp,
-  ChevronDown,
-  Filter,
-  FileJson,
-  FileSpreadsheet,
-} from 'lucide-react';
-import { table } from '@heroui/theme';
-import TestCaseFilter from './TestCaseFilter';
+} from '@/components/heroui';
 import { Link, NextUiLinkClasses } from '@/src/i18n/routing';
 import { CaseType, CasesMessages } from '@/types/case';
 import { PriorityMessages } from '@/types/priority';
@@ -78,7 +77,14 @@ export default function TestCaseTable({
   testTypeMessages,
   locale,
 }: Props) {
-  const heroUITableClasses = table();
+  const heroUITableClasses = {
+    table: () => 'min-w-full border-separate border-spacing-0 text-sm',
+    thead: () => '',
+    tbody: () => '',
+    tr: () => 'border-b border-separator',
+    th: () => 'px-3 py-2 text-left font-medium',
+    td: () => 'border-b border-separator px-3 py-2',
+  };
   const thClassNames = 'bg-transparent text-default-500 border-b border-divider';
   const tdClassNames =
     '!py-1 group-data-[first=true]:first:before:rounded-none group-data-[first=true]:last:before:rounded-none group-data-[middle=true]:before:rounded-none group-data-[last=true]:first:before:rounded-none group-data-[last=true]:last:before:rounded-none';

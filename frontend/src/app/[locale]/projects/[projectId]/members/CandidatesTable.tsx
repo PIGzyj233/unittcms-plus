@@ -1,5 +1,5 @@
 import { useMemo, useCallback } from 'react';
-import { Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@heroui/react';
+import { Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@/components/heroui';
 import { UserType } from '@/types/user';
 import { MembersMessages } from '@/types/member';
 import UserAvatar from '@/components/UserAvatar';

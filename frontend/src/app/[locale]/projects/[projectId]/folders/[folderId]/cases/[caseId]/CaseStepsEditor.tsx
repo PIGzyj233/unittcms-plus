@@ -1,5 +1,5 @@
-import { Textarea, Button, Tooltip, Avatar } from '@heroui/react';
 import { Plus, Trash } from 'lucide-react';
+import { TextArea, Button, Tooltip, Avatar } from '@/components/heroui';
 import { CaseMessages, StepType } from '@/types/case';
 
 type Props = {
@@ -29,7 +29,7 @@ export default function StepsEditor({ isDisabled, steps, onStepUpdate, onStepPlu
           <Avatar className="me-2" size="sm" name={step.caseSteps.stepNo.toString()} />
           <div key={step.id} className="grow flex gap-2">
             <div className="w-1/2">
-              <Textarea
+              <TextArea
                 size="sm"
                 variant="bordered"
                 label={messages.detailsOfTheStep}
@@ -40,7 +40,7 @@ export default function StepsEditor({ isDisabled, steps, onStepUpdate, onStepPlu
               />
             </div>
             <div className="w-1/2">
-              <Textarea
+              <TextArea
                 size="sm"
                 variant="bordered"
                 label={messages.expectedResult}

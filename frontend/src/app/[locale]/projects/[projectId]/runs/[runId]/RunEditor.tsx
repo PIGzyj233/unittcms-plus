@@ -1,25 +1,6 @@
 'use client';
 import { useState, useEffect, useContext } from 'react';
 import {
-  Button,
-  Input,
-  Textarea,
-  Select,
-  SelectItem,
-  Tooltip,
-  Divider,
-  Selection,
-  DropdownTrigger,
-  Dropdown,
-  DropdownMenu,
-  DropdownItem,
-  addToast,
-  Badge,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@heroui/react';
-import {
   Save,
   ArrowLeft,
   ChevronDown,
@@ -49,6 +30,25 @@ import { fetchFolders } from '../../folders/foldersControl';
 import RunProgressChart from './RunPregressDonutChart';
 import TestCaseSelector from './TestCaseSelector';
 import TestRunFilter from './TestRunFilter';
+import {
+  Button,
+  Input,
+  TextArea,
+  Select,
+  SelectItem,
+  Tooltip,
+  Separator,
+  Selection,
+  DropdownTrigger,
+  Dropdown,
+  DropdownMenu,
+  DropdownItem,
+  addToast,
+  Badge,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/heroui';
 import { useRouter } from '@/src/i18n/routing';
 import { testRunStatus } from '@/config/selection';
 import { RunType, RunStatusCountType, RunMessages } from '@/types/run';
@@ -388,7 +388,7 @@ export default function RunEditor({
               className="mt-3"
             />
 
-            <Textarea
+            <TextArea
               size="sm"
               variant="bordered"
               label={messages.description}
@@ -422,7 +422,7 @@ export default function RunEditor({
           </div>
         </div>
 
-        <Divider className="my-6" />
+        <Separator className="my-6" />
         <div className="flex items-center justify-between">
           <h6 className="h-8 font-bold">{messages.selectTestCase}</h6>
           <div>

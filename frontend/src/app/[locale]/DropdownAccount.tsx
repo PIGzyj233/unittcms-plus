@@ -1,7 +1,7 @@
 'use client';
-import { Button, DropdownTrigger, Dropdown, DropdownMenu, DropdownItem } from '@heroui/react';
 import { ChevronDown, PenTool, ArrowRightFromLine, ArrowRightToLine, Settings } from 'lucide-react';
 import { useContext } from 'react';
+import { Button, DropdownTrigger, Dropdown, DropdownMenu, DropdownItem } from '@/components/heroui';
 import { TokenContext } from '@/utils/TokenProvider';
 import { AccountDropDownMessages } from '@/types/user';
 import UserAvatar from '@/components/UserAvatar';

@@ -1,6 +1,6 @@
 'use client';
 
-import { Textarea, Chip } from '@heroui/react';
+import { TextArea, Chip } from '@/components/heroui';
 import { templates, testTypes } from '@/config/selection';
 import type { CaseType } from '@/types/case';
 import type { RunDetailMessages } from '@/types/run';
@@ -71,7 +71,7 @@ export default function CaseDetail({
           <p className="font-bold mt-2">{messages.testDetail}</p>
           <div className="flex gap-2 my-2">
             <div className="w-1/2">
-              <Textarea
+              <TextArea
                 isReadOnly
                 size="sm"
                 variant="flat"
@@ -80,7 +80,7 @@ export default function CaseDetail({
               />
             </div>
             <div className="w-1/2">
-              <Textarea
+              <TextArea
                 isReadOnly
                 size="sm"
                 variant="flat"
@@ -98,10 +98,10 @@ export default function CaseDetail({
             testCase.Steps.map((step) => (
               <div key={step.id} className="flex gap-2 my-2">
                 <div className="w-1/2">
-                  <Textarea isReadOnly size="sm" variant="flat" label={messages.detailsOfTheStep} value={step.step} />
+                  <TextArea isReadOnly size="sm" variant="flat" label={messages.detailsOfTheStep} value={step.step} />
                 </div>
                 <div className="w-1/2">
-                  <Textarea isReadOnly size="sm" variant="flat" label={messages.expectedResult} value={step.result} />
+                  <TextArea isReadOnly size="sm" variant="flat" label={messages.expectedResult} value={step.result} />
                 </div>
               </div>
             ))}

@@ -2,20 +2,15 @@
 import { useState, useContext } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import {
-  Navbar,
-  NavbarContent,
-  NavbarMenu,
-  NavbarMenuToggle,
-  NavbarBrand,
-  NavbarItem,
-  Link as NextUiLink,
-  ListboxItem,
-  Listbox,
-} from '@heroui/react';
 import { ArrowRightFromLine, ArrowRightToLine, File, Globe, MoveUpRight, PenTool, Settings } from 'lucide-react';
 import DropdownAccount from './DropdownAccount';
 import DropdownLanguage from './DropdownLanguage';
+import {
+  Button,
+  Link as NextUiLink,
+  ListBoxItem,
+  ListBox,
+} from '@/components/heroui';
 import { ThemeSwitch } from '@/components/ThemeSwitch';
 import { GithubIcon } from '@/components/icons';
 import { locales } from '@/config/selection';
@@ -101,60 +96,72 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
   }
 
   return (
-    <Navbar isMenuOpen={isMenuOpen} maxWidth="full" position="sticky" className="bg-inherit">
-      <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
-        <NavbarBrand as="li" className="gap-3 max-w-fit">
+    <header className="sticky top-0 z-40 w-full bg-inherit backdrop-blur">
+      <nav data-menu-open={isMenuOpen ? 'true' : 'false'}>
+        <div className="flex h-16 items-center justify-between gap-4 px-4">
+          <div className="flex items-center gap-4">
           <Link className="flex justify-start items-center gap-1" href={getLocalizedPath('/', locale)}>
             <Image src="/favicon/icon-192.png" width={32} height={32} alt="Logo" />
             <p className="font-bold text-inherit ms-1">UnitTCMS</p>
           </Link>
-        </NavbarBrand>
         {commonLinks.map((link) =>
           link.isExternal ? (
-            <NavbarItem key={link.uid} className="hidden md:block">
+            <div key={link.uid} className="hidden md:block">
               <NextUiLink isExternal href={link.href} showAnchorIcon>
                 {link.label}
               </NextUiLink>
-            </NavbarItem>
+            </div>
           ) : (
-            <NavbarItem key={link.uid} className="hidden md:block">
+            <div key={link.uid} className="hidden md:block">
               <Link
                 className="data-[active=true]:text-primary data-[active=true]:font-medium"
                 href={getLocalizedPath(link.href, locale)}
               >
                 {link.label}
               </Link>
-            </NavbarItem>
+            </div>
           )
         )}
         {context.isAdmin() && (
-          <NavbarItem key="admin" className="hidden md:block">
+          <div key="admin" className="hidden md:block">
             <Link
               className="data-[active=true]:text-primary data-[active=true]:font-medium"
               href={getLocalizedPath('/admin', locale)}
             >
               {messages.admin}
             </Link>
-          </NavbarItem>
+          </div>
         )}
-      </NavbarContent>
+          </div>
 
-      <NavbarContent className="basis-1 pl-4" justify="end">
+          <div className="flex items-center justify-end gap-4">
         <NextUiLink isExternal href="https://github.com/kimatata/unittcms" aria-label="Github">
           <GithubIcon className="text-default-500" />
         </NextUiLink>
         <ThemeSwitch />
-        <div className="hidden md:block">
+        <div className="hidden items-center gap-2 md:flex">
           <DropdownAccount messages={messages} locale={locale} onItemPress={() => {}} />
           {!context.isSignedIn() && <DropdownLanguage locale={locale} onChangeLocale={changeLocale} />}
         </div>
-        <NavbarMenuToggle className="md:hidden" onChange={() => setIsMenuOpen(!isMenuOpen)} />
-      </NavbarContent>
+        <Button
+          isIconOnly
+          aria-label="Toggle navigation menu"
+          className="md:hidden"
+          variant="ghost"
+          onPress={() => setIsMenuOpen(!isMenuOpen)}
+        >
+          <span aria-hidden="true" className="text-lg leading-none">
+            ☰
+          </span>
+        </Button>
+          </div>
+        </div>
 
-      <NavbarMenu>
+      {isMenuOpen && (
+        <div className="border-t border-separator bg-background md:hidden">
         <div className="mx-4 mt-2 flex flex-col gap-2">
           <p className="font-bold">{messages.links}</p>
-          <Listbox
+          <ListBox
             aria-label="Links"
             itemClasses={{
               base: 'h-10 text-large',
@@ -162,7 +169,7 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
           >
             {commonLinks.map((link) =>
               link.isExternal ? (
-                <ListboxItem
+                <ListBoxItem
                   key={link.uid}
                   title={link.label}
                   startContent={<MoveUpRight size={12} />}
@@ -172,7 +179,7 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
                   }}
                 />
               ) : (
-                <ListboxItem
+                <ListBoxItem
                   key={link.uid}
                   title={link.label}
                   startContent={<File size={12} />}
@@ -183,17 +190,17 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
                 />
               )
             )}
-          </Listbox>
+          </ListBox>
 
           <p className="font-bold">{messages.account}</p>
           {context.isSignedIn() ? (
-            <Listbox
+            <ListBox
               aria-label="Account links"
               itemClasses={{
                 base: 'h-10 text-large',
               }}
             >
-              <ListboxItem
+              <ListBoxItem
                 key="account"
                 title={messages.account}
                 startContent={
@@ -208,7 +215,7 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
                   setIsMenuOpen(false);
                 }}
               />
-              <ListboxItem
+              <ListBoxItem
                 key="profile"
                 title={messages.profileSettings}
                 startContent={<Settings size={16} />}
@@ -217,7 +224,7 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
                   setIsMenuOpen(false);
                 }}
               />
-              <ListboxItem
+              <ListBoxItem
                 key="signout"
                 title={messages.signOut}
                 startContent={<ArrowRightFromLine size={16} />}
@@ -232,16 +239,16 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
                   setIsMenuOpen(false);
                 }}
               />
-            </Listbox>
+            </ListBox>
           ) : (
             <>
-              <Listbox
+              <ListBox
                 aria-label="Account links"
                 itemClasses={{
                   base: 'h-10 text-large',
                 }}
               >
-                <ListboxItem
+                <ListBoxItem
                   key="signin"
                   startContent={<ArrowRightToLine size={16} />}
                   title={messages.signIn}
@@ -250,7 +257,7 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
                     setIsMenuOpen(false);
                   }}
                 />
-                <ListboxItem
+                <ListBoxItem
                   key="signup"
                   title={messages.signUp}
                   startContent={<PenTool size={16} />}
@@ -259,16 +266,16 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
                     setIsMenuOpen(false);
                   }}
                 />
-              </Listbox>
+              </ListBox>
               <p className="font-bold">{messages.languages}</p>
-              <Listbox
+              <ListBox
                 aria-label="Language links"
                 itemClasses={{
                   base: 'h-10 text-large',
                 }}
               >
                 {locales.map((entry) => (
-                  <ListboxItem
+                  <ListBoxItem
                     key={entry.code}
                     startContent={<Globe size={16} />}
                     title={entry.name}
@@ -278,11 +285,13 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
                     }}
                   />
                 ))}
-              </Listbox>
+              </ListBox>
             </>
           )}
         </div>
-      </NavbarMenu>
-    </Navbar>
+        </div>
+      )}
+      </nav>
+    </header>
   );
 }

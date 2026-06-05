@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Table, TableBody, TableRow, TableHeader, TableCell, Chip, TableColumn } from '@heroui/react';
+import { Table, TableBody, TableRow, TableHeader, TableCell, Chip, TableColumn } from '@/components/heroui';
 import { LocaleCodeType } from '@/types/locale';
 import { HealthMessages } from '@/types/health';
 import Config from '@/config/config';

@@ -1,67 +1,44 @@
 'use client';
 
 import { FC } from 'react';
-import { VisuallyHidden } from '@react-aria/visually-hidden';
-import { SwitchProps, useSwitch } from '@heroui/react';
+import { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
-import { useIsSSR } from '@react-aria/ssr';
 import clsx from 'clsx';
+import { Button } from '@/components/heroui';
 
 import { SunFilledIcon, MoonFilledIcon } from '@/components/icons';
 
 export interface ThemeSwitchProps {
   className?: string;
-  classNames?: SwitchProps['classNames'];
 }
 
-export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className, classNames }) => {
-  const { theme, setTheme } = useTheme();
-  const isSSR = useIsSSR();
+export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className }) => {
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const isLight = !mounted || resolvedTheme !== 'dark';
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const onChange = () => {
-    if (theme === 'light') {
+    if (isLight) {
       setTheme('dark');
     } else {
       setTheme('light');
     }
   };
 
-  const { Component, slots, isSelected, getBaseProps, getInputProps, getWrapperProps } = useSwitch({
-    isSelected: theme === 'light' || isSSR,
-    'aria-label': `Switch to ${theme === 'light' || isSSR ? 'dark' : 'light'} mode`,
-    onChange,
-  });
-
   return (
-    <Component
-      {...getBaseProps({
-        className: clsx('px-px transition-opacity hover:opacity-80 cursor-pointer', className, classNames?.base),
-      })}
+    <Button
+      isIconOnly
+      aria-label={`Switch to ${isLight ? 'dark' : 'light'} mode`}
+      aria-pressed={!isLight}
+      className={clsx('px-px transition-opacity hover:opacity-80 cursor-pointer', className)}
+      variant="ghost"
+      onPress={onChange}
     >
-      <VisuallyHidden>
-        <input {...getInputProps()} />
-      </VisuallyHidden>
-      <div
-        {...getWrapperProps()}
-        className={slots.wrapper({
-          class: clsx(
-            [
-              'w-auto h-auto',
-              'bg-transparent',
-              'rounded-lg',
-              'flex items-center justify-center',
-              'group-data-[selected=true]:bg-transparent',
-              '!text-default-500',
-              'pt-px',
-              'px-0',
-              'mx-0',
-            ],
-            classNames?.wrapper
-          ),
-        })}
-      >
-        {!isSelected || isSSR ? <SunFilledIcon size={22} /> : <MoonFilledIcon size={22} />}
-      </div>
-    </Component>
+      {isLight ? <SunFilledIcon size={22} /> : <MoonFilledIcon size={22} />}
+    </Button>
   );
 };

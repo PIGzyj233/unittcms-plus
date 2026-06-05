@@ -1,7 +1,7 @@
 'use client';
-import { Image } from '@heroui/react';
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
+import Image from 'next/image';
 
 type Props = {
   imageName: string;
@@ -20,7 +20,13 @@ export default function DemoImage({ imageName, altText }: Props) {
 
   return (
     <>
-      <Image src={`/top/${currentTheme}/${imageName}.png`} alt={altText} shadow="md" className="max-w-full" />
+      <Image
+        src={`/top/${currentTheme}/${imageName}.png`}
+        alt={altText}
+        width={960}
+        height={540}
+        className="max-w-full"
+      />
     </>
   );
 }

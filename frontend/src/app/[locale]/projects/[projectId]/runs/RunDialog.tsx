@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Button, Input, Textarea, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from '@heroui/react';
+import { Button, Input, TextArea, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from '@/components/heroui';
 import { RunType, RunsMessages } from '@/types/run';
 
 type Props = {
@@ -100,7 +100,7 @@ export default function RunDialog({ isOpen, editingRun, onCancel, onSubmit, mess
               });
             }}
           />
-          <Textarea
+          <TextArea
             label={messages.runDescription}
             value={runDescription.text}
             isInvalid={runDescription.isInvalid}

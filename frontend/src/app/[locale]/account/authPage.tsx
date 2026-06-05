@@ -1,9 +1,9 @@
 'use client';
 import { useState, useContext } from 'react';
-import { Input, Button, Card, CardHeader, CardBody } from '@heroui/react';
 import { ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { signUp, signIn, signInAsGuest } from './authControl';
 import { isValidEmail, isValidPassword } from './validate';
+import { Input, Button, Card, CardHeader, CardBody } from '@/components/heroui';
 import { Link } from '@/src/i18n/routing';
 import { UserType, AuthMessages } from '@/types/user';
 import { roles } from '@/config/selection';
@@ -142,6 +142,7 @@ export default function AuthPage({ isSignup, messages, locale }: Props) {
               />
             )}
             <Input
+              aria-label={`${messages.password} ${messages.password}`}
               label={messages.password}
               variant="bordered"
               autoComplete={isSignup ? 'new-password' : 'current-password'}

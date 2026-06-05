@@ -1,5 +1,5 @@
-import { cn } from '@heroui/react';
 import { ReactNode } from 'react';
+import { cn } from '@/components/heroui';
 
 interface TreeItemProps {
   style: React.CSSProperties;

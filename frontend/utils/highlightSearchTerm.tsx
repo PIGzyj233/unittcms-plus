@@ -1,5 +1,5 @@
-import { cn } from '@heroui/theme';
 import { ReactNode } from 'react';
+import { cn } from '@/components/heroui';
 
 interface HighlightSearchTermProps {
   text: string;

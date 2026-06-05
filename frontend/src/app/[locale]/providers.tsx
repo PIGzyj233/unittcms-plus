@@ -1,11 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import { HeroUIProvider } from '@heroui/react';
-import { ToastProvider } from '@heroui/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { ThemeProvider as NextThemesProvider, ThemeProviderProps } from 'next-themes';
 import { AbstractIntlMessages } from 'use-intl/core';
+import { ToastProvider } from '@/components/heroui';
 import TokenProvider from '@/utils/TokenProvider';
 import { TokenProps } from '@/types/user';
 
@@ -22,12 +21,10 @@ export interface ProvidersProps {
 export function Providers({ children, intlProps, themeProps, tokenProps }: ProvidersProps) {
   return (
     <NextIntlClientProvider {...intlProps}>
-      <HeroUIProvider>
-        <NextThemesProvider {...themeProps}>
-          <ToastProvider />
-          <TokenProvider {...tokenProps}>{children}</TokenProvider>
-        </NextThemesProvider>
-      </HeroUIProvider>
+      <NextThemesProvider {...themeProps}>
+        <ToastProvider />
+        <TokenProvider {...tokenProps}>{children}</TokenProvider>
+      </NextThemesProvider>
     </NextIntlClientProvider>
   );
 }

@@ -1,5 +1,5 @@
-import { Button, Link as NextUiLink } from '@heroui/react';
 import { useTranslations } from 'next-intl';
+import { Button, Link as NextUiLink } from '@/components/heroui';
 import { title, subtitle } from '@/components/primitives';
 import { LocaleCodeType } from '@/types/locale';
 import ClientLink from '@/components/ClientLink';

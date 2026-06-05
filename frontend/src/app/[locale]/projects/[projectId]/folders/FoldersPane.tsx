@@ -1,11 +1,11 @@
 'use client';
 import { useState, useEffect, useContext } from 'react';
-import { Button } from '@heroui/react';
 import { Plus } from 'lucide-react';
 import { Tree } from 'react-arborist';
 import FolderDialog from './FolderDialog';
 import FolderItem from './FolderItem';
 import { fetchFolders, createFolder, updateFolder, deleteFolder } from './foldersControl';
+import { Button } from '@/components/heroui';
 import { usePathname, useRouter } from '@/src/i18n/routing';
 import { TokenContext } from '@/utils/TokenProvider';
 import useGetCurrentIds from '@/utils/useGetCurrentIds';

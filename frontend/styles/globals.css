@@ -1,2 +1,60 @@
 @config "../tailwind.config.js";
 @import "tailwindcss";
+@import "@heroui/styles";
+
+@layer base {
+  :root,
+  .light,
+  [data-theme='light'] {
+    --accent: #030712;
+    --accent-foreground: #ffffff;
+    --focus: #030712;
+    --link: var(--accent);
+  }
+
+  .dark,
+  [data-theme='dark'] {
+    --accent: #1f883d;
+    --accent-foreground: #ffffff;
+    --focus: #1f883d;
+    --link: var(--foreground);
+  }
+}
+
+@theme inline {
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--accent-foreground);
+  --color-default-500: var(--muted);
+}
+
+@utility text-tiny {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+@utility text-small {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+@utility text-medium {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+@utility text-large {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+@utility rounded-small {
+  border-radius: 0.5rem;
+}
+
+@utility outline-focus {
+  outline-color: var(--focus);
+}
+
+@utility opacity-disabled {
+  opacity: var(--disabled-opacity);
+}

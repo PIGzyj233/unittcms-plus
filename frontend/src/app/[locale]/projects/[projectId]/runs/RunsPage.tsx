@@ -1,10 +1,10 @@
 'use client';
 import { useEffect, useState, useContext } from 'react';
-import { Button } from '@heroui/react';
 import { Plus } from 'lucide-react';
 import RunsTable from './RunsTable';
 import RunDialog from './RunDialog';
 import { fetchRuns, createRun, updateRun, deleteRun } from './runsControl';
+import { Button } from '@/components/heroui';
 import { RunType, RunsMessages } from '@/types/run';
 import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
 import { TokenContext } from '@/utils/TokenProvider';

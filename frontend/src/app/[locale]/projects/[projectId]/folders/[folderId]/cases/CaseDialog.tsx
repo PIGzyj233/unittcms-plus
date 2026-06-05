@@ -3,14 +3,14 @@ import { useState } from 'react';
 import {
   Button,
   Input,
-  Textarea,
+  TextArea,
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
   Switch,
-} from '@heroui/react';
+} from '@/components/heroui';
 import { CasesMessages } from '@/types/case';
 
 type Props = {
@@ -101,7 +101,7 @@ export default function CaseDialog({ isOpen, onCancel, onSubmit, messages }: Pro
               });
             }}
           />
-          <Textarea
+          <TextArea
             label={messages.caseDescription}
             value={caseDescription.text}
             isInvalid={caseDescription.isValid}

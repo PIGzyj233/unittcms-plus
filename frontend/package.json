@@ -13,9 +13,8 @@
     "lint": "cd .. && npm run lint -- frontend"
   },
   "dependencies": {
-    "@heroui/react": "^2.8.10",
-    "@heroui/system": "^2.4.28",
-    "@heroui/theme": "^2.4.26",
+    "@heroui/react": "^3.1.0",
+    "@heroui/styles": "^3.1.0",
     "@react-aria/ssr": "^3.10.1",
     "@react-aria/visually-hidden": "^3.9.1",
     "@tailwindcss/postcss": "^4.3.0",
@@ -26,7 +25,6 @@
     "boring-avatars": "^2.0.4",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.21",
-    "framer-motion": "^12.40.0",
     "intl-messageformat": "^11.2.8",
     "lucide-react": "^1.17.0",
     "next": "^16.2.7",

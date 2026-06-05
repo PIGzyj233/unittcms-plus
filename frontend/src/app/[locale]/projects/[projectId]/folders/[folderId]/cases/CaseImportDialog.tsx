@@ -1,7 +1,7 @@
 'use client';
 import { useState, ChangeEvent, DragEvent } from 'react';
-import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Spinner, Alert } from '@heroui/react';
 import { ArrowUpFromLine } from 'lucide-react';
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Spinner, Alert } from '@/components/heroui';
 import { CasesMessages } from '@/types/case';
 import { importCases } from '@/utils/caseControl';
 

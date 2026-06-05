@@ -1,6 +1,6 @@
-import { Card, CardHeader, CardBody, Avatar } from '@heroui/react';
 import { Scale, Folder, Check, Globe } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { Card, CardHeader, CardBody, Avatar } from '@/components/heroui';
 
 export default function MainTitle() {
   const t = useTranslations('Index');

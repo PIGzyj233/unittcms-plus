@@ -1,9 +1,9 @@
-import { Button } from '@heroui/react';
 import { ChevronDown, ChevronRight, Folder, Plus } from 'lucide-react';
 import { NodeApi } from 'react-arborist';
 import { useContext } from 'react';
 import { useSearchParams } from 'next/navigation';
 import FolderEditMenu from './FolderEditMenu';
+import { Button } from '@/components/heroui';
 
 import { FolderType, FoldersMessages, TreeNodeData } from '@/types/folder';
 import { useRouter } from '@/src/i18n/routing';

@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo, ReactNode } from 'react';
+import { ChevronDown, MoreVertical, CopyPlus, CopyMinus, MessageCircle } from 'lucide-react';
+import RunCaseStatus from './RunCaseStatus';
 import {
   Table,
   TableHeader,
@@ -14,9 +16,7 @@ import {
   Selection,
   SortDescriptor,
   Chip,
-} from '@heroui/react';
-import { ChevronDown, MoreVertical, CopyPlus, CopyMinus, MessageCircle } from 'lucide-react';
-import RunCaseStatus from './RunCaseStatus';
+} from '@/components/heroui';
 import { Link, NextUiLinkClasses } from '@/src/i18n/routing';
 import { testRunCaseStatus } from '@/config/selection';
 import { CaseType } from '@/types/case';

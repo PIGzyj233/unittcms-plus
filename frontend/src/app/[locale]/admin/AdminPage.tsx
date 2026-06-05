@@ -1,8 +1,8 @@
 'use client';
 import { useState, useEffect, useContext } from 'react';
-import { Button, addToast } from '@heroui/react';
 import UsersTable from './UsersTable';
 import PasswordResetDialog from './PasswordResetDialog';
+import { Button, addToast } from '@/components/heroui';
 import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
 import { UserType, AdminMessages } from '@/types/user';
 import { TokenContext } from '@/utils/TokenProvider';

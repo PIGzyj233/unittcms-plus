@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Button, Tooltip } from '@heroui/react';
 import {
   PanelLeftClose,
   PanelLeftOpen,
@@ -10,6 +9,7 @@ import {
   UserRound,
   Settings,
 } from 'lucide-react';
+import { Button, Tooltip } from '@/components/heroui';
 import { usePathname, useRouter } from '@/src/i18n/routing';
 import useGetCurrentIds from '@/utils/useGetCurrentIds';
 import { ProjectMessages } from '@/types/project';

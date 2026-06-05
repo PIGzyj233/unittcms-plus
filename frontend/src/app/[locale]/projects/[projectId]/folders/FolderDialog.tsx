@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Button, Input, Textarea, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from '@heroui/react';
+import { Button, Input, TextArea, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from '@/components/heroui';
 import { FolderType, FoldersMessages } from '@/types/folder';
 
 type Props = {
@@ -100,7 +100,7 @@ export default function FolderDialog({ isOpen, editingFolder, onCancel, onSubmit
               });
             }}
           />
-          <Textarea
+          <TextArea
             label={messages.folderDetail}
             value={folderDetail.text}
             isInvalid={folderDetail.isValid}

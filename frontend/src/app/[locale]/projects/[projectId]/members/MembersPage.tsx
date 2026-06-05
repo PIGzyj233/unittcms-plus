@@ -1,10 +1,10 @@
 'use client';
 import { useState, useEffect, useContext } from 'react';
-import { addToast, Button } from '@heroui/react';
 import { Plus } from 'lucide-react';
 import MembersTable from './MembersTable';
 import AddMemberDialog from './AddMemberDialog';
 import { fetchProjectMembers, addMember, deleteMember, updateMember } from './membersControl';
+import { addToast, Button } from '@/components/heroui';
 import { MemberType, UserType } from '@/types/user';
 import { MembersMessages } from '@/types/member';
 import { TokenContext } from '@/utils/TokenProvider';

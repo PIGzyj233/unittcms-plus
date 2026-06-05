@@ -1,6 +1,5 @@
 'use client';
 import { createContext, useState, useEffect } from 'react';
-import { addToast } from '@heroui/react';
 import {
   isSignedIn as tokenIsSinedIn,
   isAdmin as tokenIsAdmin,
@@ -12,6 +11,7 @@ import {
   fetchMyRoles,
 } from './token';
 import { logError } from './errorHandler';
+import { addToast } from '@/components/heroui';
 import { ProjectRoleType, TokenContextType, TokenType } from '@/types/user';
 import { TokenProps } from '@/types/user';
 const LOCAL_STORAGE_KEY = 'unittcms-auth-token';
@@ -144,8 +144,19 @@ const TokenProvider = ({ toastMessages, locale, children }: TokenProps) => {
   }, []);
 
   useEffect(() => {
+    let disposed = false;
+    let pending = false;
     const updatePathname = () => {
-      setPathname(getUnlocalizedPathname(currentLocale));
+      if (pending) {
+        return;
+      }
+      pending = true;
+      queueMicrotask(() => {
+        pending = false;
+        if (!disposed) {
+          setPathname(getUnlocalizedPathname(currentLocale));
+        }
+      });
     };
     const originalPushState = window.history.pushState;
     const originalReplaceState = window.history.replaceState;
@@ -167,6 +178,7 @@ const TokenProvider = ({ toastMessages, locale, children }: TokenProps) => {
     window.addEventListener(NAVIGATION_EVENT, updatePathname);
 
     return () => {
+      disposed = true;
       window.history.pushState = originalPushState;
       window.history.replaceState = originalReplaceState;
       window.removeEventListener('popstate', updatePathname);
