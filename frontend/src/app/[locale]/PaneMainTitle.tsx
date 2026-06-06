@@ -3,6 +3,7 @@ import { Button, Link as NextUiLink } from '@/components/heroui';
 import { title, subtitle } from '@/components/primitives';
 import { LocaleCodeType } from '@/types/locale';
 import ClientLink from '@/components/ClientLink';
+import Config from '@/config/config';
 
 type Props = {
   locale: LocaleCodeType;
@@ -19,7 +20,7 @@ export default function MainTitle({ locale }: Props) {
           class: 'lg:text-7xl md:text-7xl sm:text-7xl text-7xl',
         })}
       >
-        UnitTCMS
+        {Config.appName}
       </h1>
       <br />
       <br />
@@ -55,7 +56,7 @@ export default function MainTitle({ locale }: Props) {
           showAnchorIcon
           as={NextUiLink}
           isExternal
-          href="https://github.com/kimatata/unittcms"
+          href={Config.repositoryUrl}
           aria-label="Github"
           color="primary"
           variant="bordered"

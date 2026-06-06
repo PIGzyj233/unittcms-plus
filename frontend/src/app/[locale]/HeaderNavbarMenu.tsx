@@ -102,7 +102,7 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
           <div className="flex items-center gap-4">
           <Link className="flex justify-start items-center gap-1" href={getLocalizedPath('/', locale)}>
             <Image src="/favicon/icon-192.png" width={32} height={32} alt="Logo" />
-            <p className="font-bold text-inherit ms-1">UnitTCMS</p>
+            <p className="font-bold text-inherit ms-1">{Config.appName}</p>
           </Link>
         {commonLinks.map((link) =>
           link.isExternal ? (
@@ -135,7 +135,7 @@ export default function HeaderNavbarMenu({ messages, locale }: Props) {
           </div>
 
           <div className="flex items-center justify-end gap-4">
-        <NextUiLink isExternal href="https://github.com/kimatata/unittcms" aria-label="Github">
+        <NextUiLink isExternal href={Config.repositoryUrl} aria-label="Github">
           <GithubIcon className="text-default-500" />
         </NextUiLink>
         <ThemeSwitch />
