@@ -1,6 +1,6 @@
 services:
   unittcms:
-    image: unittcms:latest
+    image: unittcms-plus:latest
     build: .
     ports:
       - '8000:8000'

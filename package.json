@@ -1,5 +1,5 @@
 {
-  "name": "unittcms",
+  "name": "unittcms-plus",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -38,5 +38,8 @@
     "supertest": "^7.2.2",
     "typescript-eslint": "^8.60.1",
     "vitest": "^4.1.8"
+  },
+  "overrides": {
+    "uuid": "11.1.1"
   }
 }

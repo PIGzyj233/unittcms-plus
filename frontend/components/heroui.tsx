@@ -331,6 +331,7 @@ function buttonChildren({ startContent, endContent, isLoading, children }: any) 
 }
 
 function legacyButtonClassName({ className, color, isIconOnly, size, variant }: any) {
+  const isPlainVariant = variant === 'light' || variant === 'ghost';
   return [
     'inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-sm font-medium transition-colors',
     size === 'sm' ? 'px-2 py-1' : 'px-3 py-2',
@@ -338,8 +339,12 @@ function legacyButtonClassName({ className, color, isIconOnly, size, variant }: 
     variant === 'bordered' ? 'border border-field-border bg-background hover:bg-default-100' : '',
     variant === 'light' || variant === 'ghost' ? 'bg-transparent hover:bg-default-100' : '',
     variant === 'flat' ? 'bg-default-100 hover:bg-default-200' : '',
-    color === 'primary' ? 'bg-primary text-primary-foreground hover:opacity-90' : '',
-    color === 'danger' ? 'bg-danger text-danger-foreground hover:opacity-90' : '',
+    color === 'primary'
+      ? isPlainVariant
+        ? 'text-primary'
+        : 'bg-primary text-primary-foreground hover:opacity-90'
+      : '',
+    color === 'danger' ? (isPlainVariant ? 'text-danger' : 'bg-danger text-danger-foreground hover:opacity-90') : '',
     className,
   ]
     .filter(Boolean)
