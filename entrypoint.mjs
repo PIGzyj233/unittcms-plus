@@ -42,6 +42,35 @@ async function startBackend() {
   });
 }
 
+async function ensureMcpBot() {
+  const hasBotCredentials = process.env.UNITTCMS_BOT_EMAIL && process.env.UNITTCMS_BOT_PASSWORD;
+  if (!hasBotCredentials) {
+    console.log('Skipping MCP bot bootstrap because UNITTCMS_BOT_EMAIL or UNITTCMS_BOT_PASSWORD is not set.');
+    return;
+  }
+
+  const { ensureAgentBotFromEnv } = await import('./backend/scripts/ensureAgentBot.js');
+  const result = await ensureAgentBotFromEnv();
+  console.log(
+    `Ensured MCP bot user ${result.userId} with developer access to ${result.projectsGranted.length} project(s).`
+  );
+}
+
+async function startMcpServer() {
+  const hasBotCredentials = process.env.UNITTCMS_BOT_EMAIL && process.env.UNITTCMS_BOT_PASSWORD;
+  if (!hasBotCredentials) {
+    console.log('Skipping MCP HTTP server because UNITTCMS_BOT_EMAIL or UNITTCMS_BOT_PASSWORD is not set.');
+    return null;
+  }
+
+  process.env.UNITTCMS_BACKEND_ORIGIN ??= `http://127.0.0.1:${backendPort}`;
+  process.env.UNITTCMS_MCP_HOST ??= '0.0.0.0';
+  process.env.UNITTCMS_MCP_PORT ??= '3333';
+
+  const { startHttpMcpServer } = await import('./agent-mcp/src/httpServer.js');
+  return startHttpMcpServer();
+}
+
 async function startFrontend() {
   process.env.PORT ??= '8000';
   process.env.HOSTNAME ??= '0.0.0.0';
@@ -50,7 +79,9 @@ async function startFrontend() {
 
 try {
   await runMigrations();
+  await ensureMcpBot();
   await startBackend();
+  await startMcpServer();
   await startFrontend();
 } catch (error) {
   console.error('Failed to start application:', error);

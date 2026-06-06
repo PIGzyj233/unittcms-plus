@@ -3,6 +3,7 @@ const router = express.Router();
 import { DataTypes } from 'sequelize';
 import defineProject from '../../models/projects.js';
 import authMiddleware from '../../middleware/auth.js';
+import { ensureAgentServicePrincipalForProjectFromEnv } from '../../services/agentServicePrincipal.js';
 
 export default function (sequelize) {
   const { verifySignedIn } = authMiddleware(sequelize);
@@ -17,6 +18,7 @@ export default function (sequelize) {
         isPublic,
         userId: req.userId,
       });
+      await ensureAgentServicePrincipalForProjectFromEnv(sequelize, newProject.id);
       res.json(newProject);
     } catch (error) {
       console.error(error);

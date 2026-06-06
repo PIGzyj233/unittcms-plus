@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { candidateInputSchema, runInputSchema } from './toolSchemas.js';
+import { candidateInputSchema, projectInputSchema, runInputSchema } from './toolSchemas.js';
 import { createTools } from './tools.js';
 
 describe('agent MCP config and schemas', () => {
@@ -18,6 +18,7 @@ describe('agent MCP tools', () => {
     const tools = createTools({ request: async () => ({}) });
 
     expect(Object.keys(tools)).toEqual([
+      'list_projects',
       'search_cases',
       'get_case',
       'get_folder_tree',
@@ -32,6 +33,26 @@ describe('agent MCP tools', () => {
       'add_cases_to_run_dry_run',
       'add_cases_to_run_commit',
     ]);
+  });
+
+  it('calls projects endpoint and wraps list_projects responses', async () => {
+    const calls = [];
+    const client = {
+      async request(path, options) {
+        calls.push({ path, options });
+        return [{ id: 1, name: 'Example' }];
+      },
+    };
+    const tools = createTools(client);
+
+    const result = await tools.list_projects.handler({});
+
+    expect(calls).toEqual([{ path: '/projects', options: { method: 'GET' } }]);
+    expect(result.structuredContent).toEqual({ projects: [{ id: 1, name: 'Example' }] });
+  });
+
+  it('keeps project-specific tools requiring projectId', () => {
+    expect(() => projectInputSchema.parse({})).toThrow();
   });
 
   it('calls the expected backend path and returns structured and text content', async () => {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { BackendClient } from './backendClient.js';
-import { readConfig } from './config.js';
+import { readConfig, readHttpConfig } from './config.js';
 
 function jsonResponse(body, { ok = true, status = 200 } = {}) {
   return {
@@ -32,6 +32,91 @@ describe('BackendClient', () => {
       botEmail: 'bot@example.com',
       botPassword: 'secret',
     });
+  });
+
+  it('reads HTTP MCP server configuration with secure defaults', () => {
+    expect(() =>
+      readHttpConfig({
+        UNITTCMS_BACKEND_ORIGIN: 'http://localhost:8001',
+        UNITTCMS_BOT_EMAIL: 'bot@example.com',
+        UNITTCMS_BOT_PASSWORD: 'secret',
+      })
+    ).not.toThrow();
+
+    expect(
+      readHttpConfig({
+        UNITTCMS_BACKEND_ORIGIN: 'http://localhost:8001/',
+        UNITTCMS_BOT_EMAIL: 'bot@example.com',
+        UNITTCMS_BOT_PASSWORD: 'secret',
+      })
+    ).toEqual({
+      backendOrigin: 'http://localhost:8001',
+      botEmail: 'bot@example.com',
+      botPassword: 'secret',
+      mcpHost: '0.0.0.0',
+      mcpPort: 3333,
+      mcpSessionTtlMs: 1_800_000,
+      mcpMaxSessions: 100,
+      mcpAuthCacheTtlMs: 30_000,
+    });
+
+    expect(
+      readHttpConfig({
+        UNITTCMS_BACKEND_ORIGIN: 'http://localhost:8001',
+        UNITTCMS_BOT_EMAIL: 'bot@example.com',
+        UNITTCMS_BOT_PASSWORD: 'secret',
+        UNITTCMS_MCP_HOST: '127.0.0.1',
+        UNITTCMS_MCP_PORT: '4567',
+        UNITTCMS_MCP_SESSION_TTL_MS: '5000',
+        UNITTCMS_MCP_MAX_SESSIONS: '3',
+        UNITTCMS_MCP_AUTH_CACHE_TTL_MS: '1000',
+      }).mcpPort
+    ).toBe(4567);
+    expect(
+      readHttpConfig({
+        UNITTCMS_BACKEND_ORIGIN: 'http://localhost:8001',
+        UNITTCMS_BOT_EMAIL: 'bot@example.com',
+        UNITTCMS_BOT_PASSWORD: 'secret',
+        UNITTCMS_MCP_SESSION_TTL_MS: '5000',
+        UNITTCMS_MCP_MAX_SESSIONS: '3',
+        UNITTCMS_MCP_AUTH_CACHE_TTL_MS: '1000',
+      })
+    ).toMatchObject({ mcpSessionTtlMs: 5000, mcpMaxSessions: 3, mcpAuthCacheTtlMs: 1000 });
+  });
+
+  it('verifies MCP tokens through the backend without logging in as the bot', async () => {
+    const calls = [];
+    const fetchImpl = async (url, options) => {
+      calls.push({ url, options });
+      return jsonResponse({
+        tokenId: 7,
+        scopeType: 'global',
+        projectId: null,
+        permissions: ['projects:read'],
+        servicePrincipal: { strategy: 'internal-agent-service-principal' },
+      });
+    };
+    const client = new BackendClient({
+      config: {
+        backendOrigin: 'http://backend.test',
+        botEmail: 'bot@example.com',
+        botPassword: 'secret',
+      },
+      fetchImpl,
+    });
+
+    await expect(client.verifyMcpToken('uttcms_mcp_secret')).resolves.toMatchObject({ tokenId: 7 });
+
+    expect(calls).toEqual([
+      {
+        url: 'http://backend.test/agent/mcp-tokens/verify',
+        options: {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: 'uttcms_mcp_secret' }),
+        },
+      },
+    ]);
   });
 
   it('logs in once, caches the JWT, and sends authenticated requests', async () => {

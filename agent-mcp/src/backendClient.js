@@ -15,6 +15,22 @@ class BackendClient {
     this.token = await response.json();
   }
 
+  async verifyMcpToken(token) {
+    const response = await this.fetch(`${this.config.backendOrigin}/agent/mcp-tokens/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token }),
+    });
+
+    const body = await response.json();
+    if (!response.ok) {
+      const error = new Error(body.error || `MCP token verification failed with ${response.status}`);
+      error.status = response.status;
+      throw error;
+    }
+    return body;
+  }
+
   async request(path, options = {}, retry = true) {
     if (!this.token || this.token.expires_at <= Date.now()) await this.login();
 

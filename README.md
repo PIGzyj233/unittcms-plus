@@ -37,6 +37,65 @@ You can access the app at `http://localhost:8000`
 
 [Looking for a non-Docker way?](https://kimatata.github.io/unittcms/docs/getstarted/from-source)
 
+## Agent MCP usage
+
+UnitTCMS includes an MCP server for coding agents and other MCP-compatible clients. In Docker, the MCP server runs in the same container as the frontend and backend and exposes a streamable HTTP endpoint on port `3333`.
+
+Create a local `.env` file if you want to customize the published ports or the internal agent service account:
+
+```bash
+UNITTCMS_WEB_PORT=8000
+UNITTCMS_MCP_PUBLISHED_PORT=3333
+```
+
+Then start the container:
+
+```bash
+docker compose --env-file .env up --build
+```
+
+The default Docker bot account is:
+
+- Email: `bot@norelpy.com`
+- Password: `iambot2333`
+
+During startup, UnitTCMS ensures this bot user exists and grants it developer access to existing projects. Override `UNITTCMS_BOT_EMAIL` and `UNITTCMS_BOT_PASSWORD` in `.env` if you want a different service account.
+
+After signing in as an administrator, open **Administration -> Agent MCP**, create an MCP token, and copy the plaintext token when it is shown. UnitTCMS stores only a hash of the token and cannot show it again later.
+
+Register the MCP server in Codex:
+
+```bash
+launchctl setenv UNITTCMS_MCP_TOKEN "<token copied from Administration -> Agent MCP>"
+codex mcp add unittcms-agent --url http://localhost:3333/mcp \
+  --bearer-token-env-var UNITTCMS_MCP_TOKEN
+```
+
+For another agent or MCP client, connect to:
+
+```text
+http://<intranet-server-ip>:3333/mcp
+```
+
+and send:
+
+```text
+Authorization: Bearer <MCP token copied from the admin UI>
+```
+
+Agents do not need the bot email or bot password. Start with `list_projects` to discover a `projectId`, then pass that id to project-specific tools such as `search_cases`, `get_case`, `get_folder_tree`, `create_case_candidate`, `list_case_candidates`, `accept_case_candidates_dry_run`, `accept_case_candidates_commit`, `create_run_dry_run`, and `create_run_commit`. Writes go through backend `/agent/*` endpoints; high-impact writes use dry-run and commit tools with one-time operation tokens.
+
+Quick checks:
+
+```bash
+curl http://localhost:3333/health
+curl -i -X POST http://localhost:3333/mcp \
+  -H 'Content-Type: application/json' \
+  --data '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}'
+```
+
+The health check should return `{"ok":true}`. The unauthenticated MCP request should return `401 Unauthorized`.
+
 ## Why UnitTCMS
 
 There are many test case management tools available in the market, which can be categorized into proprietary and open-source solutions.

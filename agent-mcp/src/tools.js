@@ -4,6 +4,7 @@ import {
   addCasesToRunCommitInputSchema,
   addCasesToRunInputSchema,
   createCandidateInputSchema,
+  emptyInputSchema,
   folderPathCommitInputSchema,
   folderPathInputSchema,
   getCaseInputSchema,
@@ -56,6 +57,17 @@ function makeHandler({ schema, request }) {
 
 function createTools(client) {
   return {
+    list_projects: {
+      description: 'List UnitTCMS projects currently visible to the agent service principal.',
+      inputSchema: emptyInputSchema,
+      handler: makeHandler({
+        schema: emptyInputSchema,
+        request: async () => {
+          const projects = await client.request('/projects', { method: 'GET' });
+          return { projects };
+        },
+      }),
+    },
     search_cases: {
       description: 'Search formal test cases in a UnitTCMS project.',
       inputSchema: searchCasesInputSchema,

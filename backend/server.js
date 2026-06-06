@@ -191,10 +191,12 @@ app.use('/comments', commentsDeleteRoute(sequelize));
 import agentCasesRoute from './routes/agent/cases.js';
 import agentCaseCandidatesRoute from './routes/agent/caseCandidates.js';
 import agentFoldersRoute from './routes/agent/folders.js';
+import agentMcpTokensRoute from './routes/agent/mcpTokens.js';
 import agentRunsRoute from './routes/agent/runs.js';
 app.use('/agent/cases', agentCasesRoute(sequelize));
 app.use('/agent/case-candidates', agentCaseCandidatesRoute(sequelize));
 app.use('/agent/folders', agentFoldersRoute(sequelize));
+app.use('/agent/mcp-tokens', agentMcpTokensRoute(sequelize));
 app.use('/agent/runs', agentRunsRoute(sequelize));
 
 // "/home"

@@ -5,6 +5,7 @@ const stringOrNumber = z.union([z.string(), z.number()]);
 const optionalText = z.string().optional();
 const idempotencyKey = z.string().min(1).optional();
 const operationToken = z.string().min(1);
+const emptyInputSchema = z.object({}).strict();
 
 const stepInputSchema = z
   .object({
@@ -133,6 +134,7 @@ export {
   addCasesToRunInputSchema,
   candidateInputSchema,
   createCandidateInputSchema,
+  emptyInputSchema,
   folderPathCommitInputSchema,
   folderPathInputSchema,
   getCaseInputSchema,

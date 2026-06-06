@@ -4,10 +4,12 @@ import * as createAgentCaseCandidates from '../migrations/20260605000100-create-
 import * as createAgentOperationTokens from '../migrations/20260605000200-create-agent-operation-tokens.js';
 import * as createAgentIdempotencyRecords from '../migrations/20260605000300-create-agent-idempotency-records.js';
 import * as createAgentAuditLogs from '../migrations/20260605000400-create-agent-audit-logs.js';
+import * as createMcpTokens from '../migrations/20260606000100-create-mcp-tokens.js';
 import defineAgentAuditLog from './agentAuditLogs.js';
 import defineAgentCaseCandidate from './agentCaseCandidates.js';
 import defineAgentIdempotencyRecord from './agentIdempotencyRecords.js';
 import defineAgentOperationToken from './agentOperationTokens.js';
+import defineMcpToken from './mcpTokens.js';
 
 async function getForeignKeys(sequelize, tableName) {
   return sequelize.query(`PRAGMA foreign_key_list(\`${tableName}\`)`, {
@@ -57,6 +59,7 @@ describe('agent models', () => {
     const OperationToken = defineAgentOperationToken(sequelize, DataTypes);
     const IdempotencyRecord = defineAgentIdempotencyRecord(sequelize, DataTypes);
     const AuditLog = defineAgentAuditLog(sequelize, DataTypes);
+    const McpToken = defineMcpToken(sequelize, DataTypes);
 
     expect(Candidate.name).toBe('AgentCaseCandidate');
     expect(Candidate.rawAttributes.steps.type.key).toBe('JSON');
@@ -67,6 +70,10 @@ describe('agent models', () => {
     expect(OperationToken.name).toBe('AgentOperationToken');
     expect(IdempotencyRecord.rawAttributes.responseBody.type.key).toBe('JSON');
     expect(AuditLog.rawAttributes.resultSummary.type.key).toBe('JSON');
+    expect(McpToken.name).toBe('McpToken');
+    expect(McpToken.rawAttributes.tokenHash.type.key).toBe('STRING');
+    expect(McpToken.rawAttributes.scopeType.defaultValue).toBe('global');
+    expect(McpToken.rawAttributes.projectId.allowNull).toBe(true);
   });
 
   it('uses the migration table names in model definitions', () => {
@@ -76,11 +83,13 @@ describe('agent models', () => {
     const OperationToken = defineAgentOperationToken(sequelize, DataTypes);
     const IdempotencyRecord = defineAgentIdempotencyRecord(sequelize, DataTypes);
     const AuditLog = defineAgentAuditLog(sequelize, DataTypes);
+    const McpToken = defineMcpToken(sequelize, DataTypes);
 
     expect(Candidate.getTableName()).toBe('agentCaseCandidates');
     expect(OperationToken.getTableName()).toBe('agentOperationTokens');
     expect(IdempotencyRecord.getTableName()).toBe('agentIdempotencyRecords');
     expect(AuditLog.getTableName()).toBe('agentAuditLogs');
+    expect(McpToken.getTableName()).toBe('mcpTokens');
   });
 
   it('defines relationship associations for persistence models', () => {
@@ -91,16 +100,20 @@ describe('agent models', () => {
     const OperationToken = defineAgentOperationToken(sequelize, DataTypes);
     const IdempotencyRecord = defineAgentIdempotencyRecord(sequelize, DataTypes);
     const AuditLog = defineAgentAuditLog(sequelize, DataTypes);
+    const McpToken = defineMcpToken(sequelize, DataTypes);
 
     OperationToken.associate({ User, Project });
     IdempotencyRecord.associate({ User });
     AuditLog.associate({ User, Project });
+    McpToken.associate({ User, Project });
 
     expect(OperationToken.associations.User.foreignKey).toBe('userId');
     expect(OperationToken.associations.Project.foreignKey).toBe('projectId');
     expect(IdempotencyRecord.associations.User.foreignKey).toBe('userId');
     expect(AuditLog.associations.User.foreignKey).toBe('userId');
     expect(AuditLog.associations.Project.foreignKey).toBe('projectId');
+    expect(McpToken.associations.CreatedBy.foreignKey).toBe('createdByUserId');
+    expect(McpToken.associations.Project.foreignKey).toBe('projectId');
   });
 
   it('creates expected migration foreign keys and indexes', async () => {
@@ -111,6 +124,7 @@ describe('agent models', () => {
     await createAgentOperationTokens.up(queryInterface, Sequelize);
     await createAgentIdempotencyRecords.up(queryInterface, Sequelize);
     await createAgentAuditLogs.up(queryInterface, Sequelize);
+    await createMcpTokens.up(queryInterface, Sequelize);
 
     const candidateKeys = await getForeignKeys(sequelize, 'agentCaseCandidates');
     expectForeignKey(candidateKeys, {
@@ -206,6 +220,16 @@ describe('agent models', () => {
     });
     expectIndex(await queryInterface.showIndex('agentAuditLogs'), {
       fields: ['projectId', 'operationType', 'createdAt'],
+    });
+    expectIndex(await queryInterface.showIndex('mcpTokens'), {
+      fields: ['tokenHash'],
+      unique: true,
+    });
+    expectIndex(await queryInterface.showIndex('mcpTokens'), {
+      fields: ['scopeType', 'projectId'],
+    });
+    expectIndex(await queryInterface.showIndex('mcpTokens'), {
+      fields: ['revokedAt', 'expiresAt'],
     });
 
     await sequelize.close();

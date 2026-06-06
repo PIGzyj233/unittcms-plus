@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "node src/server.js",
+    "start:http": "node src/httpServer.js",
     "test": "vitest"
   },
   "dependencies": {
