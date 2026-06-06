@@ -35,4 +35,10 @@ describe('Locale message keys consistency', () => {
       expect(localeKeys).toEqual(baseKeys);
     });
   }
+
+  it('should include case candidate review messages', () => {
+    expect(base.data).toHaveProperty('CaseCandidates');
+    expect(base.data).toHaveProperty('CaseCandidates.suggested_tags');
+    expect(base.data).toHaveProperty('CaseCandidates.automated_suggestion');
+  });
 });

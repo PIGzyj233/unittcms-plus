@@ -186,6 +186,7 @@
     "toggle_sidebar": "Seitenleiste anzeigen/verbergen",
     "home": "Startseite",
     "test_cases": "Testfälle",
+    "case_candidates": "Testfallkandidaten",
     "test_runs": "Testläufe",
     "members": "Mitglieder",
     "settings": "Einstellungen"
@@ -377,6 +378,26 @@
     "failed_to_update_comment": "Fehler beim Aktualisieren des Kommentars",
     "comment_deleted": "Kommentar gelöscht",
     "failed_to_delete_comment": "Fehler beim Löschen des Kommentars"
+  },
+  "CaseCandidates": {
+    "title": "Testfallkandidaten",
+    "status": "Status",
+    "draft": "Entwurf",
+    "accepted": "Akzeptiert",
+    "rejected": "Abgelehnt",
+    "superseded": "Ersetzt",
+    "source": "Quelle",
+    "automated_suggestion": "Vorschlag",
+    "rationale": "Begründung",
+    "duplicate_warnings": "Duplikatwarnungen",
+    "accept": "Akzeptieren",
+    "reject": "Ablehnen",
+    "bulk_accept": "Mehrfach akzeptieren",
+    "allow_partial": "Teilerfolg zulassen",
+    "suggested_tags": "Vorgeschlagene Tags",
+    "create_missing_tags": "Fehlende vorgeschlagene Tags erstellen",
+    "accepted_case": "Akzeptierter Testfall",
+    "no_candidates_found": "Keine Kandidaten gefunden"
   },
   "Members": {
     "member_management": "Mitgliederverwaltung",

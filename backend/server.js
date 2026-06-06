@@ -187,6 +187,16 @@ app.use('/comments', commentsNewRoute(sequelize));
 app.use('/comments', commentsEditRoute(sequelize));
 app.use('/comments', commentsDeleteRoute(sequelize));
 
+// "/agent"
+import agentCasesRoute from './routes/agent/cases.js';
+import agentCaseCandidatesRoute from './routes/agent/caseCandidates.js';
+import agentFoldersRoute from './routes/agent/folders.js';
+import agentRunsRoute from './routes/agent/runs.js';
+app.use('/agent/cases', agentCasesRoute(sequelize));
+app.use('/agent/case-candidates', agentCaseCandidatesRoute(sequelize));
+app.use('/agent/folders', agentFoldersRoute(sequelize));
+app.use('/agent/runs', agentRunsRoute(sequelize));
+
 // "/home"
 import homeIndexRoute from './routes/home/index.js';
 app.use('/home', homeIndexRoute(sequelize));

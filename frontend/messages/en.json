@@ -186,6 +186,7 @@
     "toggle_sidebar": "Toggle Sidebar",
     "home": "Home",
     "test_cases": "Test Cases",
+    "case_candidates": "Case Candidates",
     "test_runs": "Test Runs",
     "members": "Members",
     "settings": "Settings"
@@ -377,6 +378,26 @@
     "failed_to_update_comment": "Failed to update comment",
     "comment_deleted": "Comment deleted",
     "failed_to_delete_comment": "Failed to delete comment"
+  },
+  "CaseCandidates": {
+    "title": "Case Candidates",
+    "status": "Status",
+    "draft": "Draft",
+    "accepted": "Accepted",
+    "rejected": "Rejected",
+    "superseded": "Superseded",
+    "source": "Source",
+    "automated_suggestion": "Suggested",
+    "rationale": "Rationale",
+    "duplicate_warnings": "Duplicate warnings",
+    "accept": "Accept",
+    "reject": "Reject",
+    "bulk_accept": "Bulk accept",
+    "allow_partial": "Allow partial success",
+    "suggested_tags": "Suggested tags",
+    "create_missing_tags": "Create missing suggested tags",
+    "accepted_case": "Accepted case",
+    "no_candidates_found": "No candidates found"
   },
   "Members": {
     "member_management": "Member Management",

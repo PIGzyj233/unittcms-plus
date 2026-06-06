@@ -80,3 +80,17 @@ The Docker setup serves both API and frontend from port 8000, with the API mount
 - When adding or changing user-facing frontend text, update all locale JSON files in `frontend/messages`. The message consistency test expects matching keys across locales.
 - Backend route modules generally export a function that receives a Sequelize instance and returns an Express router. Keep auth/visibility/editability checks aligned with neighboring route handlers.
 - SQLite data and uploaded files are local runtime state under `backend/database` and `backend/public/uploads`; avoid treating them as source changes.
+
+## Agent skills
+
+### Issue tracker
+
+Issues and PRDs are tracked as local markdown files under `.scratch/`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Triage uses the default canonical status strings. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+This is a single-context repo. See `docs/agents/domain.md`.

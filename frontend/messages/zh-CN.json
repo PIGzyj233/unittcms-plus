@@ -186,6 +186,7 @@
     "toggle_sidebar": "切换侧边栏",
     "home": "首页",
     "test_cases": "测试用例",
+    "case_candidates": "用例候选",
     "test_runs": "测试运行",
     "members": "成员",
     "settings": "设置"
@@ -377,6 +378,26 @@
     "failed_to_update_comment": "更新评论失败",
     "comment_deleted": "评论已删除",
     "failed_to_delete_comment": "删除评论失败"
+  },
+  "CaseCandidates": {
+    "title": "用例候选",
+    "status": "状态",
+    "draft": "草稿",
+    "accepted": "已接受",
+    "rejected": "已拒绝",
+    "superseded": "已取代",
+    "source": "来源",
+    "automated_suggestion": "建议",
+    "rationale": "理由",
+    "duplicate_warnings": "重复警告",
+    "accept": "接受",
+    "reject": "拒绝",
+    "bulk_accept": "批量接受",
+    "allow_partial": "允许部分成功",
+    "suggested_tags": "建议标签",
+    "create_missing_tags": "创建缺失的建议标签",
+    "accepted_case": "已接受用例",
+    "no_candidates_found": "未找到候选项"
   },
   "Members": {
     "member_management": "成员管理",

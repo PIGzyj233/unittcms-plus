@@ -186,6 +186,7 @@
     "toggle_sidebar": "Alternar barra lateral",
     "home": "Início",
     "test_cases": "Casos de Teste",
+    "case_candidates": "Candidatos de Caso",
     "test_runs": "Execuções de Teste",
     "members": "Membros",
     "settings": "Configurações"
@@ -377,6 +378,26 @@
     "failed_to_update_comment": "Falha ao atualizar comentário",
     "comment_deleted": "Comentário excluído",
     "failed_to_delete_comment": "Falha ao excluir comentário"
+  },
+  "CaseCandidates": {
+    "title": "Candidatos de Caso",
+    "status": "Status",
+    "draft": "Rascunho",
+    "accepted": "Aceito",
+    "rejected": "Rejeitado",
+    "superseded": "Substituído",
+    "source": "Origem",
+    "automated_suggestion": "Sugestão",
+    "rationale": "Justificativa",
+    "duplicate_warnings": "Avisos de duplicidade",
+    "accept": "Aceitar",
+    "reject": "Rejeitar",
+    "bulk_accept": "Aceitar em lote",
+    "allow_partial": "Permitir sucesso parcial",
+    "suggested_tags": "Tags sugeridas",
+    "create_missing_tags": "Criar tags sugeridas ausentes",
+    "accepted_case": "Caso aceito",
+    "no_candidates_found": "Nenhum candidato encontrado"
   },
   "Members": {
     "member_management": "Gerenciamento de Membros",

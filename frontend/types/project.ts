@@ -43,6 +43,7 @@ export type ProjectMessages = {
   toggleSidebar: string;
   home: string;
   testCases: string;
+  caseCandidates: string;
   testRuns: string;
   members: string;
   settings: string;
