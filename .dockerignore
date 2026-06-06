@@ -1,0 +1,11 @@
+**/.next
+**/build
+**/coverage
+**/node_modules
+**/playwright-report
+**/playwright-screenshots
+.git
+.env
+backend/database/*.sqlite
+backend/public/uploads
+npm-debug.log*

@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert } from '@heroui/react';
+import { Alert } from '@/components/heroui';
 
 export default function History() {
   return (

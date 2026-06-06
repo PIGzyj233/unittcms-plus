@@ -89,6 +89,32 @@ export type AdminMessages = {
   reset: string;
   invalidPassword: string;
   passwordNotMatch: string;
+  agentMcp: string;
+  mcpTokenName: string;
+  mcpTokenNamePlaceholder: string;
+  mcpTokenPrefix: string;
+  mcpTokenStatus: string;
+  mcpTokenStatusActive: string;
+  mcpTokenStatusExpired: string;
+  mcpTokenStatusRevoked: string;
+  mcpTokenLastUsed: string;
+  mcpTokenNeverUsed: string;
+  mcpTokenExpires: string;
+  mcpTokenNoExpiry: string;
+  mcpTokenCreator: string;
+  mcpTokenUnknownCreator: string;
+  mcpTokenCreate: string;
+  mcpTokenRefresh: string;
+  mcpTokenRevoke: string;
+  mcpTokenCopy: string;
+  mcpTokenPlaintextTitle: string;
+  mcpTokenNoTokens: string;
+  mcpTokenCreated: string;
+  mcpTokenCopied: string;
+  mcpTokenRevoked: string;
+  mcpTokenLoadError: string;
+  mcpTokenCreateError: string;
+  mcpTokenRevokeError: string;
 };
 
 export type AccountDropDownMessages = {

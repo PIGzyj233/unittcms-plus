@@ -1,7 +1,12 @@
 import { getTranslations } from 'next-intl/server';
-import { LocaleCodeType } from '@/types/locale';
 
-export async function generateMetadata({ params: { locale } }: { params: { locale: LocaleCodeType } }) {
+export async function generateMetadata(props: { params: Promise<{ locale: string }> }) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'Auth' });
   return {
     title: `${t('account')} | UnitTCMS`,

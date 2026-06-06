@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useState, useContext } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Tabs, Tab } from '@heroui/react';
 import CaseDetail from './CaseDetail';
+import { Tabs, Tab } from '@/components/heroui';
 import Comments from '@/components/Comments';
 import History from '@/components/History';
 import { TokenContext } from '@/utils/TokenProvider';

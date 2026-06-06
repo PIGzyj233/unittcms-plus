@@ -1,3 +1,4 @@
+import { use } from "react";
 import { getTranslations } from 'next-intl/server';
 import { useTranslations } from 'next-intl';
 import HealthPage from './HealthPage';
@@ -5,7 +6,13 @@ import { PageType } from '@/types/base';
 import { LocaleCodeType } from '@/types/locale';
 import { HealthMessages } from '@/types/health';
 
-export async function generateMetadata({ params: { locale } }: { params: { locale: LocaleCodeType } }) {
+export async function generateMetadata(props: { params: Promise<{ locale: string }> }) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'Health' });
   return {
     title: `${t('health_check')} | UnitTCMS`,
@@ -13,7 +20,8 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   };
 }
 
-export default function Page({ params }: PageType) {
+export default function Page(props: PageType) {
+  const params = use(props.params);
   const t = useTranslations('Health');
   const messages: HealthMessages = {
     health_check: t('health_check'),

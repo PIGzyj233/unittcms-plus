@@ -32,6 +32,7 @@ export default function TestProgressBarChart({ progressSeries, progressCategorie
         });
 
         const xaxisLabelColor = theme === 'light' ? 'black' : 'white';
+        const tooltipTheme = theme === 'light' || theme === 'dark' ? theme : undefined;
 
         setChartData({
           series: progressSeries,
@@ -61,7 +62,7 @@ export default function TestProgressBarChart({ progressSeries, progressCategorie
               },
             },
             tooltip: {
-              theme: theme,
+              theme: tooltipTheme,
             },
           },
         });

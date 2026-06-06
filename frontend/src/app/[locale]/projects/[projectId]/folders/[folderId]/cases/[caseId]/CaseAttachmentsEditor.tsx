@@ -1,7 +1,8 @@
-import { Image, Button, Tooltip, Card, CardBody } from '@heroui/react';
 import { Trash, ArrowDownToLine, ArrowUpFromLine } from 'lucide-react';
+import Image from 'next/image';
 import { ChangeEvent, DragEvent } from 'react';
 import { isImage } from './isImage';
+import { Button, Tooltip, Card, CardBody } from '@/components/heroui';
 import { AttachmentType, CaseMessages } from '@/types/case';
 import Config from '@/config/config';
 
@@ -45,7 +46,10 @@ export default function CaseAttachmentsEditor({
               <Image
                 alt={image.title}
                 src={`${apiServer}/uploads/${image.filename}`}
+                width={160}
+                height={160}
                 className="object-cover h-40 w-40"
+                unoptimized
               />
               <div className="flex items-center justify-between">
                 <p>{image.title}</p>

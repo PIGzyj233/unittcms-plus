@@ -1,10 +1,17 @@
+import { use } from "react";
 import { getTranslations } from 'next-intl/server';
 import { useTranslations } from 'next-intl';
 import AuthPage from '../authPage';
 import { PageType } from '@/types/base';
 import { LocaleCodeType } from '@/types/locale';
 
-export async function generateMetadata({ params: { locale } }: { params: { locale: LocaleCodeType } }) {
+export async function generateMetadata(props: { params: Promise<{ locale: string }> }) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'Auth' });
   return {
     title: `${t('signin')} | UnitTCMS`,
@@ -12,7 +19,8 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   };
 }
 
-export default function Page({ params }: PageType) {
+export default function Page(props: PageType) {
+  const params = use(props.params);
   const t = useTranslations('Auth');
   const messages = {
     title: t('signin'),

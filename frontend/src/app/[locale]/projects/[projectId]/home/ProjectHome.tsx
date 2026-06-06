@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect, useContext } from 'react';
-import { Card, CardBody, Chip, Divider } from '@heroui/react';
 import { Folder, Clipboard, FlaskConical } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { aggregateBasicInfo, aggregateTestPriority, aggregateTestType, aggregateProgress } from './aggregate';
@@ -8,6 +7,7 @@ import { HomeMessages } from './page';
 import TestTypesChart from './TestTypesDonutChart';
 import TestPriorityChart from './TestPriorityDonutChart';
 import TestProgressBarChart from './TestProgressColumnChart';
+import { Card, CardBody, Chip, Separator } from '@/components/heroui';
 import Config from '@/config/config';
 import { TokenContext } from '@/utils/TokenProvider';
 import { ProgressSeriesType } from '@/types/run';
@@ -142,13 +142,13 @@ export function ProjectHome({
         </Card>
       )}
 
-      <Divider className="my-8" />
+      <Separator className="my-8" />
       <h2 className={subtitle()}>{messages.progress}</h2>
       <div style={{ height: '18rem' }}>
         <TestProgressBarChart progressSeries={progressSeries} progressCategories={progressCategories} theme={theme} />
       </div>
 
-      <Divider className="my-12" />
+      <Separator className="my-12" />
       <h2 className={subtitle()}>{messages.testClassification}</h2>
       <div className="flex pb-20">
         <div style={{ width: '32rem', height: '18rem' }}>

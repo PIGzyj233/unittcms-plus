@@ -3,14 +3,14 @@ import { useState, useEffect } from 'react';
 import {
   Button,
   Input,
-  Textarea,
+  TextArea,
   Checkbox,
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
-} from '@heroui/react';
+} from '@/components/heroui';
 import { ProjectType, ProjectDialogMessages } from '@/types/project';
 
 type Props = {
@@ -116,7 +116,7 @@ export default function ProjectDialog({ isOpen, editingProject, onCancel, onSubm
               });
             }}
           />
-          <Textarea
+          <TextArea
             label={projectDialogMessages.projectDetail}
             value={projectDetail.text}
             isInvalid={projectDetail.isInvalid}

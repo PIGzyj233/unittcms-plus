@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useContext } from 'react';
-import { Button, Card, CardHeader, CardFooter } from '@heroui/react';
 import { ArrowRight, Settings } from 'lucide-react';
+import { Button, Card, CardHeader, CardFooter } from '@/components/heroui';
 import { Link, NextUiLinkClasses } from '@/src/i18n/routing';
 import { TokenContext } from '@/utils/TokenProvider';
 import { fetchMyProjects } from '@/utils/projectsControl';
@@ -104,6 +104,7 @@ export default function AccountPage({ messages, locale }: Props) {
               <>
                 <span className="text-default-500 me-2">{messages.notOwnAnyProjects}</span>
                 <Button
+                  aria-label="Find Projects"
                   as={Link}
                   href={`/projects/`}
                   locale={locale}

@@ -1,8 +1,9 @@
 'use client';
 import { useState, useEffect, useContext } from 'react';
-import { Button, addToast } from '@heroui/react';
 import UsersTable from './UsersTable';
 import PasswordResetDialog from './PasswordResetDialog';
+import AgentMcpTokensPanel from './AgentMcpTokensPanel';
+import { Button, addToast } from '@/components/heroui';
 import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
 import { UserType, AdminMessages } from '@/types/user';
 import { TokenContext } from '@/utils/TokenProvider';
@@ -45,6 +46,7 @@ async function fetchUsers(jwt: string) {
 export default function AdminPage({ messages, locale }: Props) {
   const router = useRouter();
   const tokenContext = useContext(TokenContext);
+  const isAdmin = tokenContext.isAdmin();
   const [users, setUsers] = useState<UserType[]>([]);
   const [myself, setMyself] = useState<UserType | null>(null);
 
@@ -56,7 +58,7 @@ export default function AdminPage({ messages, locale }: Props) {
 
   useEffect(() => {
     async function fetchDataEffect() {
-      if (!tokenContext.isAdmin()) {
+      if (!isAdmin) {
         return;
       }
 
@@ -73,7 +75,7 @@ export default function AdminPage({ messages, locale }: Props) {
     }
 
     fetchDataEffect();
-  }, [tokenContext]);
+  }, [isAdmin, tokenContext]);
 
   const handleChangeRole = async (userEdit: UserType, role: number) => {
     if (!tokenContext.isAdmin()) {
@@ -163,6 +165,8 @@ export default function AdminPage({ messages, locale }: Props) {
         <Button className="mt-4" color="danger" variant="bordered" onPress={() => setIsConfirmDialogOpen(true)}>
           {messages.quitAdmin}
         </Button>
+
+        {isAdmin && <AgentMcpTokensPanel jwt={tokenContext.token.access_token} messages={messages} />}
       </div>
 
       <DeleteConfirmDialog

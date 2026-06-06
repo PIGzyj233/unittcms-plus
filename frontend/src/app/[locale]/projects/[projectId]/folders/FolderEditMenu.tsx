@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Button, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
 import { MoreVertical } from 'lucide-react';
+import { Button, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@/components/heroui';
 import { FolderType, FoldersMessages } from '@/types/folder';
 
 type Props = {

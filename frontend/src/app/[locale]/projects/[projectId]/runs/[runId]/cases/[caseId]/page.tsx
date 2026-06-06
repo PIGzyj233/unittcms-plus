@@ -1,14 +1,16 @@
+import { use } from "react";
 import { useTranslations } from 'next-intl';
 import DetailPane from './DetailPane';
 import type { RunDetailMessages } from '@/types/run';
 import type { PriorityMessages } from '@/types/priority';
 import type { TestTypeMessages } from '@/types/testType';
 
-export default function Page({
-  params,
-}: {
-  params: { projectId: string; runId: string; caseId: string; locale: string };
-}) {
+export default function Page(
+  props: {
+    params: Promise<{ projectId: string; runId: string; caseId: string; locale: string }>;
+  }
+) {
+  const params = use(props.params);
   const t = useTranslations('Run');
   const messages: RunDetailMessages = {
     title: t('title'),

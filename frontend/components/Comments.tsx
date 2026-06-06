@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, useContext } from 'react';
-import { Button, Textarea, Spinner, addToast } from '@heroui/react';
 import CommentItem from './CommentItem';
+import { Button, TextArea, Spinner, addToast } from '@/components/heroui';
 import { TokenContext } from '@/utils/TokenProvider';
 import { fetchComments, createComment, updateComment, deleteComment } from '@/utils/commentControl';
 import { logError } from '@/utils/errorHandler';
@@ -178,7 +178,7 @@ export default function Comments({ projectId, commentableType, commentableId, me
       )}
 
       <div className="mt-12">
-        <Textarea
+        <TextArea
           placeholder={messages.placeholder}
           value={newComment}
           onValueChange={setNewComment}

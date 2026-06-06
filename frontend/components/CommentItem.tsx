@@ -1,6 +1,6 @@
-import { Button, Textarea, Card, CardBody } from '@heroui/react';
 import { Trash2, Edit2 } from 'lucide-react';
 import UserAvatar from './UserAvatar';
+import { Button, TextArea, Card, CardBody } from '@/components/heroui';
 import { CommentMessages, CommentType } from '@/types/comment';
 
 type Props = {
@@ -69,7 +69,7 @@ export default function CommentItem({
             </div>
             {isEditing ? (
               <div>
-                <Textarea
+                <TextArea
                   value={editContent}
                   onValueChange={onEditContentChange}
                   minRows={3}

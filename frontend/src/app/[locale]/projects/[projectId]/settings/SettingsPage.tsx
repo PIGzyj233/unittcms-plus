@@ -1,8 +1,8 @@
 'use client';
 import { useState, useEffect, useContext } from 'react';
-import { Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@heroui/react';
 import { Pencil, Trash } from 'lucide-react';
 import ProjectTagsManager from './ProjectTagsManager';
+import { Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@/components/heroui';
 import { SettingsMessages } from '@/types/settings';
 import { TokenContext } from '@/utils/TokenProvider';
 import { deleteProject, fetchProject, updateProject } from '@/utils/projectsControl';

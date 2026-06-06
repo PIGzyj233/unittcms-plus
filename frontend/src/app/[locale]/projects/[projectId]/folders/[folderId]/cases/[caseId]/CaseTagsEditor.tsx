@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Autocomplete, AutocompleteItem, Chip, addToast } from '@heroui/react';
 import { useContext } from 'react';
+import { ComboBox, ComboBoxItem, Chip, addToast } from '@/components/heroui';
 import { createTag, fetchTags } from '@/utils/tagsControls';
 import { logError } from '@/utils/errorHandler';
 import { TokenContext } from '@/utils/TokenProvider';
@@ -111,7 +111,7 @@ export default function CaseTagsEditor({ projectId, selectedTags, onChange, mess
 
   return (
     <div>
-      <Autocomplete
+      <ComboBox
         className="max-w-xs mt-2"
         size="sm"
         variant="bordered"
@@ -125,29 +125,29 @@ export default function CaseTagsEditor({ projectId, selectedTags, onChange, mess
       >
         {inputValue.trim() &&
         availableTags.filter((tag) => tag.name.toLowerCase().includes(inputValue.trim().toLowerCase())).length === 0 ? (
-          <AutocompleteItem
+          <ComboBoxItem
             key="create-tag"
             textValue={inputValue.trim()}
             onPress={() => handleCreateTag(inputValue.trim())}
             className="text-primary"
           >
             {`${messages.createTag} "${inputValue.trim()}"`}
-          </AutocompleteItem>
+          </ComboBoxItem>
         ) : (
           availableTags
             .filter((tag) => tag.name.toLowerCase().includes(inputValue.trim().toLowerCase()))
             .map((tag) => (
-              <AutocompleteItem
+              <ComboBoxItem
                 key={tag.id}
                 textValue={tag.name}
                 isReadOnly={!isProjectDeveloper}
                 onPress={() => handleTagAdd(tag)}
               >
                 {tag.name}
-              </AutocompleteItem>
+              </ComboBoxItem>
             ))
         )}
-      </Autocomplete>
+      </ComboBox>
 
       <div className="gap-2 flex items-center mt-3">
         <div className="flex justify-start align-center gap-1.5 flex-wrap">

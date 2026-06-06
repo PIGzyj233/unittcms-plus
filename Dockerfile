@@ -1,4 +1,4 @@
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -20,6 +20,11 @@ WORKDIR /app/backend
 COPY backend/package.json backend/package-lock.json* ./
 RUN npm ci
 
+# Install MCP server dependencies
+WORKDIR /app/agent-mcp
+COPY agent-mcp/package.json agent-mcp/package-lock.json* ./
+RUN npm ci
+
 # Build frontend
 FROM base AS frontend-builder
 WORKDIR /app
@@ -39,13 +44,24 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8000
 ENV FRONTEND_ORIGIN=http://localhost:8000
+ENV UNITTCMS_BACKEND_ORIGIN=http://127.0.0.1:8001
+ENV UNITTCMS_BOT_EMAIL=bot@norelpy.com
+ENV UNITTCMS_BOT_PASSWORD=iambot2333
+ENV UNITTCMS_MCP_HOST=0.0.0.0
+ENV UNITTCMS_MCP_PORT=3333
 
 # Create a non-root user
+RUN apk add --no-cache libc6-compat
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy backend files
 COPY backend ./backend
+COPY --from=deps /app/backend/node_modules ./backend/node_modules
+
+# Copy MCP server files
+COPY agent-mcp ./agent-mcp
+COPY --from=deps /app/agent-mcp/node_modules ./agent-mcp/node_modules
 
 # Copy frontend build
 COPY --from=frontend-builder /app/frontend/.next/standalone ./
@@ -55,17 +71,12 @@ COPY --from=frontend-builder /app/frontend/public ./public
 # Copy Next.js module for the server
 COPY --from=deps /app/frontend/node_modules/next ./node_modules/next
 
-# Install backend dependencies directly in the container to ensure native modules are built correctly
-WORKDIR /app/backend
-COPY backend/package.json backend/package-lock.json* ./
-RUN npm ci
-WORKDIR /app
+# Copy custom entrypoint that combines frontend and backend
+COPY entrypoint.mjs ./
 
-# Copy custom entrypoint.js that combines frontend and backend
-COPY entrypoint.js ./
-
-# Expose the port
+# Expose the frontend and MCP ports
 EXPOSE 8000
+EXPOSE 3333
 
 # Run database migrations and start the combined server
-CMD ["node", "entrypoint.js"]
+CMD ["node", "entrypoint.mjs"]

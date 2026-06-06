@@ -1,4 +1,4 @@
-import { Chip } from '@heroui/react';
+import { Chip } from '@/components/heroui';
 
 type Props = {
   isPublic: boolean;

@@ -1,6 +1,6 @@
-import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input } from '@heroui/react';
 import { useState } from 'react';
 import { isValidPassword } from '../account/validate';
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input } from '@/components/heroui';
 import { AdminMessages } from '@/types/user';
 
 type Props = {

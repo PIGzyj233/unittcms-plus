@@ -1,9 +1,8 @@
 'use client';
-import { Button, DropdownTrigger, Dropdown, DropdownMenu, DropdownItem } from '@heroui/react';
 import { ChevronDown, PenTool, ArrowRightFromLine, ArrowRightToLine, Settings } from 'lucide-react';
 import { useContext } from 'react';
+import { Button, DropdownTrigger, Dropdown, DropdownMenu, DropdownItem } from '@/components/heroui';
 import { TokenContext } from '@/utils/TokenProvider';
-import { useRouter } from '@/src/i18n/routing';
 import { AccountDropDownMessages } from '@/types/user';
 import UserAvatar from '@/components/UserAvatar';
 
@@ -13,9 +12,16 @@ type Props = {
   onItemPress: () => void;
 };
 
+function getLocalizedPath(pathname: string, locale: string) {
+  return pathname === '/' ? `/${locale}` : `/${locale}${pathname}`;
+}
+
 export default function DropdownAccount({ messages, locale, onItemPress }: Props) {
-  const router = useRouter();
   const context = useContext(TokenContext);
+
+  function navigateTo(pathname: string) {
+    window.location.assign(getLocalizedPath(pathname, locale));
+  }
 
   const signOut = () => {
     context.setToken({
@@ -24,7 +30,7 @@ export default function DropdownAccount({ messages, locale, onItemPress }: Props
       user: null,
     });
     context.removeTokenFromLocalStorage();
-    router.push(`/account/signin`, { locale: locale });
+    navigateTo('/account/signin');
   };
 
   const signinItems = [
@@ -35,7 +41,7 @@ export default function DropdownAccount({ messages, locale, onItemPress }: Props
         <UserAvatar size={16} username={context.token?.user?.username} avatarPath={context.token?.user?.avatarPath} />
       ),
       onPress: () => {
-        router.push('/account', { locale: locale });
+        navigateTo('/account');
         onItemPress();
       },
     },
@@ -44,7 +50,7 @@ export default function DropdownAccount({ messages, locale, onItemPress }: Props
       title: messages.profileSettings,
       icon: <Settings size={16} />,
       onPress: () => {
-        router.push('/account/settings', { locale: locale });
+        navigateTo('/account/settings');
         onItemPress();
       },
     },
@@ -65,7 +71,7 @@ export default function DropdownAccount({ messages, locale, onItemPress }: Props
       title: messages.signIn,
       icon: <ArrowRightToLine size={16} />,
       onPress: () => {
-        router.push('/account/signin', { locale: locale });
+        navigateTo('/account/signin');
         onItemPress();
       },
     },
@@ -74,7 +80,7 @@ export default function DropdownAccount({ messages, locale, onItemPress }: Props
       title: messages.signUp,
       icon: <PenTool size={16} />,
       onPress: () => {
-        router.push('/account/signup', { locale: locale });
+        navigateTo('/account/signup');
         onItemPress();
       },
     },

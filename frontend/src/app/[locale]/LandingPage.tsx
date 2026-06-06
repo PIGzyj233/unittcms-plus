@@ -1,14 +1,19 @@
 import { useTranslations } from 'next-intl';
-import { Divider } from '@heroui/react';
 import PaneMainTitle from './PaneMainTitle';
 import PaneMainFeatures from './PaneMainFeatures';
 import DemoImage from './DemoImage';
+import { Separator } from '@/components/heroui';
 import { title, subtitle } from '@/components/primitives';
-import { PageType } from '@/types/base';
 import { LocaleCodeType } from '@/types/locale';
 import Footer from '@/components/Footer';
 
-export default function LandingPage({ params }: PageType) {
+type LandingPageProps = {
+  params: {
+    locale: string;
+  };
+};
+
+export default function LandingPage({ params }: LandingPageProps) {
   const t = useTranslations('Index');
 
   const demoImages = [
@@ -82,7 +87,7 @@ export default function LandingPage({ params }: PageType) {
         <PaneMainFeatures />
       </div>
 
-      <Divider className="my-12" />
+      <Separator className="my-12" />
       <div className="flex flex-wrap lg:text-left text-center">
         {demoImages.map((demoImage) => (
           <div key={demoImage.uid} className="flex flex-wrap">
@@ -98,7 +103,7 @@ export default function LandingPage({ params }: PageType) {
         ))}
       </div>
 
-      <Divider className="my-12" />
+      <Separator className="my-12" />
       <Footer locale={params.locale as LocaleCodeType} />
     </section>
   );

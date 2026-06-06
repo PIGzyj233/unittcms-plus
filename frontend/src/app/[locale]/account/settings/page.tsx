@@ -1,9 +1,11 @@
+import { use } from "react";
 import { useTranslations } from 'next-intl';
 import ProfileSettingsPage from './ProfileSettingsPage';
 import { PageType } from '@/types/base';
 import { LocaleCodeType } from '@/types/locale';
 
-export default function Page({ params }: PageType) {
+export default function Page(props: PageType) {
+  const params = use(props.params);
   const t = useTranslations('Auth');
   const messages = {
     profileSettings: t('profile_settings'),

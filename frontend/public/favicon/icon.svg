@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title>unittcms-plus icon</title>
+  <desc>A restrained test asset management mark with an AI node signal.</desc>
+  <defs>
+    <linearGradient id="nodeGradient" x1="286" y1="118" x2="424" y2="234" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7dd3fc" />
+      <stop offset="1" stop-color="#86efac" />
+    </linearGradient>
+  </defs>
+  <circle cx="256" cy="256" r="232" fill="#070a0f" />
+  <path
+    d="M143 278l70 70 156-178"
+    fill="none"
+    stroke="#f8fafc"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="46"
+  />
+  <path
+    d="M309 153l47-34 51 39-18 60-63 2-30-55z"
+    fill="none"
+    stroke="url(#nodeGradient)"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="22"
+  />
+  <circle cx="356" cy="119" r="18" fill="#7dd3fc" />
+  <circle cx="407" cy="158" r="18" fill="#86efac" />
+  <circle cx="389" cy="218" r="16" fill="#7dd3fc" />
+</svg>

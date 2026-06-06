@@ -1,6 +1,6 @@
 'use client';
-import { Button, DropdownTrigger, Dropdown, DropdownMenu, DropdownItem } from '@heroui/react';
 import { Globe, ChevronDown } from 'lucide-react';
+import { Button, DropdownTrigger, Dropdown, DropdownMenu, DropdownItem } from '@/components/heroui';
 import { locales } from '@/config/selection';
 
 type Props = {

@@ -1,15 +1,20 @@
 import '@/styles/globals.css';
 import clsx from 'clsx';
-import { getTranslations } from 'next-intl/server';
-import { useTranslations } from 'next-intl';
+import { getMessages, getTranslations } from 'next-intl/server';
 import { headers } from 'next/headers';
 import Header from './Header';
 import { Providers } from './providers';
 import { LocaleCodeType } from '@/types/locale';
 import { fontSans } from '@/config/fonts';
 
-export async function generateMetadata({ params: { locale } }: { params: { locale: LocaleCodeType } }) {
-  const headersList = headers();
+export async function generateMetadata(props: { params: Promise<{ locale: string }> }) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
+  const headersList = await headers();
   const host = headersList.get('host');
   const isOfficialDomain = host === 'unittcms.org' ? true : false;
   const t = await getTranslations({ locale, namespace: 'Header' });
@@ -29,14 +34,11 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   };
 }
 
-export default function RootLayout({
-  children,
-  params: { locale },
-}: {
-  children: React.ReactNode;
-  params: { locale: LocaleCodeType };
-}) {
-  const t = useTranslations('Toast');
+export default async function RootLayout(props: { children: React.ReactNode; params: Promise<{ locale: string }> }) {
+  const { locale } = await props.params;
+  const { children } = props;
+  const messages = await getMessages({ locale });
+  const t = await getTranslations({ locale, namespace: 'Toast' });
   const toastMessages = {
     needSignedIn: t('need_signed_in'),
     sessionExpired: t('session_expired'),
@@ -47,11 +49,12 @@ export default function RootLayout({
       <head />
       <body className={clsx('min-h-[calc(100vh-64px)] bg-background font-sans antialiased', fontSans.variable)}>
         <Providers
+          intlProps={{ locale: locale, messages: messages }}
           themeProps={{ attribute: 'class', defaultTheme: 'light' }}
-          tokenProps={{ toastMessages: toastMessages, locale: locale }}
+          tokenProps={{ toastMessages: toastMessages, locale: locale as LocaleCodeType }}
         >
           <div className="relative flex flex-col min-h-screen light:bg-neutral-50 dark:bg-neutral-800">
-            <Header locale={locale} />
+            <Header locale={locale as LocaleCodeType} />
             <main>{children}</main>
           </div>
         </Providers>

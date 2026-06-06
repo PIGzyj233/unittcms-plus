@@ -1,12 +1,12 @@
 'use client';
 import { useState, useEffect, useContext, ChangeEvent, DragEvent } from 'react';
-import { Input, Textarea, Select, SelectItem, Button, Divider, Tooltip, addToast, Badge } from '@heroui/react';
 import { Save, Plus, ArrowLeft, Circle } from 'lucide-react';
 import CaseStepsEditor from './CaseStepsEditor';
 import CaseAttachmentsEditor from './CaseAttachmentsEditor';
 import { updateSteps } from './stepControl';
 import { fetchCreateAttachments, fetchDownloadAttachment, fetchDeleteAttachment } from './attachmentControl';
 import CaseTagsEditor from './CaseTagsEditor';
+import { Input, TextArea, Select, SelectItem, Button, Separator, Tooltip, addToast, Badge } from '@/components/heroui';
 import { fetchCase, updateCase } from '@/utils/caseControl';
 import { priorities, testTypes, templates } from '@/config/selection';
 import { useRouter } from '@/src/i18n/routing';
@@ -322,7 +322,7 @@ export default function CaseEditor({
           className="mt-3"
         />
 
-        <Textarea
+        <TextArea
           size="sm"
           variant="bordered"
           label={messages.description}
@@ -410,12 +410,12 @@ export default function CaseEditor({
           </Select>
         </div>
 
-        <Divider className="my-6" />
+        <Separator className="my-6" />
         {templates[testCase.template].uid === 'text' ? (
           <div>
             <h6 className="font-bold">{messages.testDetail}</h6>
             <div className="flex">
-              <Textarea
+              <TextArea
                 size="sm"
                 variant="bordered"
                 label={messages.preconditions}
@@ -426,7 +426,7 @@ export default function CaseEditor({
                 className="mt-3 pe-1"
               />
 
-              <Textarea
+              <TextArea
                 size="sm"
                 variant="bordered"
                 label={messages.expectedResult}
@@ -466,7 +466,7 @@ export default function CaseEditor({
           </div>
         )}
 
-        <Divider className="my-6" />
+        <Separator className="my-6" />
         <h6 className="font-bold">{messages.attachments}</h6>
         {testCase.Attachments && (
           <CaseAttachmentsEditor

@@ -1,6 +1,6 @@
-import { Avatar as HeroUiAvatar } from '@heroui/react';
 import { User } from 'lucide-react';
 import Avatar from 'boring-avatars';
+import { Avatar as HeroUiAvatar } from '@/components/heroui';
 import Config from '@/config/config';
 const apiServer = Config.apiServer;
 

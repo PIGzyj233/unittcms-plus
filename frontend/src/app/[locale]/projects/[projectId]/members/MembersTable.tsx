@@ -1,4 +1,5 @@
 import { useState, useMemo, ReactNode } from 'react';
+import { ChevronDown } from 'lucide-react';
 import {
   Button,
   Table,
@@ -12,8 +13,7 @@ import {
   Dropdown,
   DropdownMenu,
   DropdownItem,
-} from '@heroui/react';
-import { ChevronDown } from 'lucide-react';
+} from '@/components/heroui';
 import { MemberType, UserType } from '@/types/user';
 import { memberRoles } from '@/config/selection';
 import { MembersMessages } from '@/types/member';

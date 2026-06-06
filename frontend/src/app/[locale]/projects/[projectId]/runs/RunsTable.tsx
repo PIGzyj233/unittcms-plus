@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo, ReactNode } from 'react';
+import { MoreVertical } from 'lucide-react';
+import dayjs from 'dayjs';
 import {
   Table,
   TableHeader,
@@ -12,9 +14,7 @@ import {
   DropdownMenu,
   DropdownItem,
   SortDescriptor,
-} from '@heroui/react';
-import { MoreVertical } from 'lucide-react';
-import dayjs from 'dayjs';
+} from '@/components/heroui';
 import { Link, NextUiLinkClasses } from '@/src/i18n/routing';
 import { RunsMessages, RunType } from '@/types/run';
 import { LocaleCodeType } from '@/types/locale';

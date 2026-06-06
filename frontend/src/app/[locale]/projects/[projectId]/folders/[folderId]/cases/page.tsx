@@ -1,3 +1,4 @@
+import { use } from "react";
 import { getTranslations } from 'next-intl/server';
 import { useTranslations } from 'next-intl';
 import CasesPane from './CasesPane';
@@ -5,7 +6,13 @@ import { PriorityMessages } from '@/types/priority';
 import { TestTypeMessages } from '@/types/testType';
 import { LocaleCodeType } from '@/types/locale';
 
-export async function generateMetadata({ params: { locale } }: { params: { locale: LocaleCodeType } }) {
+export async function generateMetadata(props: { params: Promise<{ locale: string }> }) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'Cases' });
   return {
     title: `${t('test_case_list')} | UnitTCMS`,
@@ -13,7 +20,10 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   };
 }
 
-export default function Page({ params }: { params: { projectId: string; folderId: string; locale: string } }) {
+export default function Page(
+  props: { params: Promise<{ projectId: string; folderId: string; locale: string }> }
+) {
+  const params = use(props.params);
   const t = useTranslations('Cases');
   const messages = {
     testCaseList: t('test_case_list'),

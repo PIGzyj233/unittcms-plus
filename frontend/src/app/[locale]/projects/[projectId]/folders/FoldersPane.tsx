@@ -1,11 +1,11 @@
 'use client';
-import { useState, useEffect, useContext } from 'react';
-import { Button } from '@heroui/react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import { Plus } from 'lucide-react';
 import { Tree } from 'react-arborist';
 import FolderDialog from './FolderDialog';
 import FolderItem from './FolderItem';
 import { fetchFolders, createFolder, updateFolder, deleteFolder } from './foldersControl';
+import { Button } from '@/components/heroui';
 import { usePathname, useRouter } from '@/src/i18n/routing';
 import { TokenContext } from '@/utils/TokenProvider';
 import useGetCurrentIds from '@/utils/useGetCurrentIds';
@@ -21,12 +21,50 @@ type Props = {
   locale: string;
 };
 
+function useElementHeight<T extends HTMLElement>() {
+  const elementRef = useRef<T>(null);
+  const [height, setHeight] = useState(0);
+
+  useEffect(() => {
+    const element = elementRef.current;
+    if (!element) {
+      return;
+    }
+
+    const updateHeight = (nextHeight: number) => {
+      const normalizedHeight = Math.max(0, Math.floor(nextHeight));
+      setHeight((currentHeight) => (currentHeight === normalizedHeight ? currentHeight : normalizedHeight));
+    };
+
+    updateHeight(element.getBoundingClientRect().height);
+
+    if (typeof ResizeObserver === 'undefined') {
+      const handleResize = () => updateHeight(element.getBoundingClientRect().height);
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) {
+        updateHeight(entry.contentRect.height);
+      }
+    });
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  return [elementRef, height] as const;
+}
+
 export default function FoldersPane({ projectId, messages, locale }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const context = useContext(TokenContext);
   const [treeData, setTreeData] = useState<TreeNodeData[]>([]);
   const [selectedFolder, setSelectedFolder] = useState<FolderType | null>(null);
+  const [treeViewportRef, treeHeight] = useElementHeight<HTMLDivElement>();
   const { folderId } = useGetCurrentIds();
   const [isFolderDialogOpen, setIsFolderDialogOpen] = useState(false);
   const [editingFolder, setEditingFolder] = useState<FolderType | null>(null);
@@ -132,49 +170,54 @@ export default function FoldersPane({ projectId, messages, locale }: Props) {
 
   return (
     <>
-      <div className="min-h-[calc(100vh-64px)] border-r-1 dark:border-neutral-700">
-        <Button
-          startContent={<Plus size={16} />}
-          size="sm"
-          variant="bordered"
-          className="m-2"
-          isDisabled={!context.isProjectDeveloper(Number(projectId))}
-          onPress={() => openDialogForCreate()}
-        >
-          {messages.newFolder}
-        </Button>
-
-        {treeData.length > 0 && (
-          <Tree
-            data={treeData}
-            className="w-full"
-            indent={16}
-            rowHeight={42}
-            overscanCount={5}
-            paddingTop={20}
-            paddingBottom={20}
-            padding={20}
-            width="100%"
-            openByDefault={false}
-            disableDrop={true}
-            disableDrag={true}
+      <div className="flex h-full min-h-[calc(100vh-64px)] flex-col border-r-1 dark:border-neutral-700">
+        <div className="shrink-0">
+          <Button
+            startContent={<Plus size={16} />}
+            size="sm"
+            variant="bordered"
+            className="m-2"
+            isDisabled={!context.isProjectDeveloper(Number(projectId))}
+            onPress={() => openDialogForCreate()}
           >
-            {(props) => (
-              <div onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, props.node.id)}>
-                <FolderItem
-                  {...props}
-                  projectId={projectId}
-                  selectedFolder={selectedFolder}
-                  locale={locale}
-                  messages={messages}
-                  openDialogForCreate={openDialogForCreate}
-                  onEditClick={onEditClick}
-                  onDeleteClick={onDeleteClick}
-                />
-              </div>
-            )}
-          </Tree>
-        )}
+            {messages.newFolder}
+          </Button>
+        </div>
+
+        <div ref={treeViewportRef} data-testid="folder-tree-viewport" className="min-h-0 flex-1 overflow-hidden">
+          {treeData.length > 0 && treeHeight > 0 && (
+            <Tree
+              data={treeData}
+              className="w-full"
+              indent={16}
+              rowHeight={42}
+              overscanCount={5}
+              paddingTop={20}
+              paddingBottom={20}
+              padding={20}
+              width="100%"
+              height={treeHeight}
+              openByDefault={false}
+              disableDrop={true}
+              disableDrag={true}
+            >
+              {(props) => (
+                <div onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, props.node.id)}>
+                  <FolderItem
+                    {...props}
+                    projectId={projectId}
+                    selectedFolder={selectedFolder}
+                    locale={locale}
+                    messages={messages}
+                    openDialogForCreate={openDialogForCreate}
+                    onEditClick={onEditClick}
+                    onDeleteClick={onDeleteClick}
+                  />
+                </div>
+              )}
+            </Tree>
+          )}
+        </div>
       </div>
 
       <FolderDialog

@@ -1,10 +1,12 @@
+import { use } from "react";
 import { useTranslations } from 'next-intl';
 import ProjectsPage from './ProjectsPage';
 import { PageType } from '@/types/base';
 import { LocaleCodeType } from '@/types/locale';
 import { ProjectDialogMessages, ProjectsMessages } from '@/types/project';
 
-export default function Page({ params }: PageType) {
+export default function Page(props: PageType) {
+  const params = use(props.params);
   const t = useTranslations('Projects');
   const messages: ProjectsMessages = {
     projectList: t('project_list'),

@@ -57,6 +57,9 @@ export default tseslint.config(
       '@typescript-eslint/no-namespace': 'off',
       'react/prop-types': 'off',
       ...eslintPluginReactHooks.configs.recommended.rules,
+      'react-hooks/immutability': 'off',
+      'react-hooks/preserve-manual-memoization': 'off',
+      'react-hooks/set-state-in-effect': 'off',
     },
   },
   {

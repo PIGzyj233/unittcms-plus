@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useContext } from 'react';
-import { Button, Input, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from '@heroui/react';
 import CandidatesTable from './CandidatesTable';
+import { Button, Input, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from '@/components/heroui';
 import { TokenContext } from '@/utils/TokenProvider';
 import { UserType } from '@/types/user';
 import { searchUsers } from '@/utils/usersControl';

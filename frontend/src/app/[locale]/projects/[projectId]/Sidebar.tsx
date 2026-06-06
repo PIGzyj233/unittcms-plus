@@ -1,15 +1,16 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Button, Tooltip } from '@heroui/react';
 import {
   PanelLeftClose,
   PanelLeftOpen,
   ChartColumnStacked,
   ClipboardList,
+  Sparkles,
   FlaskConical,
   UserRound,
   Settings,
 } from 'lucide-react';
+import { Button, Tooltip } from '@/components/heroui';
 import { usePathname, useRouter } from '@/src/i18n/routing';
 import useGetCurrentIds from '@/utils/useGetCurrentIds';
 import { ProjectMessages } from '@/types/project';
@@ -37,6 +38,8 @@ export default function Sidebar({ messages, locale }: Props) {
       router.push(`/projects/${projectId}/home`, { locale: locale });
     } else if (key === 'cases') {
       router.push(`/projects/${projectId}/folders`, { locale: locale });
+    } else if (key === 'caseCandidates') {
+      router.push(`/projects/${projectId}/case-candidates`, { locale: locale });
     } else if (key === 'runs') {
       router.push(`/projects/${projectId}/runs`, { locale: locale });
     } else if (key === 'members') {
@@ -52,6 +55,8 @@ export default function Sidebar({ messages, locale }: Props) {
         setCurrentKey('home');
       } else if (currentPath.includes('folders')) {
         setCurrentKey('cases');
+      } else if (currentPath.includes('case-candidates')) {
+        setCurrentKey('caseCandidates');
       } else if (currentPath.includes('runs')) {
         setCurrentKey('runs');
       } else if (currentPath.includes('members')) {
@@ -74,6 +79,11 @@ export default function Sidebar({ messages, locale }: Props) {
       key: 'cases',
       text: messages.testCases,
       startContent: <ClipboardList strokeWidth={ICON_STROKE_WIDTH} size={ICON_SIZE} />,
+    },
+    {
+      key: 'caseCandidates',
+      text: messages.caseCandidates,
+      startContent: <Sparkles strokeWidth={ICON_STROKE_WIDTH} size={ICON_SIZE} />,
     },
     {
       key: 'runs',

@@ -1,13 +1,19 @@
 services:
   unittcms:
-    image: unittcms:latest
+    image: unittcms-plus:latest
     build: .
     ports:
-      - '8000:8000'
+      - '${UNITTCMS_WEB_PORT:-8000}:8000'
+      - '${UNITTCMS_MCP_PUBLISHED_PORT:-3333}:3333'
     environment:
       - PORT=8000
-      - SECRET_KEY=your_secret_key_here
-      - IS_DEMO=false # set to true to seed the database
+      - SECRET_KEY=${SECRET_KEY:-your_secret_key_here}
+      - IS_DEMO=${IS_DEMO:-false} # set to true to seed the database
+      - UNITTCMS_BACKEND_ORIGIN=http://127.0.0.1:8001
+      - UNITTCMS_BOT_EMAIL=${UNITTCMS_BOT_EMAIL:-bot@norelpy.com}
+      - UNITTCMS_BOT_PASSWORD=${UNITTCMS_BOT_PASSWORD:-iambot2333}
+      - UNITTCMS_MCP_HOST=0.0.0.0
+      - UNITTCMS_MCP_PORT=3333
     volumes:
       - db-data:/app/backend/database
       - ./backend/public/uploads:/app/backend/public/uploads
