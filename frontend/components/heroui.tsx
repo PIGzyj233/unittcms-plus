@@ -223,14 +223,26 @@ type V3TabsBridgeProps = {
   [key: string]: unknown;
 };
 
+function normalizeCollectionKey(key: React.Key | null): React.Key | undefined {
+  if (key == null) return undefined;
+  if (typeof key !== 'string') return key;
+
+  const withoutReactPrefix = key.startsWith('.$') ? key.slice(2) : key.startsWith('.') ? key.slice(1) : key;
+  return withoutReactPrefix.replace(/=0/g, '=').replace(/=2/g, ':');
+}
+
+function tabKey(tab: React.ReactElement<any>): React.Key | undefined {
+  return (tab.props.id as React.Key | undefined) ?? normalizeCollectionKey(tab.key);
+}
+
 export function Tabs({ children, selectedKey, onSelectionChange, className, ...props }: V3TabsBridgeProps) {
   const tabs = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement<any>[];
-  const activeKey = selectedKey ?? tabs[0]?.key;
+  const activeKey = selectedKey ?? (tabs[0] ? tabKey(tabs[0]) : undefined);
   return (
     <div className={className} {...props}>
       <div className="flex gap-1 border-b border-separator">
         {tabs.map((tab) => {
-          const key = tab.props.id ?? tab.key;
+          const key = tabKey(tab);
           const isActive = String(key) === String(activeKey);
           return (
             <button
@@ -240,7 +252,9 @@ export function Tabs({ children, selectedKey, onSelectionChange, className, ...p
                 isActive ? 'border-b-2 border-accent text-accent' : 'text-muted hover:text-foreground',
               ].join(' ')}
               type="button"
-              onClick={() => onSelectionChange?.(key)}
+              onClick={() => {
+                if (key != null) onSelectionChange?.(key);
+              }}
             >
               {tab.props.title ?? tab.props.children}
             </button>
@@ -248,7 +262,7 @@ export function Tabs({ children, selectedKey, onSelectionChange, className, ...p
         })}
       </div>
       {tabs.map((tab) => {
-        const key = tab.props.id ?? tab.key;
+        const key = tabKey(tab);
         return String(key) === String(activeKey) ? (
           <div key={String(key)} className="py-3">
             {tab.props.children}
