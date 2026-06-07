@@ -48,6 +48,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Checkbox,
 } from '@/components/heroui';
 import { useRouter } from '@/src/i18n/routing';
 import { testRunStatus } from '@/config/selection';
@@ -73,6 +74,8 @@ const defaultTestRun = {
   createdAt: '',
   updatedAt: '',
 };
+
+type EditableRunCase = NonNullable<CaseType['RunCases']>[number];
 
 type Props = {
   projectId: string;
@@ -110,6 +113,8 @@ export default function RunEditor({
   const [searchFilter, setSearchFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<number[]>([]);
   const [tagFilter, setTagFilter] = useState<number[]>([]);
+  const [includeSubfolders, setIncludeSubfolders] = useState(true);
+  const [runCaseEditsByCaseId, setRunCaseEditsByCaseId] = useState<Map<number, EditableRunCase>>(new Map());
   const router = useRouter();
 
   // not show warning when navigating to test case detail page
@@ -121,21 +126,42 @@ export default function RunEditor({
     setRunStatusCounts(statusCounts);
   };
 
-  const initTestCases = async (search?: string, status?: string[], tag?: string[]) => {
+  const applyRunCaseEdits = (casesData: CaseType[], edits: Map<number, EditableRunCase>) => {
+    return casesData.map((testCase: CaseType) => {
+      const normalizedCase = { ...testCase };
+      if (normalizedCase.RunCases && normalizedCase.RunCases.length > 0) {
+        normalizedCase.RunCases = [{ ...normalizedCase.RunCases[0], editState: 'notChanged' }];
+      }
+
+      const editedRunCase = edits.get(normalizedCase.id);
+      if (editedRunCase) {
+        normalizedCase.RunCases = [{ ...(normalizedCase.RunCases?.[0] || {}), ...editedRunCase }];
+      }
+      return normalizedCase;
+    });
+  };
+
+  const initTestCases = async (
+    folder: TreeNodeData | null = selectedFolder,
+    nextIncludeSubfolders = includeSubfolders,
+    search = searchFilter,
+    status: string[] = statusFilter.map(String),
+    tag: string[] = tagFilter.map(String),
+    edits = runCaseEditsByCaseId
+  ) => {
     const casesData = await fetchProjectCases(
       tokenContext.token.access_token,
       Number(projectId),
       Number(runId),
-      search,
-      status,
-      tag
+      folder ? Number(folder.id) : undefined,
+      nextIncludeSubfolders,
+      search || undefined,
+      status.length > 0 ? status : undefined,
+      tag.length > 0 ? tag : undefined
     );
-    casesData.forEach((testCase: CaseType) => {
-      if (testCase.RunCases && testCase.RunCases.length > 0) {
-        testCase.RunCases[0].editState = 'notChanged';
-      }
-    });
-    setTestCases(casesData);
+    const normalizedCases = applyRunCaseEdits(casesData || [], edits);
+    setTestCases(normalizedCases);
+    setFilteredTestCases(normalizedCases);
   };
 
   const isSignedIn = tokenContext.isSignedIn();
@@ -152,8 +178,9 @@ export default function RunEditor({
         const foldersData = await fetchFolders(tokenContext.token.access_token, Number(projectId));
         const tree = buildFolderTree(foldersData);
         setTreeData(tree);
-        setSelectedFolder(foldersData[0]);
-        initTestCases();
+        const initialFolder = tree[0] || null;
+        setSelectedFolder(initialFolder);
+        await initTestCases(initialFolder, includeSubfolders, '', [], []);
       } catch (error: unknown) {
         logError('Error fetching run data', error);
       }
@@ -163,25 +190,26 @@ export default function RunEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSignedIn]);
 
-  useEffect(() => {
-    function onFilter() {
-      if (selectedFolder && selectedFolder.id) {
-        try {
-          const filteredData = testCases.filter((testCase) => testCase.folderId.toString() === selectedFolder.id);
-          setFilteredTestCases(filteredData);
-        } catch (error: unknown) {
-          logError('Error filtering test cases', error);
+  const rememberRunCaseEdits = (nextTestCases: CaseType[], caseIds: number[]) => {
+    setRunCaseEditsByCaseId((prev) => {
+      const next = new Map(prev);
+      caseIds.forEach((caseId) => {
+        const testCase = nextTestCases.find((entry) => entry.id === caseId);
+        const runCase = testCase?.RunCases?.[0];
+        if (runCase && runCase.editState !== 'notChanged') {
+          next.set(caseId, { ...runCase });
         }
-      }
-    }
-
-    onFilter();
-  }, [selectedFolder, testCases]);
+      });
+      return next;
+    });
+  };
 
   const handleChangeStatus = async (changeCaseId: number, newStatus: number) => {
     setIsDirty(true);
     const newTestCases = changeStatus(changeCaseId, newStatus, testCases);
     setTestCases(newTestCases);
+    setFilteredTestCases(newTestCases);
+    rememberRunCaseEdits(newTestCases, [changeCaseId]);
   };
 
   const handleIncludeExcludeCase = async (isInclude: boolean, clickedTestCaseId: number) => {
@@ -189,6 +217,8 @@ export default function RunEditor({
     const keys = [clickedTestCaseId];
     const newTestCases = includeExcludeTestCases(isInclude, keys, Number(runId), testCases);
     setTestCases(newTestCases);
+    setFilteredTestCases(newTestCases);
+    rememberRunCaseEdits(newTestCases, keys);
   };
 
   const handleBulkIncludeExcludeCases = async (isInclude: boolean) => {
@@ -202,14 +232,25 @@ export default function RunEditor({
 
     const newTestCases = includeExcludeTestCases(isInclude, keys, Number(runId), testCases);
     setTestCases(newTestCases);
+    setFilteredTestCases(newTestCases);
+    rememberRunCaseEdits(newTestCases, keys);
     setSelectedKeys(new Set([]));
   };
 
   const onSave = async () => {
     setIsUpdating(true);
     await updateRun(tokenContext.token.access_token, testRun);
-    await updateRunCases(tokenContext.token.access_token, Number(runId), testCases);
-    await initTestCases();
+    const dirtyTestCases = Array.from(runCaseEditsByCaseId.entries()).map(
+      ([caseId, runCase]) =>
+        ({
+          id: caseId,
+          RunCases: [runCase],
+        }) as CaseType
+    );
+    await updateRunCases(tokenContext.token.access_token, Number(runId), dirtyTestCases);
+    const clearedEdits = new Map<number, EditableRunCase>();
+    setRunCaseEditsByCaseId(clearedEdits);
+    await initTestCases(selectedFolder, includeSubfolders, searchFilter, statusFilter.map(String), tagFilter.map(String), clearedEdits);
 
     addToast({
       title: 'Success',
@@ -227,20 +268,18 @@ export default function RunEditor({
   const [activeFilterNum, setActiveFilterNum] = useState(0);
 
   const onFilterChange = async (search: string, status: number[], tag: number[]) => {
-    if (isDirty) {
-      addToast({
-        title: 'Error',
-        color: 'danger',
-        description: messages.pleaseSave,
-      });
-      return;
-    }
-
     setSearchFilter(search);
     setStatusFilter(status);
     setTagFilter(tag);
+    setSelectedKeys(new Set([]));
     setActiveFilterNum((search ? 1 : 0) + (status.length > 0 ? 1 : 0) + (tag.length > 0 ? 1 : 0));
-    await initTestCases(search, status.map(String), tag.map(String));
+    await initTestCases(selectedFolder, includeSubfolders, search, status.map(String), tag.map(String));
+  };
+
+  const handleIncludeSubfoldersChange = async (selected: boolean) => {
+    setIncludeSubfolders(selected);
+    setSelectedKeys(new Set([]));
+    await initTestCases(selectedFolder, selected);
   };
 
   return (
@@ -424,7 +463,12 @@ export default function RunEditor({
 
         <Separator className="my-6" />
         <div className="flex items-center justify-between">
-          <h6 className="h-8 font-bold">{messages.selectTestCase}</h6>
+          <div className="flex items-center gap-3">
+            <h6 className="h-8 font-bold">{messages.selectTestCase}</h6>
+            <Checkbox isSelected={includeSubfolders} onValueChange={handleIncludeSubfoldersChange}>
+              {messages.includeSubfolders}
+            </Checkbox>
+          </div>
           <div>
             {(selectedKeys === 'all' || selectedKeys.size > 0) && (
               <Dropdown>
@@ -475,34 +519,55 @@ export default function RunEditor({
               disableDrop={true}
               disableDrag={true}
             >
-              {({ node, style }: { node: NodeApi<TreeNodeData>; style: React.CSSProperties }) => (
-                <TreeItem
-                  style={style}
-                  isSelected={selectedFolder ? node.data.id === selectedFolder.id : false}
-                  onClick={() => {
-                    setSelectedKeys(new Set([]));
-                    setSelectedFolder(node.data);
-                  }}
-                  toggleButton={
-                    node.data.children && node.data.children.length > 0 ? (
-                      <Button
-                        size="sm"
-                        className="bg-transparent rounded-full h-6 w-6 min-w-4"
-                        isIconOnly
-                        onPress={() => node.toggle()}
-                      >
-                        {node.isOpen ? (
-                          <ChevronDown size={20} color="#F7C24E" />
-                        ) : (
-                          <ChevronRight size={20} color="#F7C24E" />
-                        )}
-                      </Button>
-                    ) : null
-                  }
-                  icon={<Folder size={20} color="#F7C24E" fill="#F7C24E" />}
-                  label={node.data.name}
-                />
-              )}
+              {({ node, style }: { node: NodeApi<TreeNodeData>; style: React.CSSProperties }) => {
+                const caseCount = node.data.folderData.caseCount;
+                const directCaseCount = node.data.folderData.directCaseCount;
+                const directCountTitle =
+                  typeof caseCount === 'number' && typeof directCaseCount === 'number' && directCaseCount < caseCount
+                    ? `${directCaseCount} directly placed`
+                    : undefined;
+
+                return (
+                  <TreeItem
+                    style={style}
+                    isSelected={selectedFolder ? node.data.id === selectedFolder.id : false}
+                    onClick={async () => {
+                      setSelectedKeys(new Set([]));
+                      setSelectedFolder(node.data);
+                      await initTestCases(node.data, includeSubfolders);
+                    }}
+                    toggleButton={
+                      node.data.children && node.data.children.length > 0 ? (
+                        <Button
+                          size="sm"
+                          className="bg-transparent rounded-full h-6 w-6 min-w-4"
+                          isIconOnly
+                          onPress={() => node.toggle()}
+                        >
+                          {node.isOpen ? (
+                            <ChevronDown size={20} color="#F7C24E" />
+                          ) : (
+                            <ChevronRight size={20} color="#F7C24E" />
+                          )}
+                        </Button>
+                      ) : null
+                    }
+                    icon={<Folder size={20} color="#F7C24E" fill="#F7C24E" />}
+                    label={node.data.name}
+                    actions={
+                      typeof caseCount === 'number' ? (
+                        <span
+                          className="mr-1 rounded-full bg-default-100 px-2 py-0.5 text-xs text-default-600"
+                          title={directCountTitle}
+                          aria-label={`Folder Scope Count ${caseCount}`}
+                        >
+                          {caseCount}
+                        </span>
+                      ) : undefined
+                    }
+                  />
+                );
+              }}
             </Tree>
           </div>
           <div className="w-9/12 overflow-x-auto">

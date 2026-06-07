@@ -76,6 +76,7 @@ function createTools(client) {
         request: (input) =>
           client.request(projectPath('/agent/cases', input, [
             'folderId',
+            'includeSubfolders',
             'priority',
             'type',
             'includedInRunId',

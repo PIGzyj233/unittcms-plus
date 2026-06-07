@@ -31,6 +31,14 @@ vi.mock('../../models/cases.js', () => ({
   default: () => mockCase,
 }));
 
+const mockFolder = {
+  findByPk: vi.fn(),
+  findAll: vi.fn(),
+};
+vi.mock('../../models/folders.js', () => ({
+  default: () => mockFolder,
+}));
+
 const mockTags = {
   belongsToMany: vi.fn(),
 };
@@ -51,6 +59,9 @@ describe('GET /cases', () => {
 
     // Mount the index route
     app.use('/cases', casesIndexRoute(sequelize));
+    vi.clearAllMocks();
+    mockFolder.findByPk.mockResolvedValue({ id: 1, name: 'Login', projectId: 1, parentFolderId: null });
+    mockFolder.findAll.mockResolvedValue([{ id: 1, name: 'Login', projectId: 1, parentFolderId: null }]);
   });
 
   it('should return 400 if folderId is missing', async () => {
@@ -59,12 +70,12 @@ describe('GET /cases', () => {
     expect(res.body.error).toBe('folderId is required');
   });
 
-  it('should call findAll with correct where clause for folderId only', async () => {
-    mockCase.findAll.mockResolvedValue([{ id: 1 }]);
+  it('should call findAll with a Folder Scope where clause by default', async () => {
+    mockCase.findAll.mockResolvedValue([{ id: 1, folderId: 1 }]);
     const res = await request(app).get('/cases?folderId=1');
     expect(res.status).toBe(200);
     expect(mockCase.findAll).toHaveBeenCalledWith({
-      where: { folderId: '1' },
+      where: { folderId: { [Op.in]: [1] } },
       include: [
         {
           model: mockTags,
@@ -72,18 +83,19 @@ describe('GET /cases', () => {
           through: { attributes: [] },
         },
       ],
+      order: [['id', 'ASC']],
     });
-    expect(res.body).toEqual([{ id: 1 }]);
+    expect(res.body).toEqual([{ id: 1, folderId: 1, folderPath: ['Login'] }]);
   });
 
   it('should build a where clause based on query parameters.', async () => {
-    mockCase.findAll.mockResolvedValue([{ id: 1 }]);
+    mockCase.findAll.mockResolvedValue([{ id: 1, folderId: 1 }]);
     const res = await request(app).get('/cases?folderId=1&priority=1,2&type=3');
     expect(res.status).toBe(200);
 
     expect(mockCase.findAll).toHaveBeenCalledWith({
       where: {
-        folderId: '1',
+        folderId: { [Op.in]: [1] },
         priority: { [Op.in]: [1, 2] },
         type: { [Op.in]: [3] },
       },
@@ -94,6 +106,7 @@ describe('GET /cases', () => {
           through: { attributes: [] },
         },
       ],
+      order: [['id', 'ASC']],
     });
   });
 });

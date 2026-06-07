@@ -1,5 +1,4 @@
 import express from 'express';
-const router = express.Router();
 import { DataTypes, Op } from 'sequelize';
 import defineProject from '../../models/projects.js';
 import defineFolder from '../../models/folders.js';
@@ -8,8 +7,11 @@ import defineTag from '../../models/tags.js';
 import defineRunCase from '../../models/runCases.js';
 import authMiddleware from '../../middleware/auth.js';
 import visibilityMiddleware from '../../middleware/verifyVisible.js';
+import { folderPathFor, getFolderScope, getProjectFolderPaths } from '../lib/folderScope.js';
+import { parseOptionalBooleanQuery } from '../lib/queryParams.js';
 
 export default function (sequelize) {
+  const router = express.Router();
   const Project = defineProject(sequelize, DataTypes);
   const Folder = defineFolder(sequelize, DataTypes);
   const Case = defineCase(sequelize, DataTypes);
@@ -33,7 +35,7 @@ export default function (sequelize) {
     verifyProjectVisibleFromProjectId,
     verifyProjectVisibleFromRunId,
     async (req, res) => {
-      const { projectId, runId, status, tag, search } = req.query;
+      const { projectId, runId, status, tag, search, folderId, includeSubfolders } = req.query;
 
       if (!projectId) {
         return res.status(400).json({ error: 'projectId is required' });
@@ -44,8 +46,22 @@ export default function (sequelize) {
       }
 
       try {
+        const scope = folderId
+          ? await getFolderScope(sequelize, {
+              folderId,
+              projectId,
+              includeSubfolders: parseOptionalBooleanQuery(includeSubfolders, 'includeSubfolders'),
+            })
+          : null;
+        if (folderId && !scope) {
+          return res.json([]);
+        }
+
         // Build where clause for Case model
         const caseWhereClause = {};
+        if (scope) {
+          caseWhereClause.folderId = { [Op.in]: scope.folderIds };
+        }
 
         // Handle search parameter
         if (search) {
@@ -131,10 +147,19 @@ export default function (sequelize) {
             tagInclude,
           ],
         });
-        res.json(cases);
+        const folderPaths = scope ? null : await getProjectFolderPaths(sequelize, { projectId });
+        res.json(
+          cases.map((testcase) => {
+            const plain = typeof testcase.get === 'function' ? testcase.get({ plain: true }) : testcase;
+            return {
+              ...plain,
+              folderPath: scope ? folderPathFor(scope, plain.folderId) : folderPaths.get(plain.folderId) || [],
+            };
+          })
+        );
       } catch (error) {
         console.error(error);
-        res.status(500).send('Internal Server Error');
+        res.status(error.status || 500).json(error.status ? { error: error.message } : { error: 'Internal Server Error' });
       }
     }
   );

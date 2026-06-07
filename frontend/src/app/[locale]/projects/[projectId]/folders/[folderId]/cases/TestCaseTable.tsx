@@ -47,6 +47,8 @@ type Props = {
   onDeleteCases: (caseIds: number[]) => void;
   onShowImportDialog: () => void;
   onExportCases: (type: string) => void;
+  onIncludeSubfoldersChange: (includeSubfolders: boolean) => void;
+  includeSubfolders: boolean;
   onFilterChange: (query: string, priorities: number[], types: number[], tag: number[]) => void;
   activeSearchFilter: string;
   activePriorityFilters: number[];
@@ -67,6 +69,8 @@ export default function TestCaseTable({
   onDeleteCases,
   onShowImportDialog,
   onExportCases,
+  onIncludeSubfoldersChange,
+  includeSubfolders,
   onFilterChange,
   activeSearchFilter,
   activePriorityFilters,
@@ -92,6 +96,7 @@ export default function TestCaseTable({
   const headerColumns = [
     { name: messages.id, uid: 'id', sortable: true },
     { name: messages.title, uid: 'title', sortable: true },
+    { name: messages.folderPath, uid: 'folderPath', sortable: true },
     { name: messages.priority, uid: 'priority', sortable: true },
     { name: messages.tags, uid: 'tags' },
     { name: messages.actions, uid: 'actions' },
@@ -120,6 +125,9 @@ export default function TestCaseTable({
           );
         case 'priority':
           return <TestCasePriority priorityValue={cellValue as number} priorityMessages={priorityMessages} />;
+
+        case 'folderPath':
+          return <span>{Array.isArray(testCase.folderPath) ? testCase.folderPath.join(' / ') : ''}</span>;
 
         case 'tags':
           return (
@@ -201,6 +209,16 @@ export default function TestCaseTable({
     );
   };
 
+  useEffect(() => {
+    setSelectedKeys((prev) => {
+      if (prev === 'all') return prev;
+
+      const visibleIds = new Set(cases.map((testCase) => testCase.id));
+      const nextSelectedKeys = new Set(Array.from(prev).filter((id) => visibleIds.has(Number(id))));
+      return nextSelectedKeys.size === prev.size ? prev : nextSelectedKeys;
+    });
+  }, [cases]);
+
   // **************************************************************************
   // sort test case
   // **************************************************************************
@@ -213,8 +231,10 @@ export default function TestCaseTable({
       return [];
     }
     return [...cases].sort((a: CaseType, b: CaseType) => {
-      const first = a[sortDescriptor.column as keyof CaseType] as number;
-      const second = b[sortDescriptor.column as keyof CaseType] as number;
+      const firstValue = a[sortDescriptor.column as keyof CaseType];
+      const secondValue = b[sortDescriptor.column as keyof CaseType];
+      const first = Array.isArray(firstValue) ? firstValue.join(' / ') : firstValue ?? '';
+      const second = Array.isArray(secondValue) ? secondValue.join(' / ') : secondValue ?? '';
       const cmp = first < second ? -1 : first > second ? 1 : 0;
 
       return sortDescriptor.direction === 'descending' ? -cmp : cmp;
@@ -287,7 +307,18 @@ export default function TestCaseTable({
     <>
       <div className="border-b-1 dark:border-neutral-700 w-full ">
         <div className="flex items-center justify-between p-3 ">
-          <h3 className="font-bold">{messages.testCaseList}</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="font-bold">{messages.testCaseList}</h3>
+            <Chip size="sm" variant="flat">
+              {includeSubfolders ? messages.folderScope : messages.directlyPlacedOnly}
+            </Chip>
+            <Checkbox
+              isSelected={includeSubfolders}
+              onValueChange={(selected: boolean) => onIncludeSubfoldersChange(selected)}
+            >
+              {messages.includeSubfolders}
+            </Checkbox>
+          </div>
           <div className="flex items-center">
             {((selectedKeys !== 'all' && selectedKeys.size > 0) || selectedKeys === 'all') && (
               <Button
@@ -439,7 +470,7 @@ export default function TestCaseTable({
 
       {sortedItems.length === 0 && (
         <div className="flex justify-center items-center w-full h-48 text-neutral-500">
-          <div>No test case</div>
+          <div>{includeSubfolders ? messages.noCasesFound : messages.directPlacementEmpty}</div>
         </div>
       )}
 

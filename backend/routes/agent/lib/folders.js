@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 
-import defineCase from '../../../models/cases.js';
 import defineFolder from '../../../models/folders.js';
+import { getProjectFolderCaseCounts } from '../../lib/folderScope.js';
 
 const ensureFolderPathOperationType = 'ensure-folder-path';
 const folderDetailMaxLength = 500;
@@ -45,10 +45,6 @@ function validateFolderPathSegments(segments) {
 
 function folderModel(sequelize) {
   return sequelize.models.Folder || defineFolder(sequelize, DataTypes);
-}
-
-function caseModel(sequelize) {
-  return sequelize.models.Case || defineCase(sequelize, DataTypes);
 }
 
 function serializeFolder(folder, extras = {}) {
@@ -100,7 +96,6 @@ async function withEnsureFolderPathLock(projectId, task) {
 
 async function getFolderTree(sequelize, { projectId }) {
   const Folder = folderModel(sequelize);
-  const Case = caseModel(sequelize);
   const folders = await Folder.findAll({
     where: { projectId },
     order: [
@@ -108,15 +103,14 @@ async function getFolderTree(sequelize, { projectId }) {
       ['name', 'ASC'],
     ],
   });
-  const folderIds = folders.map((folder) => folder.id);
-  const cases = folderIds.length > 0 ? await Case.findAll({ where: { folderId: folderIds } }) : [];
-  const caseCounts = new Map();
+  const { caseCountsByFolderId, directCaseCountsByFolderId } = await getProjectFolderCaseCounts(sequelize, { projectId });
 
-  for (const testCase of cases) {
-    caseCounts.set(testCase.folderId, (caseCounts.get(testCase.folderId) || 0) + 1);
-  }
-
-  return folders.map((folder) => serializeFolder(folder, { caseCount: caseCounts.get(folder.id) || 0 }));
+  return folders.map((folder) =>
+    serializeFolder(folder, {
+      caseCount: caseCountsByFolderId.get(folder.id) || 0,
+      directCaseCount: directCaseCountsByFolderId.get(folder.id) || 0,
+    })
+  );
 }
 
 async function planEnsureFolderPath(sequelize, { projectId, path }, options = {}) {

@@ -37,6 +37,12 @@ export default function FolderItem({
   const searchParams = useSearchParams();
   const context = useContext(TokenContext);
   const isSelected = selectedFolder && node.data.folderData.id === selectedFolder.id;
+  const caseCount = node.data.folderData.caseCount;
+  const directCaseCount = node.data.folderData.directCaseCount;
+  const directCountTitle =
+    typeof caseCount === 'number' && typeof directCaseCount === 'number' && directCaseCount < caseCount
+      ? `${directCaseCount} directly placed`
+      : undefined;
 
   const toggleButton =
     node.data.children && node.data.children.length > 0 ? (
@@ -52,6 +58,15 @@ export default function FolderItem({
 
   const actions = (
     <>
+      {typeof caseCount === 'number' && (
+        <span
+          className="mr-1 rounded-full bg-default-100 px-2 py-0.5 text-xs text-default-600"
+          title={directCountTitle}
+          aria-label={`Folder Scope Count ${caseCount}`}
+        >
+          {caseCount}
+        </span>
+      )}
       <Button
         size="sm"
         isIconOnly

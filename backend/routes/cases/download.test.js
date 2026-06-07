@@ -36,6 +36,7 @@ vi.mock('../../middleware/verifyVisible.js', () => ({
 
 const mockFolder = {
   findByPk: vi.fn(),
+  findAll: vi.fn(),
 };
 vi.mock('../../models/folders.js', () => ({
   default: () => mockFolder,
@@ -72,7 +73,8 @@ describe('GET /download with type=csv', () => {
   });
 
   it('should return CSV with human-readable labels for state, priority, type, automationStatus, and template', async () => {
-    mockFolder.findByPk.mockResolvedValue({ id: 1, name: 'Test Folder' });
+    mockFolder.findByPk.mockResolvedValue({ id: 1, name: 'Test Folder', projectId: 1, parentFolderId: null });
+    mockFolder.findAll.mockResolvedValue([{ id: 1, name: 'Test Folder', projectId: 1, parentFolderId: null }]);
 
     mockCase.findAll.mockResolvedValue([
       {
@@ -142,6 +144,8 @@ describe('GET /download with type=csv', () => {
   });
 
   it('should return 404 if no cases found', async () => {
+    mockFolder.findByPk.mockResolvedValue({ id: 999, name: 'Empty Folder', projectId: 1, parentFolderId: null });
+    mockFolder.findAll.mockResolvedValue([{ id: 999, name: 'Empty Folder', projectId: 1, parentFolderId: null }]);
     mockCase.findAll.mockResolvedValue([]);
 
     const response = await request(app).get('/download?folderId=999&type=csv');

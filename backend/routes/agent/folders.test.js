@@ -132,7 +132,7 @@ describe('agent folder routes', () => {
     expect(events).toEqual(['first-start', 'first-finish', 'second-start']);
   });
 
-  it('returns a project-scoped folder tree with case counts', async () => {
+  it('returns a project-scoped folder tree with Folder Scope Counts', async () => {
     const parent = await Folder.create({ name: 'Payments', detail: 'Payment flows', projectId: 1 });
     const child = await Folder.create({ name: 'Card failures', projectId: 1, parentFolderId: parent.id });
     await Folder.create({ name: 'Other project', projectId: 2 });
@@ -152,7 +152,8 @@ describe('agent folder routes', () => {
         detail: 'Payment flows',
         parentFolderId: null,
         projectId: 1,
-        caseCount: 1,
+        caseCount: 3,
+        directCaseCount: 1,
       },
       {
         id: child.id,
@@ -161,6 +162,7 @@ describe('agent folder routes', () => {
         parentFolderId: parent.id,
         projectId: 1,
         caseCount: 2,
+        directCaseCount: 2,
       },
     ]);
   });

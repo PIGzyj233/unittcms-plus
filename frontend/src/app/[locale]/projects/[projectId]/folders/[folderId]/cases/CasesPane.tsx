@@ -47,36 +47,61 @@ export default function CasesPane({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const updateUrlParams = (updates: { search?: string; priority?: number[]; type?: number[]; tag?: number[] }) => {
+  const updateUrlParams = (updates: {
+    search?: string;
+    priority?: number[];
+    type?: number[];
+    tag?: number[];
+    includeSubfolders?: boolean;
+  }) => {
     const currentParams = new URLSearchParams(searchParams.toString());
 
-    if (updates.search) {
-      currentParams.set('search', updates.search);
-    } else {
-      currentParams.delete('search');
+    if ('search' in updates) {
+      if (updates.search) {
+        currentParams.set('search', updates.search);
+      } else {
+        currentParams.delete('search');
+      }
     }
 
-    if (updates.priority && updates.priority.length > 0) {
-      currentParams.set('priority', updates.priority.join(','));
-    } else {
-      currentParams.delete('priority');
+    if ('priority' in updates) {
+      if (updates.priority && updates.priority.length > 0) {
+        currentParams.set('priority', updates.priority.join(','));
+      } else {
+        currentParams.delete('priority');
+      }
     }
 
-    if (updates.type && updates.type.length > 0) {
-      currentParams.set('type', updates.type.join(','));
-    } else {
-      currentParams.delete('type');
+    if ('type' in updates) {
+      if (updates.type && updates.type.length > 0) {
+        currentParams.set('type', updates.type.join(','));
+      } else {
+        currentParams.delete('type');
+      }
     }
 
-    if (updates.tag && updates.tag.length > 0) {
-      currentParams.set('tag', updates.tag.join(','));
-    } else {
-      currentParams.delete('tag');
+    if ('tag' in updates) {
+      if (updates.tag && updates.tag.length > 0) {
+        currentParams.set('tag', updates.tag.join(','));
+      } else {
+        currentParams.delete('tag');
+      }
     }
 
-    const newUrl = `${window.location.pathname}?${currentParams.toString()}`;
+    if ('includeSubfolders' in updates) {
+      if (updates.includeSubfolders === false) {
+        currentParams.set('includeSubfolders', 'false');
+      } else {
+        currentParams.delete('includeSubfolders');
+      }
+    }
+
+    const queryString = currentParams.toString();
+    const newUrl = `${window.location.pathname}${queryString ? `?${queryString}` : ''}`;
     router.push(newUrl, { scroll: false });
   };
+
+  const includeSubfolders = searchParams.get('includeSubfolders') !== 'false';
 
   const refreshCases = useCallback(async () => {
     if (!context.isSignedIn()) return;
@@ -98,13 +123,14 @@ export default function CasesPane({
         searchParam || undefined,
         priorityParam.length > 0 ? priorityParam : undefined,
         typeParam.length > 0 ? typeParam : undefined,
-        tagParam.length > 0 ? tagParam : undefined
+        tagParam.length > 0 ? tagParam : undefined,
+        includeSubfolders
       );
       setCases(data);
     } catch (error: unknown) {
       logError('Error fetching cases:', error);
     }
-  }, [context, folderId, searchParams]);
+  }, [context, folderId, includeSubfolders, searchParams]);
 
   useEffect(() => {
     refreshCases();
@@ -113,8 +139,8 @@ export default function CasesPane({
   const closeDialog = () => setIsCaseDialogOpen(false);
 
   const onSubmit = async (title: string, description: string, createMore: boolean) => {
-    const newCase = await createCase(context.token.access_token, folderId, title, description);
-    setCases([...cases, newCase]);
+    await createCase(context.token.access_token, folderId, title, description);
+    await refreshCases();
     if (!createMore) {
       closeDialog();
     }
@@ -144,7 +170,13 @@ export default function CasesPane({
   };
 
   const onExportCases = async (type: string) => {
-    await exportCases(context.token.access_token, Number(folderId), type);
+    await exportCases(context.token.access_token, Number(folderId), type, {
+      search: searchFilter || undefined,
+      priority: priorityFilter,
+      caseTypes: typeFilter,
+      tag: tagFilter,
+      includeSubfolders,
+    });
   };
 
   const handleFilterChange = (search: string, priorities: number[], types: number[], tag: number[]) => {
@@ -153,6 +185,10 @@ export default function CasesPane({
     setTypeFilter(types);
     setTagFilter(tag);
     updateUrlParams({ search: search, priority: priorities, type: types, tag: tag });
+  };
+
+  const handleIncludeSubfoldersChange = (nextIncludeSubfolders: boolean) => {
+    updateUrlParams({ includeSubfolders: nextIncludeSubfolders });
   };
 
   // **************************************************************************
@@ -167,8 +203,9 @@ export default function CasesPane({
     setIsMoveDialogOpen(true);
   }, []);
 
-  const handleMoved = () => {
-    setCases((prev) => prev.filter((c) => !selectedCaseIds.includes(c.id)));
+  const handleMoved = async () => {
+    await refreshCases();
+    setSelectedCaseIds([]);
   };
 
   useEffect(() => {
@@ -204,6 +241,8 @@ export default function CasesPane({
         onDeleteCases={onDeleteCases}
         onShowImportDialog={() => setIsImportDialogOpen(true)}
         onExportCases={onExportCases}
+        onIncludeSubfoldersChange={handleIncludeSubfoldersChange}
+        includeSubfolders={includeSubfolders}
         onFilterChange={handleFilterChange}
         activeSearchFilter={searchFilter}
         activePriorityFilters={priorityFilter}
@@ -220,6 +259,7 @@ export default function CasesPane({
       <CaseMoveDialog
         isOpen={isMoveDialogOpen}
         testCaseIds={selectedCaseIds}
+        selectedCases={cases.filter((testCase) => selectedCaseIds.includes(testCase.id))}
         projectId={projectId}
         targetFolderId={targetFolderId}
         isDisabled={!context.isProjectDeveloper(Number(projectId))}

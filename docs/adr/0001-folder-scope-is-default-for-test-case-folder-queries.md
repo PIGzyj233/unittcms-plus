@@ -1,0 +1,3 @@
+# Folder Scope Is Default for Test Case Folder Queries
+
+Test Case Folder queries in UnitTCMS default to the folder's Folder Scope: the selected folder plus every descendant Test Case Folder. This keeps the human UI, exports, Test Run case selection, APIs, and agent/MCP tools aligned with the asset-platform expectation that opening a parent folder means seeing the test assets under that folder's full range; callers that need only directly placed Test Cases must explicitly turn off Include Subfolders. The first implementation should cover these surfaces together so users and agents do not receive different answers for the same folder, and APIs should provide the authoritative Folder Path for returned Test Cases instead of making each client reconstruct it.

@@ -1,27 +1,31 @@
 import express from 'express';
-const router = express.Router();
-import { DataTypes } from 'sequelize';
+import { DataTypes, Op } from 'sequelize';
 import Papa from 'papaparse';
 import defineCase from '../../models/cases.js';
+import defineCaseTag from '../../models/caseTags.js';
 import defineStep from '../../models/steps.js';
 import defineFolder from '../../models/folders.js';
 import authMiddleware from '../../middleware/auth.js';
 import visibilityMiddleware from '../../middleware/verifyVisible.js';
 import { contentDisposition, toSafeFileName } from '../../config/contentDisposition.js';
 import { testRunStatus, priorities, testTypes, automationStatus, templates } from '../../config/enums.js';
+import { folderPathFor, getFolderScope } from '../lib/folderScope.js';
+import { parseOptionalBooleanQuery } from '../lib/queryParams.js';
 
 export default function (sequelize) {
+  const router = express.Router();
   const Case = defineCase(sequelize, DataTypes);
+  const CaseTag = defineCaseTag(sequelize, DataTypes);
   const Step = defineStep(sequelize, DataTypes);
   const Folder = defineFolder(sequelize, DataTypes);
-  Case.belongsTo(Folder);
+  Case.belongsTo(Folder, { foreignKey: 'folderId' });
   Case.belongsToMany(Step, { through: 'caseSteps' });
   Step.belongsToMany(Case, { through: 'caseSteps' });
   const { verifySignedIn } = authMiddleware(sequelize);
   const { verifyProjectVisibleFromFolderId } = visibilityMiddleware(sequelize);
 
   router.get('/download', verifySignedIn, verifyProjectVisibleFromFolderId, async (req, res) => {
-    const { folderId, type } = req.query;
+    const { folderId, includeSubfolders, search, priority, type, caseType, tag } = req.query;
 
     if (!folderId) {
       return res.status(400).json({ error: 'folderId is required' });
@@ -42,6 +46,59 @@ export default function (sequelize) {
       res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
       res.setHeader('Content-Disposition', contentDisposition(filename));
 
+      const includeDescendants = parseOptionalBooleanQuery(includeSubfolders, 'includeSubfolders');
+      const scope = await getFolderScope(sequelize, { folderId, includeSubfolders: includeDescendants });
+
+      const whereClause = { folderId: { [Op.in]: scope.folderIds } };
+
+      if (search) {
+        const searchTerm = search.trim();
+        if (searchTerm.length > 100) {
+          return res.status(400).json({ error: 'too long search param' });
+        }
+        if (searchTerm.length >= 1) {
+          whereClause[Op.or] = [
+            { title: { [Op.like]: `%${searchTerm}%` } },
+            { description: { [Op.like]: `%${searchTerm}%` } },
+          ];
+        }
+      }
+
+      if (priority) {
+        const priorityValues = priority
+          .split(',')
+          .map((p) => parseInt(p.trim(), 10))
+          .filter((p) => !isNaN(p));
+        if (priorityValues.length > 0) {
+          whereClause.priority = { [Op.in]: priorityValues };
+        }
+      }
+
+      if (caseType) {
+        const typeValues = caseType
+          .split(',')
+          .map((t) => parseInt(t.trim(), 10))
+          .filter((t) => !isNaN(t));
+        if (typeValues.length > 0) {
+          whereClause.type = { [Op.in]: typeValues };
+        }
+      }
+
+      if (tag) {
+        const tagIds = tag
+          .split(',')
+          .map((t) => parseInt(t.trim(), 10))
+          .filter((t) => !isNaN(t));
+        if (tagIds.length > 0) {
+          const rows = await CaseTag.findAll({
+            attributes: ['caseId'],
+            where: { tagId: { [Op.in]: tagIds } },
+            group: ['caseId'],
+          });
+          whereClause.id = { [Op.in]: rows.map((row) => row.caseId) };
+        }
+      }
+
       const cases = await Case.findAll({
         attributes: { exclude: ['createdAt', 'updatedAt', 'caseSteps'] },
         include: [
@@ -56,7 +113,7 @@ export default function (sequelize) {
             attributes: ['name'],
           },
         ],
-        where: { folderId },
+        where: whereClause,
         raw: true,
       });
 
@@ -67,6 +124,7 @@ export default function (sequelize) {
       // Convert numeric values to human-readable labels
       const casesWithLabels = cases.map((c) => ({
         ...c,
+        folderPath: folderPathFor(scope, c.folderId),
         state: testRunStatus[c.state] || c.state,
         priority: priorities[c.priority] || c.priority,
         type: testTypes[c.type] || c.type,
@@ -91,7 +149,7 @@ export default function (sequelize) {
       return res.status(400).json({ error: 'Unsupported type. Use ?type=json or ?type=csv' });
     } catch (error) {
       console.error(error);
-      res.status(500).send('Internal Server Error');
+      res.status(error.status || 500).json(error.status ? { error: error.message } : { error: 'Internal Server Error' });
     }
   });
 
@@ -108,6 +166,7 @@ const _formatRawCasesToJson = (cases) => {
         id: c.id,
         folderId: c.folderId,
         folder: c['Folder.name'],
+        folderPath: c.folderPath,
         title: c.title,
         state: c.state,
         priority: c.priority,
@@ -138,6 +197,7 @@ const _formatRawCasesToCsv = (cases) => {
     id: c.id,
     folderId: c.folderId,
     folder: c['Folder.name'],
+    folderPath: Array.isArray(c.folderPath) ? c.folderPath.join(' / ') : c.folderPath,
     title: c.title,
     state: c.state,
     priority: c.priority,

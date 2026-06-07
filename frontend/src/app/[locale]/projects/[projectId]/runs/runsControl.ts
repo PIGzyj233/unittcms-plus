@@ -323,25 +323,37 @@ async function fetchProjectCases(
   jwt: string,
   projectId: number,
   runId: number,
+  folderId?: number,
+  includeSubfolders = true,
   search?: string,
   status?: string[],
   tag?: string[]
 ) {
-  const queryParams = [`projectId=${projectId}&runId=${runId}`];
+  const queryParams = new URLSearchParams();
+  queryParams.set('projectId', String(projectId));
+  queryParams.set('runId', String(runId));
+
+  if (folderId !== undefined) {
+    queryParams.set('folderId', String(folderId));
+  }
+
+  if (!includeSubfolders) {
+    queryParams.set('includeSubfolders', 'false');
+  }
 
   if (search) {
-    queryParams.push(`search=${search}`);
+    queryParams.set('search', search);
   }
 
   if (status && status.length > 0) {
-    queryParams.push(`status=${status.join(',')}`);
+    queryParams.set('status', status.join(','));
   }
 
   if (tag && tag.length > 0) {
-    queryParams.push(`tag=${tag.join(',')}`);
+    queryParams.set('tag', tag.join(','));
   }
 
-  const query = `?${queryParams.join('&')}`;
+  const query = `?${queryParams.toString()}`;
 
   const url = `${apiServer}/cases/byproject${query}`;
 

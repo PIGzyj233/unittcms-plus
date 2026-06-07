@@ -10,6 +10,7 @@ type CaseType = {
   preConditions: string;
   expectedResults: string;
   folderId: number;
+  folderPath?: string[];
   Steps?: StepType[];
   RunCases?: RunCaseType[];
   Attachments?: AttachmentType[];
@@ -68,6 +69,11 @@ type CasesMessages = {
   testCaseList: string;
   id: string;
   title: string;
+  folderPath: string;
+  includeSubfolders: string;
+  folderScope: string;
+  directlyPlacedOnly: string;
+  directPlacementEmpty: string;
   priority: string;
   actions: string;
   deleteCase: string;

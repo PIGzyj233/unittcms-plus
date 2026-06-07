@@ -79,6 +79,26 @@ describe('agent MCP tools', () => {
     });
   });
 
+  it('passes Include Subfolders narrowing to search_cases backend requests', async () => {
+    const calls = [];
+    const client = {
+      async request(path, options) {
+        calls.push({ path, options });
+        return { cases: [] };
+      },
+    };
+    const tools = createTools(client);
+
+    await tools.search_cases.handler({ projectId: 1, folderId: 7, includeSubfolders: false });
+
+    expect(calls).toEqual([
+      {
+        path: '/agent/cases?projectId=1&folderId=7&includeSubfolders=false',
+        options: { method: 'GET' },
+      },
+    ]);
+  });
+
   it('posts candidate bodies to the expected backend path', async () => {
     const calls = [];
     const client = {

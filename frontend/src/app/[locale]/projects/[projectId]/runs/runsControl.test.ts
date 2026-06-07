@@ -1,5 +1,5 @@
-import { describe, expect, test, assert } from 'vitest';
-import { changeStatus, includeExcludeTestCases } from './runsControl';
+import { afterEach, describe, expect, test, assert, vi } from 'vitest';
+import { changeStatus, fetchProjectCases, includeExcludeTestCases } from './runsControl';
 import { CaseType } from '@/types/case';
 
 const sampleTestCase: CaseType = {
@@ -72,6 +72,30 @@ const initialTestCases: CaseType[] = [
 ];
 
 describe('runsControl', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test('fetches Test Run case selection from the selected Folder Scope', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [],
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    await fetchProjectCases('token', 1, 2, 7, false, 'login & checkout=1', ['1'], ['3']);
+
+    const url = new URL(fetchMock.mock.calls[0][0] as string, 'http://localhost');
+    expect(url.pathname).toMatch(/\/cases\/byproject$/);
+    expect(url.searchParams.get('projectId')).toBe('1');
+    expect(url.searchParams.get('runId')).toBe('2');
+    expect(url.searchParams.get('folderId')).toBe('7');
+    expect(url.searchParams.get('includeSubfolders')).toBe('false');
+    expect(url.searchParams.get('search')).toBe('login & checkout=1');
+    expect(url.searchParams.get('status')).toBe('1');
+    expect(url.searchParams.get('tag')).toBe('3');
+  });
+
   test('update test case which has not changed yet', () => {
     const changeCaseId = 1;
     const newStatus = 1;

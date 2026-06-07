@@ -2,12 +2,13 @@
 import { useState } from 'react';
 import { Copy, Forward } from 'lucide-react';
 import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Spinner, addToast } from '@/components/heroui';
-import { CasesMessages } from '@/types/case';
+import { CaseType, CasesMessages } from '@/types/case';
 import { moveCases, cloneCases } from '@/utils/caseControl';
 
 type Props = {
   isOpen: boolean;
   testCaseIds: number[];
+  selectedCases?: Pick<CaseType, 'id' | 'folderPath'>[];
   projectId: string;
   targetFolderId?: number;
   isDisabled: boolean;
@@ -20,6 +21,7 @@ type Props = {
 export default function CaseDialog({
   isOpen,
   testCaseIds,
+  selectedCases = [],
   projectId,
   targetFolderId,
   isDisabled,
@@ -29,6 +31,17 @@ export default function CaseDialog({
   token,
 }: Props) {
   const [isProcessing, setIsProcessing] = useState(false);
+  const folderPathSummary = Array.from(
+    selectedCases
+      .reduce((summary, testCase) => {
+        const folderPath = testCase.folderPath?.join(' / ') || '-';
+        summary.set(folderPath, (summary.get(folderPath) || 0) + 1);
+        return summary;
+      }, new Map<string, number>())
+      .entries()
+  );
+  const visibleFolderPathSummary = folderPathSummary.slice(0, 3);
+  const hiddenFolderPathCount = Math.max(0, folderPathSummary.length - visibleFolderPathSummary.length);
 
   const handleMove = async () => {
     if (!targetFolderId) {
@@ -63,6 +76,7 @@ export default function CaseDialog({
 
     if (success) {
       addToast({ title: 'Success', color: 'success', description: messages.casesCloned });
+      onMoved();
       onCancel();
     } else {
       console.error('Error cloning cases');
@@ -82,6 +96,16 @@ export default function CaseDialog({
           <p>
             {testCaseIds.length} {messages.casesSelected}
           </p>
+          {visibleFolderPathSummary.length > 0 && (
+            <div className="space-y-1 text-sm text-default-500">
+              {visibleFolderPathSummary.map(([folderPath, count]) => (
+                <div key={folderPath}>
+                  {folderPath}: {count}
+                </div>
+              ))}
+              {hiddenFolderPathCount > 0 && <div>+ {hiddenFolderPathCount} more folders</div>}
+            </div>
+          )}
         </ModalBody>
         <ModalFooter>
           {isProcessing ? (

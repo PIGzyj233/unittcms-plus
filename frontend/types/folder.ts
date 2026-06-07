@@ -9,6 +9,8 @@ export type FolderType = {
   createdAt: string;
   updatedAt: string;
   Cases: CaseType[]; // additional property
+  caseCount?: number;
+  directCaseCount?: number;
 };
 
 export type FoldersMessages = {

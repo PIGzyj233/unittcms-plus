@@ -27,6 +27,7 @@ const searchCasesInputSchema = projectInputSchema
     type: z.array(stringOrNumber).optional(),
     tagIds: z.array(positiveInteger).optional(),
     includedInRunId: positiveInteger.optional(),
+    includeSubfolders: z.boolean().optional(),
     keyword: z.string().max(100).optional(),
   })
   .strict();

@@ -1,13 +1,15 @@
 import express from 'express';
-const router = express.Router();
 import { DataTypes, Op } from 'sequelize';
 import defineCase from '../../models/cases.js';
 import defineTag from '../../models/tags.js';
+import { folderPathFor, getFolderScope } from '../lib/folderScope.js';
+import { parseOptionalBooleanQuery } from '../lib/queryParams.js';
 
 import authMiddleware from '../../middleware/auth.js';
 import visibilityMiddleware from '../../middleware/verifyVisible.js';
 
 export default function (sequelize) {
+  const router = express.Router();
   const { verifySignedIn } = authMiddleware(sequelize);
   const { verifyProjectVisibleFromFolderId } = visibilityMiddleware(sequelize);
   const Case = defineCase(sequelize, DataTypes);
@@ -17,15 +19,21 @@ export default function (sequelize) {
   Tags.belongsToMany(Case, { through: 'caseTags', foreignKey: 'tagId', otherKey: 'caseId' });
 
   router.get('/', verifySignedIn, verifyProjectVisibleFromFolderId, async (req, res) => {
-    const { folderId, search, priority, type, tag } = req.query;
+    const { folderId, includeSubfolders, search, priority, type, tag } = req.query;
 
     if (!folderId) {
       return res.status(400).json({ error: 'folderId is required' });
     }
 
     try {
+      const includeDescendants = parseOptionalBooleanQuery(includeSubfolders, 'includeSubfolders');
+      const scope = await getFolderScope(sequelize, { folderId, includeSubfolders: includeDescendants });
+      if (!scope) {
+        return res.json([]);
+      }
+
       const whereClause = {
-        folderId: folderId,
+        folderId: { [Op.in]: scope.folderIds },
       };
 
       if (search) {
@@ -84,11 +92,17 @@ export default function (sequelize) {
       const cases = await Case.findAll({
         where: whereClause,
         include: [tagInclude],
+        order: [['id', 'ASC']],
       });
-      res.json(cases);
+      res.json(
+        cases.map((testcase) => {
+          const plain = typeof testcase.get === 'function' ? testcase.get({ plain: true }) : testcase;
+          return { ...plain, folderPath: folderPathFor(scope, plain.folderId) };
+        })
+      );
     } catch (error) {
       console.error(error);
-      res.status(500).send('Internal Server Error');
+      res.status(error.status || 500).json(error.status ? { error: error.message } : { error: 'Internal Server Error' });
     }
   });
 

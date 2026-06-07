@@ -29,8 +29,7 @@ vi.mock('../../middleware/verifyVisible.js', () => ({
 
 describe('agent case search', () => {
   it('builds structured filters', () => {
-    expect(buildCaseSearchWhere({ folderId: 3, priority: [1], type: [4] })).toEqual({
-      folderId: 3,
+    expect(buildCaseSearchWhere({ priority: [1], type: [4] })).toEqual({
       priority: { inValues: [1] },
       type: { inValues: [4] },
     });
@@ -169,6 +168,61 @@ describe('agent case routes', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.cases.map((testcase) => testcase.id)).toEqual([projectCase.id]);
+  });
+
+  it('serializes Folder Path for project-wide case search results', async () => {
+    const { projectCase } = await createCaseGraph();
+
+    const res = await request(app).get('/agent/cases?projectId=1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.cases).toEqual([expect.objectContaining({ id: projectCase.id, folderPath: ['Project 1 root'] })]);
+  });
+
+  it('searches a Test Case Folder Scope by default when folderId is provided', async () => {
+    const parent = await Folder.create({ name: 'Login', projectId: 1 });
+    const child = await Folder.create({ name: 'Mobile', projectId: 1, parentFolderId: parent.id });
+    const parentCase = await Case.create(casePayload(parent.id, { title: 'Parent login' }));
+    const childCase = await Case.create(casePayload(child.id, { title: 'Mobile login' }));
+
+    const res = await request(app).get(`/agent/cases?projectId=1&folderId=${parent.id}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.cases).toEqual([
+      expect.objectContaining({ id: parentCase.id, folderPath: ['Login'] }),
+      expect.objectContaining({ id: childCase.id, folderPath: ['Login', 'Mobile'] }),
+    ]);
+  });
+
+  it('searches only Directly Placed Test Cases when Include Subfolders is off', async () => {
+    const parent = await Folder.create({ name: 'Login', projectId: 1 });
+    const child = await Folder.create({ name: 'Mobile', projectId: 1, parentFolderId: parent.id });
+    const parentCase = await Case.create(casePayload(parent.id, { title: 'Parent login' }));
+    await Case.create(casePayload(child.id, { title: 'Mobile login' }));
+
+    const res = await request(app).get(`/agent/cases?projectId=1&folderId=${parent.id}&includeSubfolders=false`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.cases).toEqual([expect.objectContaining({ id: parentCase.id, folderPath: ['Login'] })]);
+  });
+
+  it('rejects invalid Include Subfolders values', async () => {
+    const parent = await Folder.create({ name: 'Login', projectId: 1 });
+    await Case.create(casePayload(parent.id, { title: 'Parent login' }));
+
+    const res = await request(app).get(`/agent/cases?projectId=1&folderId=${parent.id}&includeSubfolders=0`);
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe('includeSubfolders must be true or false');
+  });
+
+  it('rejects folderId values outside the requested project', async () => {
+    const otherProjectFolder = await Folder.create({ name: 'Other project', projectId: 2 });
+
+    const res = await request(app).get(`/agent/cases?projectId=1&folderId=${otherProjectFolder.id}`);
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe('folderId must belong to projectId');
   });
 
   it('does not serialize cross-project tag associations', async () => {

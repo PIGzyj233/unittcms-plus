@@ -33,27 +33,33 @@ async function fetchCases(
   search?: string,
   priority?: number[],
   type?: number[],
-  tag?: number[]
+  tag?: number[],
+  includeSubfolders = true
 ) {
-  const queryParams = [`folderId=${folderId}`];
+  const queryParams = new URLSearchParams();
+  queryParams.set('folderId', String(folderId));
+
+  if (!includeSubfolders) {
+    queryParams.set('includeSubfolders', 'false');
+  }
 
   if (search) {
-    queryParams.push(`search=${search}`);
+    queryParams.set('search', search);
   }
 
   if (priority && priority.length > 0) {
-    queryParams.push(`priority=${priority.join(',')}`);
+    queryParams.set('priority', priority.join(','));
   }
 
   if (type && type.length > 0) {
-    queryParams.push(`type=${type.join(',')}`);
+    queryParams.set('type', type.join(','));
   }
 
   if (tag && tag.length > 0) {
-    queryParams.push(`tag=${tag.join(',')}`);
+    queryParams.set('tag', tag.join(','));
   }
 
-  const query = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+  const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
 
   const url = `${apiServer}/cases${query}`;
 
@@ -203,12 +209,38 @@ async function cloneCases(jwt: string, moveCaseIds: number[], targetFolderId: nu
   }
 }
 
-async function exportCases(jwt: string, folderId: number, type: string) {
-  if (type !== 'json' && type !== 'csv') {
-    console.error('export type error. type:', type);
+type ExportCasesOptions = {
+  search?: string;
+  priority?: number[];
+  caseTypes?: number[];
+  tag?: number[];
+  includeSubfolders?: boolean;
+};
+
+async function exportCases(jwt: string, folderId: number, downloadType: string, options: ExportCasesOptions = {}) {
+  if (downloadType !== 'json' && downloadType !== 'csv') {
+    console.error('export type error. type:', downloadType);
     return;
   }
-  const url = `${apiServer}/cases/download?folderId=${folderId}&type=${type}`;
+  const queryParams = new URLSearchParams();
+  queryParams.set('folderId', String(folderId));
+  queryParams.set('type', downloadType);
+  if (options.includeSubfolders === false) {
+    queryParams.set('includeSubfolders', 'false');
+  }
+  if (options.search) {
+    queryParams.set('search', options.search);
+  }
+  if (options.priority && options.priority.length > 0) {
+    queryParams.set('priority', options.priority.join(','));
+  }
+  if (options.caseTypes && options.caseTypes.length > 0) {
+    queryParams.set('caseType', options.caseTypes.join(','));
+  }
+  if (options.tag && options.tag.length > 0) {
+    queryParams.set('tag', options.tag.join(','));
+  }
+  const url = `${apiServer}/cases/download?${queryParams.toString()}`;
 
   try {
     const response = await fetch(url, {
@@ -223,7 +255,7 @@ async function exportCases(jwt: string, folderId: number, type: string) {
     }
 
     const disposition = response.headers.get('content-disposition');
-    const filename = getFilenameFromContentDisposition(disposition) ?? `cases.${type}`;
+    const filename = getFilenameFromContentDisposition(disposition) ?? `cases.${downloadType}`;
 
     const blob = await response.blob();
     const objectUrl = window.URL.createObjectURL(blob);

@@ -61,6 +61,7 @@ export default function TestCaseSelector({
   const headerColumns = [
     { name: messages.id, uid: 'id', sortable: true },
     { name: messages.title, uid: 'title', sortable: true },
+    { name: messages.folderPath, uid: 'folderPath', sortable: true },
     { name: messages.priority, uid: 'priority', sortable: true },
     { name: messages.tags, uid: 'tags', sortable: false },
     { name: messages.status, uid: 'runStatus', sortable: true },
@@ -91,8 +92,10 @@ export default function TestCaseSelector({
 
   const sortedItems = useMemo(() => {
     return [...cases].sort((a: CaseType, b: CaseType) => {
-      const first = a[sortDescriptor.column as keyof CaseType] as number;
-      const second = b[sortDescriptor.column as keyof CaseType] as number;
+      const firstValue = a[sortDescriptor.column as keyof CaseType];
+      const secondValue = b[sortDescriptor.column as keyof CaseType];
+      const first = Array.isArray(firstValue) ? firstValue.join(' / ') : firstValue ?? '';
+      const second = Array.isArray(secondValue) ? secondValue.join(' / ') : secondValue ?? '';
       const cmp = first < second ? -1 : first > second ? 1 : 0;
 
       return sortDescriptor.direction === 'descending' ? -cmp : cmp;
@@ -138,6 +141,8 @@ export default function TestCaseSelector({
             <TestCasePriority priorityValue={cellValue as number} priorityMessages={priorityMessages} />
           </div>
         );
+      case 'folderPath':
+        return <div className={isIncluded ? '' : notIncludedCaseClass}>{testCase.folderPath?.join(' / ') || '-'}</div>;
       case 'tags':
         return (
           <div className={`flex gap-1 flex-wrap ${isIncluded ? '' : notIncludedCaseClass}`}>

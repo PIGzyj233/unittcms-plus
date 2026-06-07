@@ -62,12 +62,14 @@ type RunMessages = {
   refresh: string;
   id: string;
   title: string;
+  folderPath: string;
   pleaseEnter: string;
   description: string;
   priority: string;
   status: string;
   actions: string;
   selectTestCase: string;
+  includeSubfolders: string;
   testCaseSelection: string;
   includeInRun: string;
   excludeFromRun: string;

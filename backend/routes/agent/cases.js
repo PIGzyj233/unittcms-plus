@@ -18,10 +18,11 @@ import defineRunCase from '../../models/runCases.js';
 import defineRun from '../../models/runs.js';
 import defineStep from '../../models/steps.js';
 import defineTag from '../../models/tags.js';
+import { folderPathFor, getFolderScope, getProjectFolderPaths } from '../lib/folderScope.js';
+import { parseOptionalBooleanQuery } from '../lib/queryParams.js';
 
-function buildCaseSearchWhere({ folderId, priority, type }) {
+function buildCaseSearchWhere({ priority, type }) {
   const where = {};
-  if (folderId) where.folderId = Number(folderId);
   if (priority?.length) where.priority = { inValues: priority };
   if (type?.length) where.type = { inValues: type };
   return where;
@@ -275,15 +276,23 @@ export default function (sequelize) {
       const includedInRunId = req.query.includedInRunId
         ? parsePositiveSafeInteger(singleQueryValue(req.query.includedInRunId, 'includedInRunId'), 'includedInRunId')
         : null;
+      const folderId = req.query.folderId
+        ? parsePositiveSafeInteger(singleQueryValue(req.query.folderId, 'folderId'), 'folderId')
+        : null;
+      const includeSubfolders = parseOptionalBooleanQuery(req.query.includeSubfolders, 'includeSubfolders');
 
       const structuredWhere = buildCaseSearchWhere({
-        folderId: req.query.folderId
-          ? parsePositiveSafeInteger(singleQueryValue(req.query.folderId, 'folderId'), 'folderId')
-          : null,
         priority,
         type,
       });
       const where = sequelizeWhereFromStructuredWhere(structuredWhere);
+      const scope = folderId ? await getFolderScope(sequelize, { folderId, includeSubfolders, projectId }) : null;
+      if (folderId && !scope) {
+        return res.json({ cases: [] });
+      }
+      if (scope) {
+        where.folderId = { [Op.in]: scope.folderIds };
+      }
       addKeywordFilter(where, req.query.keyword);
 
       const taggedCaseIds = await caseIdsHavingAllTags(sequelize, { projectId, tagIds });
@@ -297,7 +306,14 @@ export default function (sequelize) {
         order: [['id', 'ASC']],
       });
 
-      res.json({ cases: cases.map(serializeCase) });
+      const projectFolderPaths = scope ? null : await getProjectFolderPaths(sequelize, { projectId });
+      res.json({
+        cases: cases.map((testcase) => {
+          const serialized = serializeCase(testcase);
+          const folderPath = scope ? folderPathFor(scope, serialized.folderId) : projectFolderPaths.get(serialized.folderId) || [];
+          return { ...serialized, folderPath };
+        }),
+      });
     } catch (error) {
       res.status(error.status || 500).json({ error: error.message });
     }
