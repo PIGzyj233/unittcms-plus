@@ -14,6 +14,7 @@ const mocks = vi.hoisted(() => ({
   fetchFolders: vi.fn(),
   includeExcludeTestCases: vi.fn(),
   push: vi.fn(),
+  openTreeNodeIds: new Set<string>(),
 }));
 
 vi.mock('next-themes', () => ({ useTheme: () => ({ theme: 'light' }) }));
@@ -75,7 +76,7 @@ vi.mock('react-arborist', () => ({
           node: {
             id: nodeData.id,
             data: nodeData,
-            isOpen: false,
+            isOpen: mocks.openTreeNodeIds.has(String(nodeData.id)),
             toggle: vi.fn(),
           },
           style: {},
@@ -86,8 +87,19 @@ vi.mock('react-arborist', () => ({
 }));
 
 vi.mock('@/components/TreeItem', () => ({
-  default: ({ label, onClick, actions }: { label: string; onClick: () => void; actions?: React.ReactNode }) => (
+  default: ({
+    label,
+    onClick,
+    actions,
+    icon,
+  }: {
+    label: string;
+    onClick: () => void;
+    actions?: React.ReactNode;
+    icon?: React.ReactNode;
+  }) => (
     <button type="button" onClick={onClick}>
+      <span data-testid={`tree-icon-${label}`}>{icon}</span>
       {label}
       {actions}
     </button>
@@ -160,6 +172,7 @@ const messages = {
 
 describe('RunEditor', () => {
   beforeEach(() => {
+    mocks.openTreeNodeIds.clear();
     mocks.fetchRun.mockResolvedValue({
       run: { id: 2, name: 'Regression', configurations: 0, description: '', state: 0, projectId: 1 },
       statusCounts: [],
@@ -426,6 +439,65 @@ describe('RunEditor', () => {
     const countBadge = container.querySelector('[aria-label="Folder Scope Count 3"]');
     expect(countBadge).not.toBeNull();
     expect(countBadge?.getAttribute('title')).toBe('1 directly placed');
+
+    await act(async () => {
+      root.unmount();
+    });
+  });
+
+  it('shows an open folder icon for an expanded parent in the Test Run folder tree', async () => {
+    mocks.openTreeNodeIds.add('4');
+    mocks.fetchFolders.mockResolvedValue([
+      {
+        id: 4,
+        name: 'Login',
+        detail: '',
+        projectId: 1,
+        parentFolderId: null,
+        createdAt: '',
+        updatedAt: '',
+        Cases: [],
+      },
+      {
+        id: 5,
+        name: 'Password reset',
+        detail: '',
+        projectId: 1,
+        parentFolderId: 4,
+        createdAt: '',
+        updatedAt: '',
+        Cases: [],
+      },
+    ]);
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(
+        <TokenContext.Provider value={tokenContext}>
+          <RunEditor
+            projectId="1"
+            runId="2"
+            messages={messages}
+            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
+            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+            testTypeMessages={{ functional: 'Functional' } as never}
+            locale="en"
+          />
+        </TokenContext.Provider>
+      );
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const icon = container.querySelector('[data-testid="tree-icon-Login"]');
+    expect(icon?.querySelector('.lucide-folder-open')).not.toBeNull();
+    expect(icon?.querySelector('.lucide-folder')).toBeNull();
 
     await act(async () => {
       root.unmount();

@@ -68,7 +68,7 @@ function folder(overrides: Partial<FolderType> = {}): FolderType {
   };
 }
 
-function treeNode(folderData: FolderType): TreeNodeData {
+function treeNode(folderData: FolderType, children: TreeNodeData[] = []): TreeNodeData {
   return {
     id: String(folderData.id),
     name: folderData.name,
@@ -76,8 +76,48 @@ function treeNode(folderData: FolderType): TreeNodeData {
     parentFolderId: folderData.parentFolderId,
     projectId: folderData.projectId,
     folderData,
-    children: [],
+    children,
   };
+}
+
+async function renderFolderItem({
+  folderData,
+  nodeData = treeNode(folderData),
+  isOpen = false,
+}: {
+  folderData: FolderType;
+  nodeData?: TreeNodeData;
+  isOpen?: boolean;
+}) {
+  const container = document.createElement('div');
+  document.body.appendChild(container);
+  const root = createRoot(container);
+
+  await act(async () => {
+    root.render(
+      <TokenContext.Provider value={tokenContext}>
+        <FolderItem
+          node={
+            {
+              data: nodeData,
+              isOpen,
+              toggle: vi.fn(),
+            } as never
+          }
+          style={{}}
+          projectId="1"
+          selectedFolder={folderData}
+          locale="en"
+          messages={messages}
+          openDialogForCreate={vi.fn()}
+          onEditClick={vi.fn()}
+          onDeleteClick={vi.fn()}
+        />
+      </TokenContext.Provider>
+    );
+  });
+
+  return { container, root };
 }
 
 describe('FolderItem', () => {
@@ -93,36 +133,38 @@ describe('FolderItem', () => {
 
   it('shows Folder Scope Count as the primary folder count', async () => {
     const folderData = folder();
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    const root = createRoot(container);
-
-    await act(async () => {
-      root.render(
-        <TokenContext.Provider value={tokenContext}>
-          <FolderItem
-            node={
-              {
-                data: treeNode(folderData),
-                isOpen: false,
-                toggle: vi.fn(),
-              } as never
-            }
-            style={{}}
-            projectId="1"
-            selectedFolder={folderData}
-            locale="en"
-            messages={messages}
-            openDialogForCreate={vi.fn()}
-            onEditClick={vi.fn()}
-            onDeleteClick={vi.fn()}
-          />
-        </TokenContext.Provider>
-      );
-    });
+    const { container, root } = await renderFolderItem({ folderData });
 
     expect(container.textContent).toContain('Login');
     expect(container.textContent).toContain('2');
+
+    await act(async () => {
+      root.unmount();
+    });
+  });
+
+  it('shows a closed folder icon when a parent folder is collapsed', async () => {
+    const folderData = folder();
+    const childData = folder({ id: 5, name: 'Password reset', parentFolderId: 4 });
+    const parentNode = treeNode(folderData, [treeNode(childData)]);
+    const { container, root } = await renderFolderItem({ folderData, nodeData: parentNode, isOpen: false });
+
+    expect(container.querySelector('.lucide-folder')).not.toBeNull();
+    expect(container.querySelector('.lucide-folder-open')).toBeNull();
+
+    await act(async () => {
+      root.unmount();
+    });
+  });
+
+  it('shows an open folder icon when a parent folder is expanded', async () => {
+    const folderData = folder();
+    const childData = folder({ id: 5, name: 'Password reset', parentFolderId: 4 });
+    const parentNode = treeNode(folderData, [treeNode(childData)]);
+    const { container, root } = await renderFolderItem({ folderData, nodeData: parentNode, isOpen: true });
+
+    expect(container.querySelector('.lucide-folder-open')).not.toBeNull();
+    expect(container.querySelector('.lucide-folder')).toBeNull();
 
     await act(async () => {
       root.unmount();

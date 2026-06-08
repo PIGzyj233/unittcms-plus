@@ -13,6 +13,7 @@ import {
   FileJson,
   ChevronRight,
   Folder,
+  FolderOpen,
   Filter,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
@@ -522,6 +523,12 @@ export default function RunEditor({
               {({ node, style }: { node: NodeApi<TreeNodeData>; style: React.CSSProperties }) => {
                 const caseCount = node.data.folderData.caseCount;
                 const directCaseCount = node.data.folderData.directCaseCount;
+                const hasChildren = Boolean(node.data.children && node.data.children.length > 0);
+                const isOpenParent = hasChildren && node.isOpen;
+                const FolderIcon = isOpenParent ? FolderOpen : Folder;
+                const folderIconProps = isOpenParent
+                  ? { color: '#E7B23D', fill: '#F7C24E', strokeWidth: 1.8 }
+                  : { color: '#E7B23D', fill: '#F7C24E', strokeWidth: 1.8 };
                 const directCountTitle =
                   typeof caseCount === 'number' && typeof directCaseCount === 'number' && directCaseCount < caseCount
                     ? `${directCaseCount} directly placed`
@@ -537,7 +544,7 @@ export default function RunEditor({
                       await initTestCases(node.data, includeSubfolders);
                     }}
                     toggleButton={
-                      node.data.children && node.data.children.length > 0 ? (
+                      hasChildren ? (
                         <Button
                           size="sm"
                           className="bg-transparent rounded-full h-6 w-6 min-w-4"
@@ -552,7 +559,7 @@ export default function RunEditor({
                         </Button>
                       ) : null
                     }
-                    icon={<Folder size={20} color="#F7C24E" fill="#F7C24E" />}
+                    icon={<FolderIcon size={20} className="flex-shrink-0" {...folderIconProps} />}
                     label={node.data.name}
                     actions={
                       typeof caseCount === 'number' ? (
