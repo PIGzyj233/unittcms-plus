@@ -5,7 +5,7 @@
 import * as React from 'react';
 import * as Hero from '@heroui/react';
 import clsx from 'clsx';
-import { Check, Loader2 } from 'lucide-react';
+import { Check, Loader2, X } from 'lucide-react';
 
 export * from '@heroui/react';
 export type { Selection, SortDescriptor } from '@heroui/react';
@@ -171,11 +171,21 @@ export function Link({ showAnchorIcon, children, ...props }: any) {
   );
 }
 
-export function Chip({ children, startContent, endContent, variant, color, className, ...props }: any) {
+export function Chip({
+  children,
+  startContent,
+  endContent,
+  variant,
+  color,
+  className,
+  onClose,
+  isDisabled,
+  ...props
+}: any) {
   return (
     <Hero.Chip
       {...props}
-      className={className}
+      className={clsx(className, isDisabled && 'opacity-50')}
       color={color === 'primary' ? 'accent' : color}
       variant={variant === 'flat' ? 'soft' : variant}
     >
@@ -183,6 +193,19 @@ export function Chip({ children, startContent, endContent, variant, color, class
         {startContent}
         {children}
         {endContent}
+        {onClose && !isDisabled ? (
+          <button
+            type="button"
+            aria-label="Remove"
+            className="inline-flex rounded-full p-0.5 text-current/70 hover:bg-default-200 hover:text-current"
+            onClick={(event) => {
+              event.stopPropagation();
+              onClose(event);
+            }}
+          >
+            <X size={12} />
+          </button>
+        ) : null}
       </span>
     </Hero.Chip>
   );

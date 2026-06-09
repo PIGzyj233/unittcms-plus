@@ -10,7 +10,22 @@ import { fetchTags } from '@/utils/tagsControls';
 
 vi.mock('@/components/heroui', () => ({
   addToast: vi.fn(),
-  Chip: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,
+  Chip: ({
+    children,
+    onClose,
+  }: {
+    children: React.ReactNode;
+    onClose?: () => void;
+  }) => (
+    <span data-testid="tag-chip">
+      {children}
+      {onClose ? (
+        <button type="button" aria-label="Remove tag" onClick={onClose}>
+          remove
+        </button>
+      ) : null}
+    </span>
+  ),
   ComboBox: ({
     children,
     inputValue,
@@ -79,7 +94,7 @@ const tokenContext: TokenContextType = {
   removeTokenFromLocalStorage: () => {},
 };
 
-function renderEditor(onChange = vi.fn()) {
+function renderEditor(onChange = vi.fn(), selectedTags: { id: number; name: string }[] = []) {
   const container = document.createElement('div');
   document.body.appendChild(container);
   const root = createRoot(container);
@@ -92,7 +107,7 @@ function renderEditor(onChange = vi.fn()) {
       await act(async () => {
         root.render(
           <TokenContext.Provider value={tokenContext}>
-            <CaseTagsEditor projectId="1" selectedTags={[]} onChange={onChange} messages={messages} />
+            <CaseTagsEditor projectId="1" selectedTags={selectedTags} onChange={onChange} messages={messages} />
           </TokenContext.Provider>,
         );
       });
@@ -190,5 +205,48 @@ describe('CaseTagsEditor', () => {
     expect(comboBox?.getAttribute('data-default-filter')).toBe('true');
 
     await view.unmount();
+  });
+
+  it('removes a selected tag when the chip close button is pressed', async () => {
+    const onChange = vi.fn();
+    const view = renderEditor(onChange, [{ id: 1, name: 'smoke' }]);
+    await view.mount();
+
+    await act(async () => {
+      (view.container.querySelector('[aria-label="Remove tag"]') as HTMLButtonElement).click();
+    });
+
+    expect(onChange).toHaveBeenCalledWith([]);
+
+    await view.unmount();
+  });
+
+  it('does not show remove button for non-developers', async () => {
+    const readOnlyContext: TokenContextType = {
+      ...tokenContext,
+      isProjectDeveloper: () => false,
+    };
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(
+        <TokenContext.Provider value={readOnlyContext}>
+          <CaseTagsEditor
+            projectId="1"
+            selectedTags={[{ id: 1, name: 'smoke' }]}
+            onChange={vi.fn()}
+            messages={messages}
+          />
+        </TokenContext.Provider>,
+      );
+    });
+
+    expect(container.querySelector('[aria-label="Remove tag"]')).toBeNull();
+
+    await act(async () => {
+      root.unmount();
+    });
   });
 });

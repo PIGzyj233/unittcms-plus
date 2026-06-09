@@ -12,7 +12,7 @@ export async function updateCaseTags(jwt: string, caseId: number, tagIds: number
     body: JSON.stringify({ tagIds }),
   };
 
-  const url = `${apiServer}/casetags/update?projectId=${projectId}?&caseId=${caseId}`;
+  const url = `${apiServer}/casetags/update?projectId=${projectId}&caseId=${caseId}`;
 
   try {
     const response = await fetch(url, fetchOptions);
