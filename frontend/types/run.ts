@@ -18,6 +18,19 @@ type RunCaseType = {
   editState: 'notChanged' | 'changed' | 'new' | 'deleted';
   createdAt: string;
   updatedAt: string;
+  commentCount?: number;
+  Case?: {
+    id: number;
+    title: string;
+    priority: number;
+    type: number;
+    folderId?: number;
+    folderPath?: string[];
+    Tags?: {
+      id: number;
+      name: string;
+    }[];
+  };
 };
 
 type RunStatusCountType = {
@@ -57,6 +70,16 @@ type RunMessages = {
   updating: string;
   update: string;
   updatedTestRun: string;
+  testRunOverview: string;
+  runCaseExecution: string;
+  saveOverview: string;
+  saveSelection: string;
+  saveExecution: string;
+  savedRunCasesOnly: string;
+  runCaseSaveConflict: string;
+  unsavedChanges: string;
+  all: string;
+  discard: string;
   export: string;
   progress: string;
   refresh: string;
@@ -69,6 +92,11 @@ type RunMessages = {
   status: string;
   actions: string;
   selectTestCase: string;
+  membership: string;
+  included: string;
+  notIncluded: string;
+  pendingInclude: string;
+  pendingExclude: string;
   includeSubfolders: string;
   testCaseSelection: string;
   includeInRun: string;
@@ -86,6 +114,8 @@ type RunMessages = {
   clearAll: string;
   apply: string;
   selectStatus: string;
+  selectPriorities: string;
+  selectTypes: string;
   pleaseSave: string;
   caseTitleOrDescription: string;
   selected: string;

@@ -15,6 +15,30 @@ _Avoid_: Case asset
 A planned or active execution of selected Test Cases. When Test Cases are selected for a Test Run from a Test Case Folder, the folder represents its Folder Scope unless the selection is explicitly narrowed.
 _Avoid_: Run
 
+**Test Run Overview**:
+The Test Run-level summary of name, description, state, and progress. It does not change Test Run Membership or record per-Run Case execution information.
+_Avoid_: Execution, Test Case selection
+
+**Run Case**:
+A Test Case after it has been selected into a Test Run. A Run Case carries execution-specific information for that Test Run, while the underlying Test Case remains the reusable verification asset.
+_Avoid_: Execution case, selected case
+
+**Run Case Status**:
+The execution state of a Run Case inside one Test Run, such as untested, passed, failed, blocked, or skipped.
+_Avoid_: Test Case status, Test Run Case Status
+
+**Test Run Case Selection**:
+The workflow of choosing which Test Cases belong to a Test Run. Test Run Case Selection considers the current Test Case range as candidates and changes Test Run Membership, but it does not record execution results.
+_Avoid_: Execution, status editing
+
+**Test Run Membership**:
+Whether a Test Case belongs to a specific Test Run. Including a Test Case in a Test Run creates a Run Case; excluding it removes that Run Case.
+_Avoid_: Row selection
+
+**Run Case Execution**:
+The workflow of recording execution-specific information for Run Cases that already belong to a Test Run.
+_Avoid_: Test Case selection
+
 **Test Case Folder**:
 A hierarchical container inside a Project. A Test Case Folder can contain zero or more directly placed Test Cases and zero or more child Test Case Folders.
 _Avoid_: Directory, node

@@ -1,62 +1,67 @@
-import { useState, useEffect, useContext } from 'react';
-import { SearchIcon, ChevronDown } from 'lucide-react';
+import { useContext, useEffect, useState } from 'react';
+import { ChevronDown, SearchIcon } from 'lucide-react';
 import {
   Button,
   Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
   DropdownItem,
-  Selection,
+  DropdownMenu,
+  DropdownTrigger,
   Input,
+  Selection,
   addToast,
 } from '@/components/heroui';
+import { priorities, testRunCaseStatus, testTypes } from '@/config/selection';
+import { PriorityMessages } from '@/types/priority';
 import { RunMessages } from '@/types/run';
+import { TestRunCaseStatusMessages } from '@/types/status';
 import { TagType } from '@/types/tag';
-import { fetchTags } from '@/utils/tagsControls';
+import { TestTypeMessages } from '@/types/testType';
 import { TokenContext } from '@/utils/TokenProvider';
 import { logError } from '@/utils/errorHandler';
-import { priorities, testTypes } from '@/config/selection';
-import { PriorityMessages } from '@/types/priority';
-import { TestTypeMessages } from '@/types/testType';
+import { fetchTags } from '@/utils/tagsControls';
 
-type TestRunMembershipFilter = 'all' | 'included' | 'notIncluded';
-
-type TestRunFilterProps = {
+type ExecutionRunFilterProps = {
   messages: RunMessages;
   projectId: string;
   activeSearchFilter: string;
-  activeMembershipFilter: TestRunMembershipFilter;
+  activeStatusFilters: number[];
   activeTagFilters: number[];
   activePriorityFilters: number[];
   activeTypeFilters: number[];
-  onFilterChange: (
-    search: string,
-    membership: TestRunMembershipFilter,
-    tagIds: number[],
-    priorityIndices: number[],
-    typeIndices: number[]
-  ) => void;
+  onFilterChange: (search: string, status: number[], tagIds: number[], priorityIndices: number[], typeIndices: number[]) => void;
   priorityMessages: PriorityMessages;
+  testRunCaseStatusMessages: TestRunCaseStatusMessages;
   testTypeMessages: TestTypeMessages;
 };
 
 type Tag = Pick<TagType, 'id' | 'name'>;
 
-export default function TestRunFilter({
+function selectionToNumberList(selection: Selection) {
+  if (selection === 'all' || selection.size === 0) {
+    return [];
+  }
+
+  return Array.from(selection)
+    .map((key) => parseInt(key as string, 10))
+    .filter((id) => !isNaN(id));
+}
+
+export default function ExecutionRunFilter({
   messages,
-  onFilterChange,
   projectId,
   activeSearchFilter = '',
-  activeMembershipFilter = 'all',
+  activeStatusFilters = [],
   activeTagFilters = [],
   activePriorityFilters = [],
   activeTypeFilters = [],
+  onFilterChange,
   priorityMessages,
+  testRunCaseStatusMessages,
   testTypeMessages,
-}: TestRunFilterProps) {
+}: ExecutionRunFilterProps) {
   const tokenContext = useContext(TokenContext);
-  const [search, setSearch] = useState<string>('');
-  const [selectedMembership, setSelectedMembership] = useState<TestRunMembershipFilter>('all');
+  const [search, setSearch] = useState('');
+  const [selectedStatuses, setSelectedStatuses] = useState<Selection>(new Set([]));
   const [selectedTags, setSelectedTags] = useState<Selection>(new Set([]));
   const [selectedPriorities, setSelectedPriorities] = useState<Selection>(new Set([]));
   const [selectedTypes, setSelectedTypes] = useState<Selection>(new Set([]));
@@ -80,89 +85,39 @@ export default function TestRunFilter({
   }, [activeSearchFilter]);
 
   useEffect(() => {
-    setSelectedMembership(activeMembershipFilter || 'all');
-  }, [activeMembershipFilter]);
+    setSelectedStatuses(activeStatusFilters.length > 0 ? new Set(activeStatusFilters.map(String)) : new Set([]));
+  }, [activeStatusFilters]);
 
   useEffect(() => {
-    if (activeTagFilters && activeTagFilters.length > 0) {
-      const activeKeys = activeTagFilters.map((id) => id.toString());
-      setSelectedTags(new Set(activeKeys));
-    } else {
-      setSelectedTags(new Set([]));
-    }
+    setSelectedTags(activeTagFilters.length > 0 ? new Set(activeTagFilters.map(String)) : new Set([]));
   }, [activeTagFilters]);
 
   useEffect(() => {
-    if (activePriorityFilters && activePriorityFilters.length > 0) {
-      setSelectedPriorities(new Set(activePriorityFilters.map(String)));
-    } else {
-      setSelectedPriorities(new Set([]));
-    }
+    setSelectedPriorities(activePriorityFilters.length > 0 ? new Set(activePriorityFilters.map(String)) : new Set([]));
   }, [activePriorityFilters]);
 
   useEffect(() => {
-    if (activeTypeFilters && activeTypeFilters.length > 0) {
-      setSelectedTypes(new Set(activeTypeFilters.map(String)));
-    } else {
-      setSelectedTypes(new Set([]));
-    }
+    setSelectedTypes(activeTypeFilters.length > 0 ? new Set(activeTypeFilters.map(String)) : new Set([]));
   }, [activeTypeFilters]);
 
-  const handleMembershipSelectionChange = (keys: Selection) => {
-    if (keys === 'all') {
-      setSelectedMembership('all');
-      return;
-    }
-
-    const selectedKey = Array.from(keys)[0];
-    if (selectedKey === 'included' || selectedKey === 'notIncluded') {
-      setSelectedMembership(selectedKey);
-      return;
-    }
-
-    setSelectedMembership('all');
-  };
-
   const handleApplyFilter = () => {
-    let tagIds: number[] = [];
-    if (selectedTags !== 'all' && selectedTags.size > 0) {
-      tagIds = Array.from(selectedTags)
-        .map((key) => parseInt(key as string))
-        .filter((id) => !isNaN(id));
-    }
-
-    let priorityIndices: number[] = [];
-    if (selectedPriorities !== 'all' && selectedPriorities.size > 0) {
-      priorityIndices = Array.from(selectedPriorities)
-        .map((key) => parseInt(key as string))
-        .filter((id) => !isNaN(id));
-    }
-
-    let typeIndices: number[] = [];
-    if (selectedTypes !== 'all' && selectedTypes.size > 0) {
-      typeIndices = Array.from(selectedTypes)
-        .map((key) => parseInt(key as string))
-        .filter((id) => !isNaN(id));
-    }
-
-    onFilterChange(search, selectedMembership, tagIds, priorityIndices, typeIndices);
+    onFilterChange(
+      search,
+      selectionToNumberList(selectedStatuses),
+      selectionToNumberList(selectedTags),
+      selectionToNumberList(selectedPriorities),
+      selectionToNumberList(selectedTypes)
+    );
   };
 
   const handleClearFilter = () => {
     setSearch('');
-    setSelectedMembership('all');
+    setSelectedStatuses(new Set([]));
     setSelectedTags(new Set([]));
     setSelectedPriorities(new Set([]));
     setSelectedTypes(new Set([]));
-    onFilterChange('', 'all', [], [], []);
+    onFilterChange('', [], [], [], []);
   };
-
-  const membershipLabel =
-    selectedMembership === 'included'
-      ? messages.included
-      : selectedMembership === 'notIncluded'
-        ? messages.notIncluded
-        : messages.all;
 
   return (
     <div className="p-3">
@@ -183,31 +138,29 @@ export default function TestRunFilter({
           maxLength={100}
         />
       </div>
+
       <div className="mb-3 grid grid-cols-2 gap-2">
         <div className="flex-col space-y-1">
-          <h3 className="text-default-500 text-small">{messages.membership}</h3>
+          <h3 className="text-default-500 text-small">{messages.status}</h3>
           <Dropdown>
             <DropdownTrigger>
               <Button size="sm" variant="bordered" className="w-32" endContent={<ChevronDown size={16} />}>
-                {membershipLabel}
+                {selectedStatuses === 'all' || selectedStatuses.size === 0
+                  ? messages.selectStatus
+                  : `${selectedStatuses.size} ${messages.selected}`}
               </Button>
             </DropdownTrigger>
             <DropdownMenu
-              aria-label="Membership filter"
-              disallowEmptySelection
-              selectionMode="single"
-              selectedKeys={new Set([selectedMembership])}
-              onSelectionChange={handleMembershipSelectionChange}
+              aria-label="Run Case Status filter"
+              selectionMode="multiple"
+              selectedKeys={selectedStatuses}
+              onSelectionChange={setSelectedStatuses}
             >
-              <DropdownItem key="all" textValue={messages.all}>
-                {messages.all}
-              </DropdownItem>
-              <DropdownItem key="included" textValue={messages.included}>
-                {messages.included}
-              </DropdownItem>
-              <DropdownItem key="notIncluded" textValue={messages.notIncluded}>
-                {messages.notIncluded}
-              </DropdownItem>
+              {testRunCaseStatus.map((status, index) => (
+                <DropdownItem key={String(index)} textValue={testRunCaseStatusMessages[status.uid]}>
+                  <span className="text-sm">{testRunCaseStatusMessages[status.uid]}</span>
+                </DropdownItem>
+              ))}
             </DropdownMenu>
           </Dropdown>
         </div>
@@ -301,5 +254,3 @@ export default function TestRunFilter({
     </div>
   );
 }
-
-export type { TestRunMembershipFilter };

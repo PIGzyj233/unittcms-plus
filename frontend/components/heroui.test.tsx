@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, test } from 'vitest';
-import { Button, Tab, Tabs } from './heroui';
+import { Button, Checkbox, Tab, Tabs } from './heroui';
 
 describe('HeroUI compatibility Button', () => {
   test('renders primary light links as visible primary text links', () => {
@@ -17,6 +17,18 @@ describe('HeroUI compatibility Button', () => {
     expect(classes).toContain('text-primary');
     expect(classes).not.toContain('bg-primary');
     expect(classes).not.toContain('text-primary-foreground');
+  });
+});
+
+describe('HeroUI compatibility Checkbox', () => {
+  test('renders a visible checkbox control with an accessible label', () => {
+    const markup = renderToStaticMarkup(<Checkbox isSelected>Include subfolders</Checkbox>);
+
+    expect(markup).toContain('type="checkbox"');
+    expect(markup).toContain('aria-label="Include subfolders"');
+    expect(markup).toContain('data-slot="checkbox-control"');
+    expect(markup).toContain('border-primary');
+    expect(markup).toContain('Include subfolders');
   });
 });
 

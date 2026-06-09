@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test, assert, vi } from 'vitest';
-import { changeStatus, fetchProjectCases, includeExcludeTestCases } from './runsControl';
+import { changeStatus, fetchProjectCases, fetchRunCases, includeExcludeTestCases } from './runsControl';
 import { CaseType } from '@/types/case';
 
 const sampleTestCase: CaseType = {
@@ -94,6 +94,50 @@ describe('runsControl', () => {
     expect(url.searchParams.get('search')).toBe('login & checkout=1');
     expect(url.searchParams.get('status')).toBe('1');
     expect(url.searchParams.get('tag')).toBe('3');
+  });
+
+  test('fetches Test Run case selection with priority and type filters', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [],
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    await fetchProjectCases('token', 1, 2, 7, true, undefined, undefined, undefined, ['1', '2'], ['4']);
+
+    const url = new URL(fetchMock.mock.calls[0][0] as string, 'http://localhost');
+    expect(url.searchParams.get('priority')).toBe('1,2');
+    expect(url.searchParams.get('type')).toBe('4');
+    expect(url.searchParams.get('status')).toBeNull();
+  });
+
+  test('fetches saved Run Cases with execution filters', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [],
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    await fetchRunCases('token', 2, {
+      search: 'checkout',
+      status: ['1'],
+      tag: ['3'],
+      priority: ['2'],
+      type: ['4'],
+      folderId: 7,
+      includeSubfolders: false,
+    });
+
+    const url = new URL(fetchMock.mock.calls[0][0] as string, 'http://localhost');
+    expect(url.pathname).toMatch(/\/runcases$/);
+    expect(url.searchParams.get('runId')).toBe('2');
+    expect(url.searchParams.get('search')).toBe('checkout');
+    expect(url.searchParams.get('status')).toBe('1');
+    expect(url.searchParams.get('tag')).toBe('3');
+    expect(url.searchParams.get('priority')).toBe('2');
+    expect(url.searchParams.get('type')).toBe('4');
+    expect(url.searchParams.get('folderId')).toBe('7');
+    expect(url.searchParams.get('includeSubfolders')).toBe('false');
   });
 
   test('update test case which has not changed yet', () => {
@@ -201,5 +245,26 @@ describe('runsControl', () => {
     } else {
       assert.fail("RunCases isn't exist");
     }
+  });
+
+  test('including an excluded saved test case cancels the Membership draft', () => {
+    const runId = 1;
+    const excludedTestCases = includeExcludeTestCases(false, [1], runId, structuredClone(initialTestCases));
+    const restoredTestCases = includeExcludeTestCases(true, [1], runId, excludedTestCases);
+
+    if (restoredTestCases[0] && restoredTestCases[0].RunCases && restoredTestCases[0].RunCases[0]) {
+      expect(restoredTestCases[0].RunCases[0].editState).toBe('notChanged');
+    } else {
+      assert.fail("RunCases isn't exist");
+    }
+  });
+
+  test('excluding a newly included test case cancels the Membership draft', () => {
+    const runId = 1;
+    const candidateTestCases: CaseType[] = [{ ...sampleTestCase, id: 5, RunCases: [] }];
+    const includedTestCases = includeExcludeTestCases(true, [5], runId, candidateTestCases);
+    const restoredTestCases = includeExcludeTestCases(false, [5], runId, includedTestCases);
+
+    expect(restoredTestCases[0]?.RunCases || []).toHaveLength(0);
   });
 });

@@ -35,7 +35,7 @@ export default function (sequelize) {
     verifyProjectVisibleFromProjectId,
     verifyProjectVisibleFromRunId,
     async (req, res) => {
-      const { projectId, runId, status, tag, search, folderId, includeSubfolders } = req.query;
+      const { projectId, runId, status, tag, search, folderId, includeSubfolders, priority, type } = req.query;
 
       if (!projectId) {
         return res.status(400).json({ error: 'projectId is required' });
@@ -76,6 +76,28 @@ export default function (sequelize) {
               { title: { [Op.like]: `%${searchTerm}%` } },
               { description: { [Op.like]: `%${searchTerm}%` } },
             ];
+          }
+        }
+
+        if (priority) {
+          const priorityValues = priority
+            .split(',')
+            .map((t) => parseInt(t.trim(), 10))
+            .filter((t) => !isNaN(t));
+
+          if (priorityValues.length > 0) {
+            caseWhereClause.priority = { [Op.in]: priorityValues };
+          }
+        }
+
+        if (type) {
+          const typeValues = type
+            .split(',')
+            .map((t) => parseInt(t.trim(), 10))
+            .filter((t) => !isNaN(t));
+
+          if (typeValues.length > 0) {
+            caseWhereClause.type = { [Op.in]: typeValues };
           }
         }
 

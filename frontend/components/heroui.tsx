@@ -5,7 +5,7 @@
 import * as React from 'react';
 import * as Hero from '@heroui/react';
 import clsx from 'clsx';
-import { Loader2 } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 
 export * from '@heroui/react';
 export type { Selection, SortDescriptor } from '@heroui/react';
@@ -482,18 +482,45 @@ export function TextArea({
   );
 }
 
-export function Checkbox({ children, isSelected, onValueChange, onChange, ...props }: any) {
+export function Checkbox({ children, isSelected, isDisabled, onValueChange, onChange, className, ...props }: any) {
+  const disabled = Boolean(isDisabled || props.disabled);
+  const accessibleLabel = props['aria-label'] ?? (typeof children === 'string' ? children : undefined);
+
   return (
-    <Hero.Checkbox
-      {...props}
-      isSelected={isSelected}
-      onChange={(value) => {
-        onValueChange?.(value);
-        onChange?.(value);
-      }}
+    <label
+      className={clsx(
+        'inline-flex select-none items-center gap-2 rounded-small px-1 py-0.5 text-sm text-foreground transition-colors',
+        disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-default-100',
+        className
+      )}
+      onClick={(event) => event.stopPropagation()}
     >
-      {children}
-    </Hero.Checkbox>
+      <input
+        {...props}
+        aria-label={accessibleLabel}
+        checked={Boolean(isSelected)}
+        className="sr-only"
+        disabled={disabled}
+        type="checkbox"
+        onChange={(event) => {
+          onValueChange?.(event.currentTarget.checked);
+          onChange?.(event);
+        }}
+      />
+      <span
+        aria-hidden="true"
+        data-slot="checkbox-control"
+        className={clsx(
+          'flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border transition-colors',
+          isSelected
+            ? 'border-primary bg-primary text-primary-foreground'
+            : 'border-default-300 bg-background text-transparent'
+        )}
+      >
+        <Check size={12} strokeWidth={3} />
+      </span>
+      {children && <span>{children}</span>}
+    </label>
   );
 }
 

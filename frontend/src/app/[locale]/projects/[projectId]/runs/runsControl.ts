@@ -6,6 +6,16 @@ import Config from '@/config/config';
 import { testRunCaseStatus } from '@/config/selection';
 const apiServer = Config.apiServer;
 
+type FetchRunCaseFilters = {
+  search?: string;
+  status?: string[];
+  tag?: string[];
+  priority?: string[];
+  type?: string[];
+  folderId?: number;
+  includeSubfolders?: boolean;
+};
+
 async function fetchRun(jwt: string, runId: number) {
   const url = `${apiServer}/runs/${runId}`;
 
@@ -167,8 +177,39 @@ async function exportRun(jwt: string, runId: number, type: string) {
   }
 }
 
-async function fetchRunCases(jwt: string, runId: number) {
-  const url = `${apiServer}/runcases?runId=${runId}`;
+async function fetchRunCases(jwt: string, runId: number, filters: FetchRunCaseFilters = {}) {
+  const queryParams = new URLSearchParams();
+  queryParams.set('runId', String(runId));
+
+  if (filters.search) {
+    queryParams.set('search', filters.search);
+  }
+
+  if (filters.status && filters.status.length > 0) {
+    queryParams.set('status', filters.status.join(','));
+  }
+
+  if (filters.tag && filters.tag.length > 0) {
+    queryParams.set('tag', filters.tag.join(','));
+  }
+
+  if (filters.priority && filters.priority.length > 0) {
+    queryParams.set('priority', filters.priority.join(','));
+  }
+
+  if (filters.type && filters.type.length > 0) {
+    queryParams.set('type', filters.type.join(','));
+  }
+
+  if (filters.folderId !== undefined) {
+    queryParams.set('folderId', String(filters.folderId));
+  }
+
+  if (filters.includeSubfolders === false) {
+    queryParams.set('includeSubfolders', 'false');
+  }
+
+  const url = `${apiServer}/runcases?${queryParams.toString()}`;
 
   try {
     const response = await fetch(url, {
@@ -238,7 +279,7 @@ function includeExcludeTestCases(
         } else if (targetCase.RunCases[0].editState === 'deleted') {
           if (targetCase.RunCases[0].id > 0) {
             // when id is valid (already included)
-            targetCase.RunCases[0].editState = 'changed';
+            targetCase.RunCases[0].editState = 'notChanged';
           } else {
             // when id is invalid (has not included)
             targetCase.RunCases[0].editState = 'new';
@@ -270,7 +311,11 @@ function includeExcludeTestCases(
         } else if (targetCase.RunCases[0].editState === 'changed') {
           targetCase.RunCases[0].editState = 'deleted';
         } else if (targetCase.RunCases[0].editState === 'new') {
-          targetCase.RunCases[0].editState = 'deleted';
+          if (targetCase.RunCases[0].id > 0) {
+            targetCase.RunCases[0].editState = 'deleted';
+          } else {
+            targetCase.RunCases = [];
+          }
         } else if (targetCase.RunCases[0].editState === 'deleted') {
           // do nothing
         }
@@ -327,7 +372,9 @@ async function fetchProjectCases(
   includeSubfolders = true,
   search?: string,
   status?: string[],
-  tag?: string[]
+  tag?: string[],
+  priority?: string[],
+  type?: string[]
 ) {
   const queryParams = new URLSearchParams();
   queryParams.set('projectId', String(projectId));
@@ -351,6 +398,14 @@ async function fetchProjectCases(
 
   if (tag && tag.length > 0) {
     queryParams.set('tag', tag.join(','));
+  }
+
+  if (priority && priority.length > 0) {
+    queryParams.set('priority', priority.join(','));
+  }
+
+  if (type && type.length > 0) {
+    queryParams.set('type', type.join(','));
   }
 
   const query = `?${queryParams.toString()}`;

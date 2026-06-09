@@ -123,4 +123,17 @@ describe('GET /cases/byproject Folder Path', () => {
     expect(res.status).toBe(400);
     expect(res.body.error).toBe('includeSubfolders must be true or false');
   });
+
+  it('filters Test Run case selection by Test Case priority and type', async () => {
+    const folder = await Folder.create({ name: 'Login', projectId: 1 });
+    const matchingCase = await Case.create({ ...casePayload(folder.id, 'Critical functional'), priority: 0, type: 4 });
+    await Case.create({ ...casePayload(folder.id, 'High functional'), priority: 1, type: 4 });
+    await Case.create({ ...casePayload(folder.id, 'Critical security'), priority: 0, type: 1 });
+    await Run.create({ id: 1, name: 'Regression', projectId: 1, state: 0 });
+
+    const res = await request(app).get(`/cases/byproject?projectId=1&runId=1&priority=0&type=4`);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual([expect.objectContaining({ id: matchingCase.id, title: 'Critical functional' })]);
+  });
 });
