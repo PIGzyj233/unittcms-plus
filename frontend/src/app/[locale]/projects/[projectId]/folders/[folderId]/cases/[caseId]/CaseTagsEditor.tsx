@@ -47,6 +47,16 @@ export default function CaseTagsEditor({ projectId, selectedTags, onChange, mess
     return tags.filter((t) => !selectedTags.some((s) => s.id === t.id));
   }, [tags, selectedTags]);
 
+  const normalizedInput = inputValue.trim().toLowerCase();
+  const trimmedInput = inputValue.trim();
+
+  const filteredTags = useMemo(
+    () => availableTags.filter((tag) => tag.name.toLowerCase().includes(normalizedInput)),
+    [availableTags, normalizedInput],
+  );
+
+  const showCreateOption = Boolean(trimmedInput) && filteredTags.length === 0;
+
   const handleTagRemove = (tagId: number) => {
     onChange(selectedTags.filter((tag) => tag.id !== tagId));
   };
@@ -119,33 +129,31 @@ export default function CaseTagsEditor({ projectId, selectedTags, onChange, mess
         label={messages.tags}
         placeholder={selectedTags.length >= maxTags ? messages.maxTagsLimit : messages.searchOrCreateTag}
         isDisabled={selectedTags.length >= maxTags}
+        allowsEmptyCollection
+        defaultFilter={() => true}
         onInputChange={setInputValue}
         ref={autocompleteRef}
         onOpenChange={(isOpen) => !isOpen && setInputValue('')}
       >
-        {inputValue.trim() &&
-        availableTags.filter((tag) => tag.name.toLowerCase().includes(inputValue.trim().toLowerCase())).length === 0 ? (
+        {filteredTags.map((tag) => (
+          <ComboBoxItem
+            key={tag.id}
+            textValue={tag.name}
+            isReadOnly={!isProjectDeveloper}
+            onPress={() => handleTagAdd(tag)}
+          >
+            {tag.name}
+          </ComboBoxItem>
+        ))}
+        {showCreateOption && (
           <ComboBoxItem
             key="create-tag"
-            textValue={inputValue.trim()}
-            onPress={() => handleCreateTag(inputValue.trim())}
+            textValue={trimmedInput}
+            onPress={() => handleCreateTag(trimmedInput)}
             className="text-primary"
           >
-            {`${messages.createTag} "${inputValue.trim()}"`}
+            {`${messages.createTag} "${trimmedInput}"`}
           </ComboBoxItem>
-        ) : (
-          availableTags
-            .filter((tag) => tag.name.toLowerCase().includes(inputValue.trim().toLowerCase()))
-            .map((tag) => (
-              <ComboBoxItem
-                key={tag.id}
-                textValue={tag.name}
-                isReadOnly={!isProjectDeveloper}
-                onPress={() => handleTagAdd(tag)}
-              >
-                {tag.name}
-              </ComboBoxItem>
-            ))
         )}
       </ComboBox>
 
