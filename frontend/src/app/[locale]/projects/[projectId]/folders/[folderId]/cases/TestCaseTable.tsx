@@ -82,7 +82,7 @@ export default function TestCaseTable({
   locale,
 }: Props) {
   const heroUITableClasses = {
-    table: () => 'min-w-full border-separate border-spacing-0 text-sm',
+    table: () => 'min-w-[760px] border-separate border-spacing-0 text-sm',
     thead: () => '',
     tbody: () => '',
     tr: () => 'border-b border-separator',
@@ -233,8 +233,8 @@ export default function TestCaseTable({
     return [...cases].sort((a: CaseType, b: CaseType) => {
       const firstValue = a[sortDescriptor.column as keyof CaseType];
       const secondValue = b[sortDescriptor.column as keyof CaseType];
-      const first = Array.isArray(firstValue) ? firstValue.join(' / ') : firstValue ?? '';
-      const second = Array.isArray(secondValue) ? secondValue.join(' / ') : secondValue ?? '';
+      const first = Array.isArray(firstValue) ? firstValue.join(' / ') : (firstValue ?? '');
+      const second = Array.isArray(secondValue) ? secondValue.join(' / ') : (secondValue ?? '');
       const cmp = first < second ? -1 : first > second ? 1 : 0;
 
       return sortDescriptor.direction === 'descending' ? -cmp : cmp;
@@ -304,120 +304,105 @@ export default function TestCaseTable({
   }, []);
 
   return (
-    <>
-      <div className="border-b-1 dark:border-neutral-700 w-full ">
-        <div className="flex items-center justify-between p-3 ">
-          <div className="flex items-center gap-3">
-            <h3 className="font-bold">{messages.testCaseList}</h3>
-            <Chip size="sm" variant="flat">
-              {includeSubfolders ? messages.folderScope : messages.directlyPlacedOnly}
-            </Chip>
-            <Checkbox
-              isSelected={includeSubfolders}
-              onValueChange={(selected: boolean) => onIncludeSubfoldersChange(selected)}
-            >
-              {messages.includeSubfolders}
-            </Checkbox>
-          </div>
-          <div className="flex items-center">
-            {((selectedKeys !== 'all' && selectedKeys.size > 0) || selectedKeys === 'all') && (
-              <Button
-                startContent={<Trash size={16} />}
-                size="sm"
-                variant="bordered"
-                isDisabled={isDisabled}
-                color="danger"
-                className="me-2"
-                onPress={handleDeleteCases}
-              >
-                {messages.delete}
-              </Button>
-            )}
-            <Popover placement="bottom" isOpen={showFilter} onOpenChange={(open) => setShowFilter(open)}>
-              <Badge
-                color="danger"
-                content={activeFilterNum}
-                isInvisible={activeFilterNum === 0}
-                shape="circle"
-                placement="top-left"
-              >
-                <PopoverTrigger>
-                  <Button
-                    startContent={<Filter size={16} />}
-                    endContent={<ChevronDown size={16} />}
-                    size="sm"
-                    variant="bordered"
-                    className="me-2"
-                  >
-                    {messages.filter}
-                  </Button>
-                </PopoverTrigger>
-              </Badge>
-              <PopoverContent>
-                <TestCaseFilter
-                  messages={messages}
-                  priorityMessages={priorityMessages}
-                  testTypeMessages={testTypeMessages}
-                  activeSearchFilter={activeSearchFilter}
-                  activePriorityFilters={activePriorityFilters}
-                  activeTypeFilters={activeTypeFilters}
-                  activeTagFilters={activeTagFilters}
-                  projectId={projectId}
-                  onFilterChange={(newTitleFilter, newPriorityFilters, newTypeFilters, newTagFilters) => {
-                    setShowFilter(false);
-                    onFilterChange(newTitleFilter, newPriorityFilters, newTypeFilters, newTagFilters);
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
-            <Dropdown>
-              <DropdownTrigger>
-                <Button
-                  size="sm"
-                  variant="bordered"
-                  className="me-2"
-                  startContent={<FileDown size={16} />}
-                  endContent={<ChevronDown size={16} />}
-                >
-                  {messages.export}
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu aria-label="Export options">
-                <DropdownItem key="json" startContent={<FileJson size={16} />} onPress={() => onExportCases('json')}>
-                  json
-                </DropdownItem>
-                <DropdownItem
-                  key="csv"
-                  startContent={<FileSpreadsheet size={16} />}
-                  onPress={() => onExportCases('csv')}
-                >
-                  csv
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
+    <div className="flex h-full min-w-0 flex-col bg-white dark:bg-neutral-950">
+      <div className="workspace-toolbar">
+        <div className="flex min-w-0 flex-wrap items-center gap-3">
+          <h3 className="workspace-section-title whitespace-nowrap">{messages.testCaseList}</h3>
+          <Chip size="sm" variant="flat">
+            {includeSubfolders ? messages.folderScope : messages.directlyPlacedOnly}
+          </Chip>
+          <Checkbox
+            isSelected={includeSubfolders}
+            onValueChange={(selected: boolean) => onIncludeSubfoldersChange(selected)}
+          >
+            {messages.includeSubfolders}
+          </Checkbox>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {((selectedKeys !== 'all' && selectedKeys.size > 0) || selectedKeys === 'all') && (
             <Button
-              startContent={<FileUp size={16} />}
+              startContent={<Trash size={16} />}
               size="sm"
               variant="bordered"
-              className="me-2"
-              onPress={onShowImportDialog}
-            >
-              {messages.import}
-            </Button>
-            <Button
-              startContent={<Plus size={16} />}
-              size="sm"
               isDisabled={isDisabled}
-              color="primary"
-              onPress={onCreateCase}
+              color="danger"
+              onPress={handleDeleteCases}
             >
-              {messages.newTestCase}
+              {messages.delete}
             </Button>
-          </div>
+          )}
+          <Popover placement="bottom" isOpen={showFilter} onOpenChange={(open) => setShowFilter(open)}>
+            <Badge
+              color="danger"
+              content={activeFilterNum}
+              isInvisible={activeFilterNum === 0}
+              shape="circle"
+              placement="top-left"
+            >
+              <PopoverTrigger>
+                <Button
+                  startContent={<Filter size={16} />}
+                  endContent={<ChevronDown size={16} />}
+                  size="sm"
+                  variant="bordered"
+                >
+                  {messages.filter}
+                </Button>
+              </PopoverTrigger>
+            </Badge>
+            <PopoverContent>
+              <TestCaseFilter
+                messages={messages}
+                priorityMessages={priorityMessages}
+                testTypeMessages={testTypeMessages}
+                activeSearchFilter={activeSearchFilter}
+                activePriorityFilters={activePriorityFilters}
+                activeTypeFilters={activeTypeFilters}
+                activeTagFilters={activeTagFilters}
+                projectId={projectId}
+                onFilterChange={(newTitleFilter, newPriorityFilters, newTypeFilters, newTagFilters) => {
+                  setShowFilter(false);
+                  onFilterChange(newTitleFilter, newPriorityFilters, newTypeFilters, newTagFilters);
+                }}
+              />
+            </PopoverContent>
+          </Popover>
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                size="sm"
+                variant="bordered"
+                startContent={<FileDown size={16} />}
+                endContent={<ChevronDown size={16} />}
+              >
+                {messages.export}
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Export options">
+              <DropdownItem key="json" startContent={<FileJson size={16} />} onPress={() => onExportCases('json')}>
+                json
+              </DropdownItem>
+              <DropdownItem key="csv" startContent={<FileSpreadsheet size={16} />} onPress={() => onExportCases('csv')}>
+                csv
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+          <Button startContent={<FileUp size={16} />} size="sm" variant="bordered" onPress={onShowImportDialog}>
+            {messages.import}
+          </Button>
+          <Button
+            startContent={<Plus size={16} />}
+            size="sm"
+            isDisabled={isDisabled}
+            color="primary"
+            onPress={onCreateCase}
+          >
+            {messages.newTestCase}
+          </Button>
         </div>
       </div>
 
-      <div>
+      <div className="min-w-0 flex-1 overflow-auto">
         <table className={heroUITableClasses.table()}>
           <thead className={heroUITableClasses.thead()}>
             <tr className={heroUITableClasses.tr()}>
@@ -469,14 +454,14 @@ export default function TestCaseTable({
       </div>
 
       {sortedItems.length === 0 && (
-        <div className="flex justify-center items-center w-full h-48 text-neutral-500">
+        <div className="flex h-48 w-full items-center justify-center text-neutral-500">
           <div>{includeSubfolders ? messages.noCasesFound : messages.directPlacementEmpty}</div>
         </div>
       )}
 
       {dragCount !== null && (
         <Card
-          className="absolute"
+          className="fixed z-50"
           style={{
             left: mousePos.x,
             top: mousePos.y,
@@ -488,6 +473,6 @@ export default function TestCaseTable({
           </CardBody>
         </Card>
       )}
-    </>
+    </div>
   );
 }

@@ -149,9 +149,9 @@ export default function CandidateReviewPage({ projectId, locale, messages, caseM
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-6 py-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="font-bold">{messages.title}</h3>
+    <div className="workspace-page-wide">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h3 className="workspace-section-title">{messages.title}</h3>
         <CandidateBulkActions
           selectedCount={selectedIds.size}
           isDisabled={!isEditable || isMutating}
@@ -170,7 +170,7 @@ export default function CandidateReviewPage({ projectId, locale, messages, caseM
         {candidateStatuses.map((candidateStatus) => (
           <Tab key={candidateStatus} title={statusMessage(messages, candidateStatus)}>
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
-              <div className="min-w-0 overflow-x-auto border border-divider">
+              <div className="workspace-surface min-w-0 overflow-x-auto">
                 {isLoading ? (
                   <div className="flex h-48 items-center justify-center">
                     <Spinner />

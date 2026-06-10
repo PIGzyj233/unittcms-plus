@@ -1,6 +1,6 @@
 @config "../tailwind.config.js";
-@import "tailwindcss";
-@import "@heroui/styles";
+@import 'tailwindcss';
+@import '@heroui/styles';
 
 @layer base {
   :root,
@@ -57,4 +57,67 @@
 
 @utility opacity-disabled {
   opacity: var(--disabled-opacity);
+}
+
+@layer components {
+  .app-chrome {
+    @apply border-b border-black/5 bg-white/85 text-foreground shadow-sm shadow-black/[0.03] backdrop-blur-xl dark:border-white/10 dark:bg-neutral-950/85;
+  }
+
+  .workspace-shell {
+    @apply min-h-[calc(100vh-64px)] bg-[#f6f7f8] text-foreground dark:bg-neutral-950;
+  }
+
+  .workspace-page {
+    @apply mx-auto w-full max-w-6xl px-6 py-6 lg:px-8 lg:py-8;
+  }
+
+  .workspace-page-wide {
+    @apply mx-auto w-full max-w-7xl px-6 py-6 lg:px-8 lg:py-8;
+  }
+
+  .workspace-surface {
+    @apply rounded-lg border border-black/10 bg-white shadow-sm shadow-black/[0.03] dark:border-white/10 dark:bg-neutral-900 dark:shadow-none;
+  }
+
+  .workspace-subtle-surface {
+    @apply rounded-lg border border-black/10 bg-white/70 dark:border-white/10 dark:bg-neutral-900/70;
+  }
+
+  .workspace-section-title {
+    @apply text-base font-semibold text-neutral-950 dark:text-neutral-50;
+  }
+
+  .workspace-muted {
+    @apply text-sm text-neutral-500 dark:text-neutral-400;
+  }
+
+  .workspace-toolbar {
+    @apply flex flex-col gap-3 border-b border-black/10 p-4 dark:border-white/10 xl:flex-row xl:items-center xl:justify-between;
+  }
+
+  .workspace-table-wrap {
+    @apply min-w-0 overflow-x-auto rounded-b-lg;
+  }
+
+  .workspace-native-table {
+    @apply min-w-full border-separate border-spacing-0 text-sm;
+  }
+
+  .workspace-native-table th {
+    @apply border-b border-black/10 bg-neutral-50/80 px-3 py-2 text-left text-xs font-semibold uppercase text-neutral-500 dark:border-white/10 dark:bg-neutral-900 dark:text-neutral-400;
+  }
+
+  .workspace-native-table td {
+    @apply border-b border-black/10 px-3 py-2 align-middle dark:border-white/10;
+  }
+
+  .workspace-native-table tbody tr {
+    @apply transition-colors hover:bg-neutral-50 dark:hover:bg-white/[0.04];
+  }
+
+  aside nav .tooltip__trigger {
+    display: block;
+    width: 100%;
+  }
 }

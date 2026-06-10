@@ -52,7 +52,7 @@ export default function CaseTagsEditor({ projectId, selectedTags, onChange, mess
 
   const filteredTags = useMemo(
     () => availableTags.filter((tag) => tag.name.toLowerCase().includes(normalizedInput)),
-    [availableTags, normalizedInput],
+    [availableTags, normalizedInput]
   );
 
   const showCreateOption = Boolean(trimmedInput) && filteredTags.length === 0;
@@ -122,7 +122,7 @@ export default function CaseTagsEditor({ projectId, selectedTags, onChange, mess
   return (
     <div>
       <ComboBox
-        className="max-w-xs mt-2"
+        className="mt-2 w-full"
         size="sm"
         variant="bordered"
         inputValue={inputValue}

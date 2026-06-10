@@ -31,6 +31,7 @@ import {
 import { fetchFolders } from '../../folders/foldersControl';
 import RunProgressChart from './RunPregressDonutChart';
 import ExecutionRunFilter from './ExecutionRunFilter';
+import RunCaseStatus from './RunCaseStatus';
 import TestCaseSelector from './TestCaseSelector';
 import TestRunFilter from './TestRunFilter';
 import type { TestRunMembershipFilter } from './TestRunFilter';
@@ -54,6 +55,7 @@ import {
   Checkbox,
   Tabs,
   Tab,
+  Chip,
 } from '@/components/heroui';
 import { useRouter } from '@/src/i18n/routing';
 import { testRunCaseStatus, testRunStatus } from '@/config/selection';
@@ -242,9 +244,13 @@ export default function RunEditor({
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [isOverviewDirty, setIsOverviewDirty] = useState(false);
   const [searchFilter, setSearchFilter] = useState(() => selectionSearchFromCurrentUrl());
-  const [membershipFilter, setMembershipFilter] = useState<TestRunMembershipFilter>(() => selectionMembershipFromCurrentUrl());
+  const [membershipFilter, setMembershipFilter] = useState<TestRunMembershipFilter>(() =>
+    selectionMembershipFromCurrentUrl()
+  );
   const [tagFilter, setTagFilter] = useState<number[]>(() => selectionTagsFromCurrentUrl());
-  const [priorityFilter, setPriorityFilter] = useState<number[]>(() => selectionNumberListFromCurrentUrl('selectionPriorities'));
+  const [priorityFilter, setPriorityFilter] = useState<number[]>(() =>
+    selectionNumberListFromCurrentUrl('selectionPriorities')
+  );
   const [typeFilter, setTypeFilter] = useState<number[]>(() => selectionNumberListFromCurrentUrl('selectionTypes'));
   const [includeSubfolders, setIncludeSubfolders] = useState(() => selectionIncludeSubfoldersFromCurrentUrl());
   const [executionSearchFilter, setExecutionSearchFilter] = useState(() => executionSearchFromCurrentUrl());
@@ -359,7 +365,10 @@ export default function RunEditor({
     const runCases = filters
       ? await fetchRunCases(tokenContext.token.access_token, Number(runId), filters)
       : await fetchRunCases(tokenContext.token.access_token, Number(runId));
-    const savedRunCases = (runCases || []).map((runCase: RunCaseType) => ({ ...runCase, editState: 'notChanged' as const }));
+    const savedRunCases = (runCases || []).map((runCase: RunCaseType) => ({
+      ...runCase,
+      editState: 'notChanged' as const,
+    }));
     setExecutionRunCases(applyRunCaseStatusEdits(savedRunCases, statusEdits));
     setSavedExecutionRunCases(savedRunCases);
     setHasLoadedExecutionRunCases(true);
@@ -434,7 +443,9 @@ export default function RunEditor({
         const tree = buildFolderTree(foldersData);
         setTreeData(tree);
         const urlSelectionFolderId = selectionFolderIdFromCurrentUrl();
-        const initialFolder = urlSelectionFolderId ? findTreeNodeById(tree, urlSelectionFolderId) || tree[0] || null : tree[0] || null;
+        const initialFolder = urlSelectionFolderId
+          ? findTreeNodeById(tree, urlSelectionFolderId) || tree[0] || null
+          : tree[0] || null;
         const initialIncludeSubfolders = selectionIncludeSubfoldersFromCurrentUrl();
         const initialSearch = selectionSearchFromCurrentUrl();
         const initialMembership = selectionMembershipFromCurrentUrl();
@@ -442,7 +453,9 @@ export default function RunEditor({
         const initialPriorities = selectionNumberListFromCurrentUrl('selectionPriorities');
         const initialTypes = selectionNumberListFromCurrentUrl('selectionTypes');
         const initialExecutionFolderId = executionFolderIdFromCurrentUrl();
-        const initialExecutionFolder = initialExecutionFolderId ? findTreeNodeById(tree, initialExecutionFolderId) : null;
+        const initialExecutionFolder = initialExecutionFolderId
+          ? findTreeNodeById(tree, initialExecutionFolderId)
+          : null;
         setSelectedFolder(initialFolder);
         setExecutionSelectedFolder(initialExecutionFolder);
         setExecutionFolderId(initialExecutionFolderId);
@@ -1023,22 +1036,25 @@ export default function RunEditor({
   };
 
   return (
-    <>
-      <div className="border-b-1 dark:border-neutral-700 w-full p-3 flex items-center justify-between">
-        <div className="flex items-center">
+    <div className="flex min-h-full flex-col bg-[#f6f7f8] dark:bg-neutral-950">
+      <div className="sticky top-0 z-20 flex w-full flex-wrap items-center justify-between gap-3 border-b border-black/10 bg-white/90 px-5 py-3 shadow-sm shadow-black/[0.02] backdrop-blur-xl dark:border-white/10 dark:bg-neutral-950/90">
+        <div className="flex min-w-0 items-center">
           <Tooltip content={messages.backToRuns}>
             <Button
               isIconOnly
               size="sm"
-              className="rounded-full bg-neutral-50 dark:bg-neutral-600"
+              variant="light"
+              className="shrink-0 rounded-full"
               onPress={() => router.push(`/projects/${projectId}/runs`, { locale: locale })}
             >
               <ArrowLeft size={16} />
             </Button>
           </Tooltip>
-          <h3 className="font-bold ms-2">{testRun.name}</h3>
+          <h3 className="ms-2 min-w-0 truncate text-base font-semibold text-neutral-950 dark:text-neutral-50">
+            {testRun.name}
+          </h3>
         </div>
-        <div className="flex items-center">
+        <div className="flex flex-wrap items-center justify-end gap-2">
           {activeWorkflow === 'selection' && (
             <Popover placement="bottom" isOpen={showFilter} onOpenChange={(open) => setShowFilter(open)}>
               <Badge
@@ -1054,7 +1070,6 @@ export default function RunEditor({
                     endContent={<ChevronDown size={16} />}
                     size="sm"
                     variant="bordered"
-                    className="me-2"
                   >
                     {messages.filter}
                   </Button>
@@ -1071,7 +1086,13 @@ export default function RunEditor({
                   projectId={projectId}
                   priorityMessages={priorityMessages}
                   testTypeMessages={testTypeMessages}
-                  onFilterChange={(newTitleFilter, newMembershipFilter, newTagFilters, newPriorityFilters, newTypeFilters) => {
+                  onFilterChange={(
+                    newTitleFilter,
+                    newMembershipFilter,
+                    newTagFilters,
+                    newPriorityFilters,
+                    newTypeFilters
+                  ) => {
                     setShowFilter(false);
                     onFilterChange(
                       newTitleFilter,
@@ -1086,7 +1107,11 @@ export default function RunEditor({
             </Popover>
           )}
           {activeWorkflow === 'execution' && (
-            <Popover placement="bottom" isOpen={showExecutionFilter} onOpenChange={(open) => setShowExecutionFilter(open)}>
+            <Popover
+              placement="bottom"
+              isOpen={showExecutionFilter}
+              onOpenChange={(open) => setShowExecutionFilter(open)}
+            >
               <Badge
                 color="danger"
                 content={activeExecutionFilterNum}
@@ -1100,7 +1125,6 @@ export default function RunEditor({
                     endContent={<ChevronDown size={16} />}
                     size="sm"
                     variant="bordered"
-                    className="me-2"
                   >
                     {messages.filter}
                   </Button>
@@ -1118,7 +1142,13 @@ export default function RunEditor({
                   priorityMessages={priorityMessages}
                   testRunCaseStatusMessages={testRunCaseStatusMessages}
                   testTypeMessages={testTypeMessages}
-                  onFilterChange={(newTitleFilter, newStatusFilters, newTagFilters, newPriorityFilters, newTypeFilters) => {
+                  onFilterChange={(
+                    newTitleFilter,
+                    newStatusFilters,
+                    newTagFilters,
+                    newPriorityFilters,
+                    newTypeFilters
+                  ) => {
                     setShowExecutionFilter(false);
                     onExecutionFilterChange(
                       newTitleFilter,
@@ -1137,7 +1167,6 @@ export default function RunEditor({
               <Button
                 variant="bordered"
                 size="sm"
-                className="me-2"
                 startContent={<FileDown size={16} />}
                 endContent={<ChevronDown size={16} />}
               >
@@ -1183,250 +1212,145 @@ export default function RunEditor({
             {isUpdating ? messages.updating : saveLabel}
           </Button>
           {onDiscard && (
-            <Button size="sm" variant="bordered" className="ms-2" onPress={onDiscard}>
+            <Button size="sm" variant="bordered" onPress={onDiscard}>
               {messages.discard}
             </Button>
           )}
         </div>
       </div>
 
-      <div className="container mx-auto max-w-5xl pt-6 px-6 flex-grow">
+      <div className="mx-auto w-full max-w-7xl flex-grow p-5 lg:p-6">
         <Tabs
+          className="w-full"
           selectedKey={activeWorkflow}
           onSelectionChange={handleWorkflowChange}
           aria-label="Test Run workflows"
+          variant="underlined"
         >
           <Tab key="overview" id="overview" title={renderWorkflowTitle('overview')}>
-            <div className="flex">
-          <div>
-            <div className="w-96 h-72">
-              <div className="flex items-center">
-                <h4 className="font-bold">{messages.progress}</h4>
-                <Tooltip content={messages.refresh}>
-                  <Button
-                    isIconOnly
+            <section className="workspace-surface mt-5 overflow-hidden">
+              <div className="grid gap-0 lg:grid-cols-[22rem_minmax(0,1fr)]">
+                <div className="border-b border-black/10 p-5 dark:border-white/10 lg:border-b-0 lg:border-r">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <h4 className="workspace-section-title">{messages.progress}</h4>
+                    <Tooltip content={messages.refresh}>
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        variant="light"
+                        className="rounded-full"
+                        aria-label={messages.refresh}
+                        isDisabled={isOverviewDirty}
+                        onPress={fetchRunAndStatusCount}
+                      >
+                        <RotateCw size={16} />
+                      </Button>
+                    </Tooltip>
+                  </div>
+
+                  <div className="mx-auto h-72 max-w-sm">
+                    <RunProgressChart
+                      statusCounts={runStatusCounts}
+                      testRunCaseStatusMessages={testRunCaseStatusMessages}
+                      theme={theme}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid content-start gap-4 p-5">
+                  <Input
                     size="sm"
-                    className="rounded-full bg-transparent ms-1"
-                    aria-label={messages.refresh}
-                    isDisabled={isOverviewDirty}
-                    onPress={fetchRunAndStatusCount}
-                  >
-                    <RotateCw size={16} />
-                  </Button>
-                </Tooltip>
-              </div>
+                    type="text"
+                    variant="bordered"
+                    label={messages.title}
+                    value={testRun.name}
+                    isInvalid={isNameInvalid}
+                    errorMessage={isNameInvalid ? messages.pleaseEnter : ''}
+                    onChange={(e) => {
+                      setIsOverviewDirty(true);
+                      setTestRun({ ...testRun, name: e.target.value });
+                    }}
+                  />
 
-              <RunProgressChart
-                statusCounts={runStatusCounts}
-                testRunCaseStatusMessages={testRunCaseStatusMessages}
-                theme={theme}
-              />
-            </div>
-          </div>
-          <div className="flex-grow">
-            <Input
-              size="sm"
-              type="text"
-              variant="bordered"
-              label={messages.title}
-              value={testRun.name}
-              isInvalid={isNameInvalid}
-              errorMessage={isNameInvalid ? messages.pleaseEnter : ''}
-                  onChange={(e) => {
-                    setIsOverviewDirty(true);
-                    setTestRun({ ...testRun, name: e.target.value });
-                  }}
-              className="mt-3"
-            />
+                  <TextArea
+                    size="sm"
+                    variant="bordered"
+                    label={messages.description}
+                    value={testRun.description}
+                    minRows={7}
+                    onValueChange={(changeValue) => {
+                      setIsOverviewDirty(true);
+                      setTestRun({ ...testRun, description: changeValue });
+                    }}
+                  />
 
-            <TextArea
-              size="sm"
-              variant="bordered"
-              label={messages.description}
-                  value={testRun.description}
-                  onValueChange={(changeValue) => {
-                    setIsOverviewDirty(true);
-                    setTestRun({ ...testRun, description: changeValue });
-                  }}
-              className="mt-3"
-            />
-
-            <div>
-              <Select
-                size="sm"
-                variant="bordered"
-                selectedKeys={[testRunStatus[testRun.state].uid]}
-                onSelectionChange={(newSelection) => {
-                  if (newSelection !== 'all' && newSelection.size !== 0) {
+                  <Select
+                    size="sm"
+                    variant="bordered"
+                    selectedKeys={[testRunStatus[testRun.state].uid]}
+                    onSelectionChange={(newSelection) => {
+                      if (newSelection !== 'all' && newSelection.size !== 0) {
                         const selectedUid = Array.from(newSelection)[0];
                         const index = testRunStatus.findIndex((template) => template.uid === selectedUid);
                         setIsOverviewDirty(true);
                         setTestRun({ ...testRun, state: index });
                       }
-                }}
-                label={messages.status}
-                className="mt-3 max-w-xs"
-              >
-                {testRunStatus.map((status) => (
-                  <SelectItem key={status.uid}>{runStatusMessages[status.uid]}</SelectItem>
-                ))}
-              </Select>
-            </div>
-          </div>
-            </div>
+                    }}
+                    label={messages.status}
+                    className="max-w-xs"
+                  >
+                    {testRunStatus.map((status) => (
+                      <SelectItem key={status.uid}>{runStatusMessages[status.uid]}</SelectItem>
+                    ))}
+                  </Select>
+                </div>
+              </div>
+            </section>
           </Tab>
 
           <Tab key="selection" id="selection" title={renderWorkflowTitle('selection')}>
-            <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h6 className="h-8 font-bold">{messages.selectTestCase}</h6>
-            <Checkbox isSelected={includeSubfolders} onValueChange={handleIncludeSubfoldersChange}>
-              {messages.includeSubfolders}
-            </Checkbox>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-default-500">
-                  {selectedCaseCount} {messages.selected}
-                </span>
-                <Button
-                  size="sm"
-                  isDisabled={!tokenContext.isProjectReporter(Number(projectId)) || !hasSelectedCaseRows}
-                  color="primary"
-                  startContent={<CopyPlus size={16} />}
-                  onPress={() => handleBulkIncludeExcludeCases(true)}
-                >
-                  {messages.includeInRun}
-                </Button>
-                <Button
-                  size="sm"
-                  isDisabled={!tokenContext.isProjectReporter(Number(projectId)) || !hasSelectedCaseRows}
-                  variant="bordered"
-                  startContent={<CopyMinus size={16} />}
-                  onPress={() => handleBulkIncludeExcludeCases(false)}
-                >
-                  {messages.excludeFromRun}
-                </Button>
-              </div>
-            </div>
-
-            <div className="mt-3 flex rounded-small border-2 dark:border-neutral-700 mb-12">
-          <div className="w-3/12 border-r-1 dark:border-neutral-700">
-            <Tree
-              data={treeData}
-              className="w-full"
-              indent={16}
-              rowHeight={42}
-              overscanCount={5}
-              paddingTop={20}
-              paddingBottom={20}
-              padding={20}
-              width="100%"
-              openByDefault={false}
-              disableDrop={true}
-              disableDrag={true}
-            >
-              {({ node, style }: { node: NodeApi<TreeNodeData>; style: React.CSSProperties }) => {
-                const caseCount = node.data.folderData.caseCount;
-                const directCaseCount = node.data.folderData.directCaseCount;
-                const hasChildren = Boolean(node.data.children && node.data.children.length > 0);
-                const isOpenParent = hasChildren && node.isOpen;
-                const FolderIcon = isOpenParent ? FolderOpen : Folder;
-                const folderIconProps = isOpenParent
-                  ? { color: '#E7B23D', fill: '#F7C24E', strokeWidth: 1.8 }
-                  : { color: '#E7B23D', fill: '#F7C24E', strokeWidth: 1.8 };
-                const directCountTitle =
-                  typeof caseCount === 'number' && typeof directCaseCount === 'number' && directCaseCount < caseCount
-                    ? `${directCaseCount} directly placed`
-                    : undefined;
-
-                return (
-                  <TreeItem
-                    style={style}
-                    isSelected={selectedFolder ? node.data.id === selectedFolder.id : false}
-                    onClick={async () => {
-                      setSelectedKeys(new Set([]));
-                      setSelectedFolder(node.data);
-                      writeSelectionScopeToUrl(node.data);
-                      await initTestCases(node.data, includeSubfolders);
-                    }}
-                    toggleButton={
-                      hasChildren ? (
-                        <Button
-                          size="sm"
-                          className="bg-transparent rounded-full h-6 w-6 min-w-4"
-                          isIconOnly
-                          onPress={() => node.toggle()}
-                        >
-                          {node.isOpen ? (
-                            <ChevronDown size={20} color="#F7C24E" />
-                          ) : (
-                            <ChevronRight size={20} color="#F7C24E" />
-                          )}
-                        </Button>
-                      ) : null
-                    }
-                    icon={<FolderIcon size={20} className="flex-shrink-0" {...folderIconProps} />}
-                    label={node.data.name}
-                    actions={
-                      typeof caseCount === 'number' ? (
-                        <span
-                          className="mr-1 rounded-full bg-default-100 px-2 py-0.5 text-xs text-default-600"
-                          title={directCountTitle}
-                          aria-label={`Folder Scope Count ${caseCount}`}
-                        >
-                          {caseCount}
-                        </span>
-                      ) : undefined
-                    }
-                  />
-                );
-              }}
-            </Tree>
-          </div>
-          <div className="w-9/12 overflow-x-auto">
-                <TestCaseSelector
-                  cases={filteredTestCases}
-                  selectedKeys={selectedKeys}
-                  onSelectionChange={setSelectedKeys}
-                  messages={messages}
-                  priorityMessages={priorityMessages}
-                />
-          </div>
-            </div>
-          </Tab>
-
-          <Tab key="execution" id="execution" title={renderWorkflowTitle('execution')}>
-            <div>
-              {isSelectionDirty && (
-                <div className="mb-3 rounded-small border border-warning-200 bg-warning-50 px-3 py-2 text-sm text-warning-700 dark:border-warning-700 dark:bg-warning-950/30 dark:text-warning-200">
-                  {messages.savedRunCasesOnly}
+            <section className="workspace-surface mt-5 overflow-hidden">
+              <div className="workspace-toolbar">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h6 className="workspace-section-title">{messages.selectTestCase}</h6>
+                  <Checkbox isSelected={includeSubfolders} onValueChange={handleIncludeSubfoldersChange}>
+                    {messages.includeSubfolders}
+                  </Checkbox>
                 </div>
-              )}
-              <div className="flex items-center gap-3">
-                <h6 className="h-8 font-bold">{messages.runCaseExecution}</h6>
-                <Checkbox isSelected={executionIncludeSubfolders} onValueChange={handleExecutionIncludeSubfoldersChange}>
-                  {messages.includeSubfolders}
-                </Checkbox>
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+                    {selectedCaseCount} {messages.selected}
+                  </span>
+                  <Button
+                    size="sm"
+                    isDisabled={!tokenContext.isProjectReporter(Number(projectId)) || !hasSelectedCaseRows}
+                    color="primary"
+                    startContent={<CopyPlus size={16} />}
+                    onPress={() => handleBulkIncludeExcludeCases(true)}
+                  >
+                    {messages.includeInRun}
+                  </Button>
+                  <Button
+                    size="sm"
+                    isDisabled={!tokenContext.isProjectReporter(Number(projectId)) || !hasSelectedCaseRows}
+                    variant="bordered"
+                    startContent={<CopyMinus size={16} />}
+                    onPress={() => handleBulkIncludeExcludeCases(false)}
+                  >
+                    {messages.excludeFromRun}
+                  </Button>
+                </div>
               </div>
-              <div className="mt-3 flex rounded-small border-2 dark:border-neutral-700 mb-12">
-                <div className="w-3/12 border-r-1 dark:border-neutral-700">
-                  <div className="px-5 pt-4">
-                    <Button
-                      size="sm"
-                      variant={executionSelectedFolder ? 'light' : 'flat'}
-                      className="w-full justify-start"
-                      onPress={handleClearExecutionFolderScope}
-                    >
-                      {messages.all}
-                    </Button>
-                  </div>
+
+              <div className="grid min-h-[34rem] lg:grid-cols-[14rem_minmax(0,1fr)]">
+                <div className="min-h-[18rem] border-b border-black/10 bg-neutral-50/70 dark:border-white/10 dark:bg-neutral-950 lg:border-b-0 lg:border-r">
                   <Tree
                     data={treeData}
                     className="w-full"
                     indent={16}
                     rowHeight={42}
                     overscanCount={5}
-                    paddingTop={12}
+                    paddingTop={20}
                     paddingBottom={20}
                     padding={20}
                     width="100%"
@@ -1435,23 +1359,34 @@ export default function RunEditor({
                     disableDrag={true}
                   >
                     {({ node, style }: { node: NodeApi<TreeNodeData>; style: React.CSSProperties }) => {
+                      const caseCount = node.data.folderData.caseCount;
+                      const directCaseCount = node.data.folderData.directCaseCount;
                       const hasChildren = Boolean(node.data.children && node.data.children.length > 0);
                       const isOpenParent = hasChildren && node.isOpen;
                       const FolderIcon = isOpenParent ? FolderOpen : Folder;
-                      const folderIconProps = isOpenParent
-                        ? { color: '#E7B23D', fill: '#F7C24E', strokeWidth: 1.8 }
-                        : { color: '#E7B23D', fill: '#F7C24E', strokeWidth: 1.8 };
+                      const folderIconProps = { color: '#E7B23D', fill: '#F7C24E', strokeWidth: 1.8 };
+                      const directCountTitle =
+                        typeof caseCount === 'number' &&
+                        typeof directCaseCount === 'number' &&
+                        directCaseCount < caseCount
+                          ? `${directCaseCount} directly placed`
+                          : undefined;
 
                       return (
                         <TreeItem
                           style={style}
-                          isSelected={executionSelectedFolder ? node.data.id === executionSelectedFolder.id : false}
-                          onClick={() => handleExecutionFolderChange(node.data)}
+                          isSelected={selectedFolder ? node.data.id === selectedFolder.id : false}
+                          onClick={async () => {
+                            setSelectedKeys(new Set([]));
+                            setSelectedFolder(node.data);
+                            writeSelectionScopeToUrl(node.data);
+                            await initTestCases(node.data, includeSubfolders);
+                          }}
                           toggleButton={
                             hasChildren ? (
                               <Button
                                 size="sm"
-                                className="bg-transparent rounded-full h-6 w-6 min-w-4"
+                                className="h-6 w-6 min-w-4 rounded-full bg-transparent"
                                 isIconOnly
                                 onPress={() => node.toggle()}
                               >
@@ -1465,82 +1400,205 @@ export default function RunEditor({
                           }
                           icon={<FolderIcon size={20} className="flex-shrink-0" {...folderIconProps} />}
                           label={node.data.name}
+                          actions={
+                            typeof caseCount === 'number' ? (
+                              <span
+                                className="mr-1 rounded-full bg-default-100 px-2 py-0.5 text-xs text-default-600"
+                                title={directCountTitle}
+                                aria-label={`Folder Scope Count ${caseCount}`}
+                              >
+                                {caseCount}
+                              </span>
+                            ) : undefined
+                          }
                         />
                       );
                     }}
                   </Tree>
                 </div>
-                <div className="w-9/12 overflow-x-auto">
-                  <div className="overflow-x-auto">
-                    <table className="w-full min-w-3xl text-sm">
-                      <thead>
-                        <tr className="border-b border-divider text-left text-default-500">
-                          <th className="px-3 py-2 font-medium">{messages.id}</th>
-                          <th className="px-3 py-2 font-medium">{messages.title}</th>
-                          <th className="px-3 py-2 font-medium">{messages.folderPath}</th>
-                          <th className="px-3 py-2 font-medium">{messages.status}</th>
-                          <th className="px-3 py-2 font-medium">{messages.tags}</th>
-                          <th className="px-3 py-2 font-medium">{messages.comments}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {executionRunCases.length === 0 ? (
-                          <tr>
-                            <td className="px-3 py-6 text-center text-default-500" colSpan={6}>
-                              {messages.noCasesFound}
-                            </td>
-                          </tr>
-                        ) : (
-                          executionRunCases.map((runCase) => {
-                            const testCase = runCase.Case;
-                            return (
-                              <tr key={runCase.id} className="border-b border-divider last:border-b-0">
-                                <td className="px-3 py-2">{runCase.caseId}</td>
-                                <td className="px-3 py-2">
-                                  <a
-                                    className="text-primary hover:underline"
-                                    href={`/${locale}/projects/${projectId}/runs/${runId}/cases/${runCase.caseId}?${executionDetailQuery()}`}
-                                  >
-                                    {testCase?.title || runCase.caseId}
-                                  </a>
-                                </td>
-                                <td className="px-3 py-2">{testCase?.folderPath?.join(' / ') || '-'}</td>
-                                <td className="px-3 py-2">
-                                  <select
-                                    aria-label={`${messages.status} ${runCase.caseId}`}
-                                    className="rounded-small border border-default-200 bg-transparent px-2 py-1"
-                                    value={String(runCase.status)}
-                                    onChange={(event) => handleRunCaseStatusChange(runCase, Number(event.target.value))}
-                                  >
-                                    {testRunCaseStatus.map((status, index) => (
-                                      <option key={status.uid} value={index}>
-                                        {testRunCaseStatusMessages[status.uid] || status.uid}
-                                      </option>
-                                    ))}
-                                  </select>
-                                  {runCase.editState === 'changed' && (
-                                    <span className="ms-2 inline-block h-2 w-2 rounded-full bg-danger" />
-                                  )}
-                                </td>
-                                <td className="px-3 py-2">
-                                  {testCase?.Tags && testCase.Tags.length > 0
-                                    ? testCase.Tags.map((tag) => tag.name).join(', ')
-                                    : '-'}
-                                </td>
-                                <td className="px-3 py-2">{runCase.commentCount || 0}</td>
-                              </tr>
-                            );
-                          })
-                        )}
-                      </tbody>
-                    </table>
+                <div className="min-w-0 overflow-hidden">
+                  <div className="workspace-table-wrap rounded-none">
+                    <TestCaseSelector
+                      cases={filteredTestCases}
+                      selectedKeys={selectedKeys}
+                      onSelectionChange={setSelectedKeys}
+                      messages={messages}
+                      priorityMessages={priorityMessages}
+                    />
                   </div>
                 </div>
               </div>
-            </div>
+            </section>
+          </Tab>
+
+          <Tab key="execution" id="execution" title={renderWorkflowTitle('execution')}>
+            <section className="mt-5 space-y-4">
+              {isSelectionDirty && (
+                <div className="rounded-lg border border-warning-200 bg-warning-50 px-4 py-3 text-sm text-warning-700 dark:border-warning-700 dark:bg-warning-950/30 dark:text-warning-200">
+                  {messages.savedRunCasesOnly}
+                </div>
+              )}
+
+              <div className="workspace-surface overflow-hidden">
+                <div className="workspace-toolbar">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h6 className="workspace-section-title">{messages.runCaseExecution}</h6>
+                    <Checkbox
+                      isSelected={executionIncludeSubfolders}
+                      onValueChange={handleExecutionIncludeSubfoldersChange}
+                    >
+                      {messages.includeSubfolders}
+                    </Checkbox>
+                  </div>
+                </div>
+
+                <div className="grid min-h-[34rem] lg:grid-cols-[14rem_minmax(0,1fr)]">
+                  <div className="min-h-[18rem] border-b border-black/10 bg-neutral-50/70 dark:border-white/10 dark:bg-neutral-950 lg:border-b-0 lg:border-r">
+                    <div className="px-5 pt-4">
+                      <Button
+                        size="sm"
+                        variant={executionSelectedFolder ? 'light' : 'flat'}
+                        className="w-full justify-start"
+                        onPress={handleClearExecutionFolderScope}
+                      >
+                        {messages.all}
+                      </Button>
+                    </div>
+                    <Tree
+                      data={treeData}
+                      className="w-full"
+                      indent={16}
+                      rowHeight={42}
+                      overscanCount={5}
+                      paddingTop={12}
+                      paddingBottom={20}
+                      padding={20}
+                      width="100%"
+                      openByDefault={false}
+                      disableDrop={true}
+                      disableDrag={true}
+                    >
+                      {({ node, style }: { node: NodeApi<TreeNodeData>; style: React.CSSProperties }) => {
+                        const hasChildren = Boolean(node.data.children && node.data.children.length > 0);
+                        const isOpenParent = hasChildren && node.isOpen;
+                        const FolderIcon = isOpenParent ? FolderOpen : Folder;
+                        const folderIconProps = { color: '#E7B23D', fill: '#F7C24E', strokeWidth: 1.8 };
+
+                        return (
+                          <TreeItem
+                            style={style}
+                            isSelected={executionSelectedFolder ? node.data.id === executionSelectedFolder.id : false}
+                            onClick={() => handleExecutionFolderChange(node.data)}
+                            toggleButton={
+                              hasChildren ? (
+                                <Button
+                                  size="sm"
+                                  className="h-6 w-6 min-w-4 rounded-full bg-transparent"
+                                  isIconOnly
+                                  onPress={() => node.toggle()}
+                                >
+                                  {node.isOpen ? (
+                                    <ChevronDown size={20} color="#F7C24E" />
+                                  ) : (
+                                    <ChevronRight size={20} color="#F7C24E" />
+                                  )}
+                                </Button>
+                              ) : null
+                            }
+                            icon={<FolderIcon size={20} className="flex-shrink-0" {...folderIconProps} />}
+                            label={node.data.name}
+                          />
+                        );
+                      }}
+                    </Tree>
+                  </div>
+                  <div className="min-w-0 overflow-hidden">
+                    <div className="workspace-table-wrap rounded-none">
+                      <table className="workspace-native-table min-w-[48rem]">
+                        <thead>
+                          <tr>
+                            <th className="w-20">{messages.id}</th>
+                            <th>{messages.title}</th>
+                            <th>{messages.folderPath}</th>
+                            <th>{messages.status}</th>
+                            <th>{messages.tags}</th>
+                            <th className="w-24">{messages.comments}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {executionRunCases.length === 0 ? (
+                            <tr>
+                              <td className="px-3 py-8 text-center text-default-500" colSpan={6}>
+                                {messages.noCasesFound}
+                              </td>
+                            </tr>
+                          ) : (
+                            executionRunCases.map((runCase) => {
+                              const testCase = runCase.Case;
+                              return (
+                                <tr key={runCase.id}>
+                                  <td className="font-mono text-xs text-neutral-500">{runCase.caseId}</td>
+                                  <td>
+                                    <a
+                                      className="font-medium text-primary hover:underline"
+                                      href={`/${locale}/projects/${projectId}/runs/${runId}/cases/${runCase.caseId}?${executionDetailQuery()}`}
+                                    >
+                                      {testCase?.title || runCase.caseId}
+                                    </a>
+                                  </td>
+                                  <td className="max-w-xs truncate text-neutral-500">
+                                    {testCase?.folderPath?.join(' / ') || '-'}
+                                  </td>
+                                  <td>
+                                    <div className="flex items-center gap-2">
+                                      <RunCaseStatus uid={testRunCaseStatus[runCase.status].uid} />
+                                      <select
+                                        aria-label={`${messages.status} ${runCase.caseId}`}
+                                        className="min-w-28 rounded-small border border-default-200 bg-white px-2 py-1 text-sm shadow-sm dark:bg-neutral-950"
+                                        value={String(runCase.status)}
+                                        onChange={(event) =>
+                                          handleRunCaseStatusChange(runCase, Number(event.target.value))
+                                        }
+                                      >
+                                        {testRunCaseStatus.map((status, index) => (
+                                          <option key={status.uid} value={index}>
+                                            {testRunCaseStatusMessages[status.uid] || status.uid}
+                                          </option>
+                                        ))}
+                                      </select>
+                                      {runCase.editState === 'changed' && (
+                                        <span className="inline-block h-2 w-2 rounded-full bg-danger" />
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td>
+                                    <div className="flex max-w-xs flex-wrap gap-1">
+                                      {testCase?.Tags && testCase.Tags.length > 0 ? (
+                                        testCase.Tags.map((tag) => (
+                                          <Chip key={tag.id} size="sm" variant="flat">
+                                            {tag.name}
+                                          </Chip>
+                                        ))
+                                      ) : (
+                                        <span className="text-neutral-400">-</span>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td>{runCase.commentCount || 0}</td>
+                                </tr>
+                              );
+                            })
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
           </Tab>
         </Tabs>
       </div>
-    </>
+    </div>
   );
 }

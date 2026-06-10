@@ -114,7 +114,7 @@ export default function CandidateDetail({
   }, [candidate]);
 
   if (!candidate) {
-    return <div className="border border-divider p-4 text-sm text-neutral-500">{messages.noCandidatesFound}</div>;
+    return <div className="workspace-surface p-4 text-sm text-neutral-500">{messages.noCandidatesFound}</div>;
   }
 
   const isDraft = candidate.status === 'draft';
@@ -157,8 +157,8 @@ export default function CandidateDetail({
   };
 
   return (
-    <div className="border border-divider p-4">
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+    <div className="workspace-surface overflow-hidden">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-black/10 p-4 dark:border-white/10">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <h4 className="truncate font-bold">{candidate.title}</h4>
@@ -178,7 +178,7 @@ export default function CandidateDetail({
         )}
       </div>
 
-      <div className="grid gap-3">
+      <div className="grid gap-3 p-4">
         <Input
           label={messages.title}
           value={form.title}
@@ -243,7 +243,7 @@ export default function CandidateDetail({
           {warnings.length > 0 ? (
             <div className="space-y-2">
               {warnings.map((warning, index) => (
-                <div key={`${warning.strength}-${index}`} className="border border-divider p-2 text-sm">
+                <div key={`${warning.strength}-${index}`} className="workspace-subtle-surface p-2 text-sm">
                   <div className="font-medium">{warning.strength}</div>
                   <div>{warning.message}</div>
                   <div className="text-xs text-neutral-500">{warning.ids.join(', ')}</div>
@@ -256,7 +256,7 @@ export default function CandidateDetail({
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-divider pt-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-black/10 p-4 dark:border-white/10">
         <Checkbox isSelected={createMissingTags} isDisabled={formDisabled} onValueChange={setCreateMissingTags}>
           {messages.createMissingTags}
         </Checkbox>

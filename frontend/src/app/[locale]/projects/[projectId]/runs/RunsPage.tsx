@@ -96,10 +96,10 @@ export default function RunsPage({ projectId, locale, messages }: Props) {
   };
 
   return (
-    <div className="container mx-auto max-w-3xl pt-6 px-6 flex-grow">
-      <div className="w-full p-3 flex items-center justify-between">
-        <h3 className="font-bold">{messages.runList}</h3>
-        <div>
+    <div className="workspace-page">
+      <section className="workspace-surface overflow-hidden">
+        <div className="workspace-toolbar">
+          <h3 className="workspace-section-title">{messages.runList}</h3>
           <Button
             startContent={<Plus size={16} />}
             size="sm"
@@ -110,16 +110,18 @@ export default function RunsPage({ projectId, locale, messages }: Props) {
             {messages.newRun}
           </Button>
         </div>
-      </div>
 
-      <RunsTable
-        projectId={projectId}
-        isDisabled={!context.isProjectReporter(Number(projectId))}
-        runs={runs}
-        onDeleteRun={onDeleteClick}
-        messages={messages}
-        locale={locale}
-      />
+        <div className="workspace-table-wrap">
+          <RunsTable
+            projectId={projectId}
+            isDisabled={!context.isProjectReporter(Number(projectId))}
+            runs={runs}
+            onDeleteRun={onDeleteClick}
+            messages={messages}
+            locale={locale}
+          />
+        </div>
+      </section>
 
       <RunDialog
         isOpen={isRunDialogOpen}

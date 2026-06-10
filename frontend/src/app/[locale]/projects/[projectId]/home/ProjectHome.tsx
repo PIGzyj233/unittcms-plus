@@ -7,11 +7,10 @@ import { HomeMessages } from './page';
 import TestTypesChart from './TestTypesDonutChart';
 import TestPriorityChart from './TestPriorityDonutChart';
 import TestProgressBarChart from './TestProgressColumnChart';
-import { Card, CardBody, Chip, Separator } from '@/components/heroui';
+import { Chip } from '@/components/heroui';
 import Config from '@/config/config';
 import { TokenContext } from '@/utils/TokenProvider';
 import { ProgressSeriesType } from '@/types/run';
-import { title, subtitle } from '@/components/primitives';
 import { TestRunCaseStatusMessages } from '@/types/status';
 import { TestTypeMessages } from '@/types/testType';
 import { PriorityMessages } from '@/types/priority';
@@ -121,45 +120,81 @@ export function ProjectHome({
     aggregate();
   }, [project, testRunCaseStatusMessages]);
 
+  const stats = [
+    {
+      key: 'folders',
+      label: messages.folders,
+      value: folderNum,
+      icon: <Folder size={18} />,
+    },
+    {
+      key: 'cases',
+      label: messages.testCases,
+      value: caseNum,
+      icon: <Clipboard size={18} />,
+    },
+    {
+      key: 'runs',
+      label: messages.testRuns,
+      value: runNum,
+      icon: <FlaskConical size={18} />,
+    },
+  ];
+
   return (
-    <div className="container mx-auto max-w-5xl pt-6 px-6 flex-grow">
-      <h1 className={title({ size: 'sm' })}>{project.name}</h1>
-      <div className="mt-4">
-        <Chip variant="flat" startContent={<Folder size={16} />} className="px-3">
-          {folderNum} {messages.folders}
-        </Chip>
-        <Chip variant="flat" startContent={<Clipboard size={16} />} className="px-3 ms-2">
-          {caseNum} {messages.testCases}
-        </Chip>
-        <Chip variant="flat" startContent={<FlaskConical size={16} />} className="px-3 ms-2">
-          {runNum} {messages.testRuns}
-        </Chip>
-      </div>
-
-      {project.detail && (
-        <Card className="mt-3 bg-neutral-100 dark:bg-neutral-700 dark:text-white" shadow="none">
-          <CardBody>{project.detail}</CardBody>
-        </Card>
-      )}
-
-      <Separator className="my-8" />
-      <h2 className={subtitle()}>{messages.progress}</h2>
-      <div style={{ height: '18rem' }}>
-        <TestProgressBarChart progressSeries={progressSeries} progressCategories={progressCategories} theme={theme} />
-      </div>
-
-      <Separator className="my-12" />
-      <h2 className={subtitle()}>{messages.testClassification}</h2>
-      <div className="flex pb-20">
-        <div style={{ width: '32rem', height: '18rem' }}>
-          <h3>{messages.byType}</h3>
-          <TestTypesChart typesCounts={typesCounts} testTypeMessages={testTypeMessages} theme={theme} />
+    <div className="workspace-page-wide">
+      <section className="workspace-surface overflow-hidden">
+        <div className="flex flex-col gap-5 p-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0">
+            <h1 className="truncate text-3xl font-semibold tracking-normal text-neutral-950 dark:text-white">
+              {project.name}
+            </h1>
+            {project.detail && (
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+                {project.detail}
+              </p>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {stats.map((stat) => (
+              <Chip key={stat.key} variant="flat" startContent={stat.icon} className="px-3">
+                <span className="font-semibold">{stat.value}</span> {stat.label}
+              </Chip>
+            ))}
+          </div>
         </div>
-        <div style={{ width: '30rem', height: '18rem' }}>
-          <h3>{messages.byPriority}</h3>
-          <TestPriorityChart priorityCounts={priorityCounts} priorityMessages={priorityMessages} theme={theme} />
+      </section>
+
+      <section className="workspace-surface mt-6 overflow-hidden">
+        <div className="border-b border-black/10 px-5 py-4 dark:border-white/10">
+          <h2 className="workspace-section-title">{messages.progress}</h2>
         </div>
-      </div>
+        <div className="h-80 min-w-0 p-4 lg:h-96">
+          <TestProgressBarChart progressSeries={progressSeries} progressCategories={progressCategories} theme={theme} />
+        </div>
+      </section>
+
+      <section className="mt-6">
+        <h2 className="workspace-section-title mb-3">{messages.testClassification}</h2>
+        <div className="grid min-w-0 gap-4 lg:grid-cols-2">
+          <div className="workspace-surface min-w-0 overflow-hidden">
+            <div className="border-b border-black/10 px-5 py-4 dark:border-white/10">
+              <h3 className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">{messages.byType}</h3>
+            </div>
+            <div className="h-80 min-w-0 p-4">
+              <TestTypesChart typesCounts={typesCounts} testTypeMessages={testTypeMessages} theme={theme} />
+            </div>
+          </div>
+          <div className="workspace-surface min-w-0 overflow-hidden">
+            <div className="border-b border-black/10 px-5 py-4 dark:border-white/10">
+              <h3 className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">{messages.byPriority}</h3>
+            </div>
+            <div className="h-80 min-w-0 p-4">
+              <TestPriorityChart priorityCounts={priorityCounts} priorityMessages={priorityMessages} theme={theme} />
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

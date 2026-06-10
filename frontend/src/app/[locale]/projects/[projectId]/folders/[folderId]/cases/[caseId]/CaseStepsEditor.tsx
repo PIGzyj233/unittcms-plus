@@ -23,12 +23,19 @@ export default function StepsEditor({ isDisabled, steps, onStepUpdate, onStepPlu
   const filteredSteps = sortedSteps.filter((entry) => entry.editState !== 'deleted');
 
   return (
-    <>
-      {filteredSteps.map((step, index) => (
-        <div key={index} className="flex items-center my-1">
-          <Avatar className="me-2" size="sm" name={step.caseSteps.stepNo.toString()} />
-          <div key={step.id} className="grow flex gap-2">
-            <div className="w-1/2">
+    <div className="space-y-3">
+      {filteredSteps.map((step) => (
+        <div
+          key={step.uid || step.id}
+          className="grid grid-cols-[2.25rem_minmax(0,1fr)_2.25rem] items-start gap-3 rounded-lg border border-black/10 bg-white p-3 shadow-sm shadow-black/[0.02] transition-colors hover:border-black/20 dark:border-white/10 dark:bg-neutral-900 dark:hover:border-white/20"
+        >
+          <Avatar
+            className="mt-1 bg-neutral-950 text-white dark:bg-neutral-100 dark:text-neutral-950"
+            size="sm"
+            name={step.caseSteps.stepNo.toString()}
+          />
+          <div className="grid min-w-0 gap-3 xl:grid-cols-2">
+            <div className="min-w-0">
               <TextArea
                 size="sm"
                 variant="bordered"
@@ -39,7 +46,7 @@ export default function StepsEditor({ isDisabled, steps, onStepUpdate, onStepPlu
                 }}
               />
             </div>
-            <div className="w-1/2">
+            <div className="min-w-0">
               <TextArea
                 size="sm"
                 variant="bordered"
@@ -51,13 +58,14 @@ export default function StepsEditor({ isDisabled, steps, onStepUpdate, onStepPlu
               />
             </div>
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col items-center gap-1">
             <Tooltip content={messages.deleteThisStep} placement="left">
               <Button
                 isIconOnly
                 size="sm"
                 isDisabled={isDisabled}
-                className="bg-transparent rounded-full"
+                variant="light"
+                className="rounded-full"
                 onPress={() => onStepDelete(step.id)}
               >
                 <Trash size={16} />
@@ -68,7 +76,8 @@ export default function StepsEditor({ isDisabled, steps, onStepUpdate, onStepPlu
                 isIconOnly
                 isDisabled={isDisabled}
                 size="sm"
-                className="bg-transparent rounded-full"
+                variant="light"
+                className="rounded-full"
                 onPress={() => onStepPlus(step.caseSteps.stepNo + 1)}
               >
                 <Plus size={16} />
@@ -77,6 +86,6 @@ export default function StepsEditor({ isDisabled, steps, onStepUpdate, onStepPlu
           </div>
         </div>
       ))}
-    </>
+    </div>
   );
 }

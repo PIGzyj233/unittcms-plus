@@ -74,7 +74,7 @@ export default function CandidateTable({
 
   return (
     <>
-      <table className="min-w-full border-separate border-spacing-0 text-sm">
+      <table className="workspace-native-table min-w-[900px]">
         <thead>
           <tr className="border-b border-separator">
             <th className="border-b border-divider px-3 py-2 text-left font-medium text-default-500">

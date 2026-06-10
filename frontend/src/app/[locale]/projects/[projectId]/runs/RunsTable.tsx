@@ -108,8 +108,8 @@ export default function RunsTable({ projectId, isDisabled, runs, onDeleteRun, me
 
   const classNames = useMemo(
     () => ({
-      wrapper: ['max-w-3xl'],
-      th: ['bg-transparent', 'text-default-500', 'border-b', 'border-divider'],
+      wrapper: ['max-w-none', 'rounded-none', 'border-0', 'shadow-none', 'bg-transparent'],
+      th: ['bg-neutral-50/80', 'text-default-500', 'border-b', 'border-divider'],
       td: [
         // changing the rows border radius
         // first

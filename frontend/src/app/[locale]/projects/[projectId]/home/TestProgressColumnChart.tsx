@@ -23,31 +23,41 @@ export default function TestProgressBarChart({ progressSeries, progressCategorie
   useEffect(() => {
     const updateChartDate = () => {
       if (progressSeries) {
-        const legendsLabelColors = testRunCaseStatus.map(() => {
-          if (theme === 'light') {
-            return 'black';
-          } else {
-            return 'white';
-          }
-        });
-
-        const xaxisLabelColor = theme === 'light' ? 'black' : 'white';
+        const labelColor = theme === 'dark' ? '#d4d4d4' : '#525252';
+        const gridColor = theme === 'dark' ? '#262626' : '#e5e5e5';
         const tooltipTheme = theme === 'light' || theme === 'dark' ? theme : undefined;
 
         setChartData({
           series: progressSeries,
           options: {
             chart: {
+              animations: {
+                enabled: true,
+                speed: 350,
+              },
+              parentHeightOffset: 0,
               toolbar: {
                 show: false,
               },
               stacked: true,
             },
+            dataLabels: {
+              enabled: false,
+            },
+            grid: {
+              borderColor: gridColor,
+              strokeDashArray: 3,
+            },
             legend: {
-              position: 'right',
-              labels: {
-                colors: legendsLabelColors,
+              horizontalAlign: 'left',
+              itemMargin: {
+                horizontal: 10,
+                vertical: 4,
               },
+              labels: {
+                colors: testRunCaseStatus.map(() => labelColor),
+              },
+              position: 'top',
             },
             colors: testRunCaseStatus.map((itr) => {
               return itr.chartColor;
@@ -57,7 +67,14 @@ export default function TestProgressBarChart({ progressSeries, progressCategorie
               categories: progressCategories,
               labels: {
                 style: {
-                  colors: xaxisLabelColor,
+                  colors: labelColor,
+                },
+              },
+            },
+            yaxis: {
+              labels: {
+                style: {
+                  colors: labelColor,
                 },
               },
             },
