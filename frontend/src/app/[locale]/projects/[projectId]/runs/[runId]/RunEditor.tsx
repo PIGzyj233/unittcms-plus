@@ -30,8 +30,9 @@ import {
 } from '../runsControl';
 import { fetchFolders } from '../../folders/foldersControl';
 import RunProgressChart from './RunPregressDonutChart';
+import RunCaseStatusSelect from './RunCaseStatusSelect';
+import { useRunExecution } from './RunExecutionContext';
 import ExecutionRunFilter from './ExecutionRunFilter';
-import RunCaseStatus from './RunCaseStatus';
 import TestCaseSelector from './TestCaseSelector';
 import TestRunFilter from './TestRunFilter';
 import type { TestRunMembershipFilter } from './TestRunFilter';
@@ -58,8 +59,8 @@ import {
   Chip,
 } from '@/components/heroui';
 import { useRouter } from '@/src/i18n/routing';
-import { testRunCaseStatus, testRunStatus } from '@/config/selection';
-import { RunType, RunCaseType, RunStatusCountType, RunMessages } from '@/types/run';
+import { testRunStatus } from '@/config/selection';
+import { RunType, RunStatusCountType, RunMessages } from '@/types/run';
 import { CaseType } from '@/types/case';
 import { TreeNodeData } from '@/types/folder';
 import { TokenContext } from '@/utils/TokenProvider';
@@ -238,8 +239,16 @@ export default function RunEditor({
   const [executionSelectedFolder, setExecutionSelectedFolder] = useState<TreeNodeData | null>(null);
   const [testCases, setTestCases] = useState<CaseType[]>([]);
   const [filteredTestCases, setFilteredTestCases] = useState<CaseType[]>([]);
-  const [executionRunCases, setExecutionRunCases] = useState<RunCaseType[]>([]);
-  const [savedExecutionRunCases, setSavedExecutionRunCases] = useState<RunCaseType[]>([]);
+  const {
+    executionRunCases,
+    runCaseStatusEditsByRunCaseId,
+    isExecutionDirty,
+    handleRunCaseStatusChange,
+    syncExecutionRunCases,
+    setRunCaseStatusEditsByRunCaseId,
+    discardExecutionEdits,
+    canEditExecution,
+  } = useRunExecution();
   const [isNameInvalid] = useState<boolean>(false);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [isOverviewDirty, setIsOverviewDirty] = useState(false);
@@ -271,14 +280,10 @@ export default function RunEditor({
     executionIncludeSubfoldersFromCurrentUrl()
   );
   const [runCaseEditsByCaseId, setRunCaseEditsByCaseId] = useState<Map<number, EditableRunCase>>(new Map());
-  const [runCaseStatusEditsByRunCaseId, setRunCaseStatusEditsByRunCaseId] = useState<Map<number, EditableRunCase>>(
-    new Map()
-  );
   const [activeWorkflow, setActiveWorkflow] = useState<TestRunWorkflow>(() => workflowFromCurrentUrl());
   const [hasLoadedExecutionRunCases, setHasLoadedExecutionRunCases] = useState(false);
   const router = useRouter();
   const isSelectionDirty = runCaseEditsByCaseId.size > 0;
-  const isExecutionDirty = runCaseStatusEditsByRunCaseId.size > 0;
   const isDirty = isOverviewDirty || isSelectionDirty || isExecutionDirty;
   const dirtyWorkflowLabels = [
     isOverviewDirty ? messages.testRunOverview : null,
@@ -300,18 +305,15 @@ export default function RunEditor({
     setRunStatusCounts(statusCounts);
   };
 
-  const applyRunCaseStatusEdits = (runCases: RunCaseType[], edits: Map<number, EditableRunCase>) => {
-    return runCases.map((runCase) => {
-      const editedRunCase = edits.get(runCase.id);
-      if (!editedRunCase) {
-        return { ...runCase, editState: 'notChanged' as const };
-      }
-      return {
-        ...runCase,
-        status: editedRunCase.status,
-        editState: editedRunCase.editState,
-      };
-    });
+  const initExecutionRunCases = async (
+    statusEdits = runCaseStatusEditsByRunCaseId,
+    filters = executionFetchFilters()
+  ) => {
+    const runCases = filters
+      ? await fetchRunCases(tokenContext.token.access_token, Number(runId), filters)
+      : await fetchRunCases(tokenContext.token.access_token, Number(runId));
+    syncExecutionRunCases(runCases || [], statusEdits);
+    setHasLoadedExecutionRunCases(true);
   };
 
   const executionFetchFilters = (
@@ -356,22 +358,6 @@ export default function RunEditor({
     }
 
     return Object.keys(filters).length > 0 ? filters : undefined;
-  };
-
-  const initExecutionRunCases = async (
-    statusEdits = runCaseStatusEditsByRunCaseId,
-    filters = executionFetchFilters()
-  ) => {
-    const runCases = filters
-      ? await fetchRunCases(tokenContext.token.access_token, Number(runId), filters)
-      : await fetchRunCases(tokenContext.token.access_token, Number(runId));
-    const savedRunCases = (runCases || []).map((runCase: RunCaseType) => ({
-      ...runCase,
-      editState: 'notChanged' as const,
-    }));
-    setExecutionRunCases(applyRunCaseStatusEdits(savedRunCases, statusEdits));
-    setSavedExecutionRunCases(savedRunCases);
-    setHasLoadedExecutionRunCases(true);
   };
 
   const applyRunCaseEdits = (casesData: CaseType[], edits: Map<number, EditableRunCase>) => {
@@ -617,37 +603,6 @@ export default function RunEditor({
     );
   };
 
-  const handleRunCaseStatusChange = (runCase: RunCaseType, nextStatus: number) => {
-    const savedRunCase = savedExecutionRunCases.find((saved) => saved.id === runCase.id) || runCase;
-
-    setExecutionRunCases((prev) =>
-      prev.map((item) =>
-        item.id === runCase.id
-          ? {
-              ...item,
-              status: nextStatus,
-              editState: nextStatus === savedRunCase.status ? 'notChanged' : 'changed',
-            }
-          : item
-      )
-    );
-    setRunCaseStatusEditsByRunCaseId((prev) => {
-      const next = new Map(prev);
-      if (nextStatus === savedRunCase.status) {
-        next.delete(runCase.id);
-      } else {
-        next.set(runCase.id, {
-          id: runCase.id,
-          runId: runCase.runId,
-          caseId: runCase.caseId,
-          status: nextStatus,
-          editState: 'changed',
-        });
-      }
-      return next;
-    });
-  };
-
   const onSaveExecution = async () => {
     if (runCaseStatusEditsByRunCaseId.size === 0) {
       return;
@@ -689,8 +644,7 @@ export default function RunEditor({
   };
 
   const onDiscardExecution = () => {
-    setRunCaseStatusEditsByRunCaseId(new Map());
-    setExecutionRunCases(savedExecutionRunCases);
+    discardExecutionEdits();
   };
 
   const onSave =
@@ -705,7 +659,8 @@ export default function RunEditor({
       : activeWorkflow === 'execution'
         ? messages.saveExecution
         : messages.saveOverview;
-  const isSaveDisabled = !tokenContext.isProjectReporter(Number(projectId));
+  const isSaveDisabled =
+    activeWorkflow === 'execution' ? !canEditExecution : !tokenContext.isProjectReporter(Number(projectId));
   const onDiscard =
     activeWorkflow === 'selection'
       ? onDiscardSelection
@@ -1550,26 +1505,13 @@ export default function RunEditor({
                                     {testCase?.folderPath?.join(' / ') || '-'}
                                   </td>
                                   <td>
-                                    <div className="flex items-center gap-2">
-                                      <RunCaseStatus uid={testRunCaseStatus[runCase.status].uid} />
-                                      <select
-                                        aria-label={`${messages.status} ${runCase.caseId}`}
-                                        className="min-w-28 rounded-small border border-default-200 bg-white px-2 py-1 text-sm shadow-sm dark:bg-neutral-950"
-                                        value={String(runCase.status)}
-                                        onChange={(event) =>
-                                          handleRunCaseStatusChange(runCase, Number(event.target.value))
-                                        }
-                                      >
-                                        {testRunCaseStatus.map((status, index) => (
-                                          <option key={status.uid} value={index}>
-                                            {testRunCaseStatusMessages[status.uid] || status.uid}
-                                          </option>
-                                        ))}
-                                      </select>
-                                      {runCase.editState === 'changed' && (
-                                        <span className="inline-block h-2 w-2 rounded-full bg-danger" />
-                                      )}
-                                    </div>
+                                    <RunCaseStatusSelect
+                                      runCase={runCase}
+                                      statusLabel={messages.status}
+                                      statusMessages={testRunCaseStatusMessages}
+                                      onStatusChange={handleRunCaseStatusChange}
+                                      isDisabled={!canEditExecution}
+                                    />
                                   </td>
                                   <td>
                                     <div className="flex max-w-xs flex-wrap gap-1">

@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useState, useContext } from 'react';
 import { useSearchParams } from 'next/navigation';
+import RunCaseStatusSelect from '../../RunCaseStatusSelect';
+import { useRunExecution } from '../../RunExecutionContext';
 import CaseDetail from './CaseDetail';
 import { Tabs, Tab } from '@/components/heroui';
 import Comments from '@/components/Comments';
@@ -12,6 +14,7 @@ import type { CaseType, StepType } from '@/types/case';
 import type { RunCaseType, RunDetailMessages } from '@/types/run';
 import type { PriorityMessages } from '@/types/priority';
 import type { TestTypeMessages } from '@/types/testType';
+import type { TestRunCaseStatusMessages } from '@/types/status';
 import type { CommentMessages } from '@/types/comment';
 
 type Props = {
@@ -22,6 +25,7 @@ type Props = {
   messages: RunDetailMessages;
   testTypeMessages: TestTypeMessages;
   priorityMessages: PriorityMessages;
+  testRunCaseStatusMessages: TestRunCaseStatusMessages;
   commentMessages: CommentMessages;
 };
 
@@ -33,10 +37,12 @@ export default function TestCaseDetailPane({
   messages,
   testTypeMessages,
   priorityMessages,
+  testRunCaseStatusMessages,
   commentMessages,
 }: Props) {
   const context = useContext(TokenContext);
   const searchParams = useSearchParams();
+  const { getExecutionRunCase, handleRunCaseStatusChange, canEditExecution } = useRunExecution();
   const [selectedTab, setSelectedTab] = useState('caseDetail');
   const [isFetching, setIsFetching] = useState(false);
   const [testCase, setTestCase] = useState<CaseType | null>(null);
@@ -84,6 +90,19 @@ export default function TestCaseDetailPane({
     fetchDataEffect();
   }, [context, caseId, runId]);
 
+  const isExecutionWorkflow = searchParams.get('tab') === 'execution';
+  const executionRunCase = isExecutionWorkflow ? getExecutionRunCase(Number(caseId)) : undefined;
+  const titleSuffix =
+    isExecutionWorkflow && executionRunCase ? (
+      <RunCaseStatusSelect
+        runCase={executionRunCase}
+        statusLabel={messages.status}
+        statusMessages={testRunCaseStatusMessages}
+        onStatusChange={handleRunCaseStatusChange}
+        isDisabled={!canEditExecution}
+      />
+    ) : null;
+
   if (isFetching || !testCase) {
     return (
       <div className="flex h-full items-center justify-center bg-white text-sm text-neutral-500 dark:bg-neutral-950">
@@ -108,6 +127,7 @@ export default function TestCaseDetailPane({
               messages={messages}
               testTypeMessages={testTypeMessages}
               priorityMessages={priorityMessages}
+              titleSuffix={titleSuffix}
             />
           </Tab>
           <Tab key="comments" title={messages.comments}>

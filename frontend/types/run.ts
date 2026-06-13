@@ -130,6 +130,7 @@ type RunDetailMessages = {
   priority: string;
   type: string;
   tags: string;
+  status: string;
   testDetail: string;
   steps: string;
   preconditions: string;

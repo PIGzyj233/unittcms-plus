@@ -3,6 +3,7 @@ import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import RunEditor from './RunEditor';
+import { RunExecutionProvider } from './RunExecutionContext';
 import { TokenContext } from '@/utils/TokenProvider';
 import type { TokenContextType } from '@/types/user';
 
@@ -40,6 +41,30 @@ vi.mock('../../folders/foldersControl', () => ({
 vi.mock('@/utils/formGuard', () => ({ useFormGuard: mocks.useFormGuard }));
 vi.mock('@/src/i18n/routing', () => ({ useRouter: () => ({ push: mocks.push }) }));
 vi.mock('./RunPregressDonutChart', () => ({ default: () => null }));
+vi.mock('./RunCaseStatusSelect', () => ({
+  default: ({
+    runCase,
+    statusLabel,
+    onStatusChange,
+    isDisabled,
+  }: {
+    runCase: { caseId: number; status: number; editState?: string };
+    statusLabel: string;
+    onStatusChange: (runCase: { caseId: number; status: number }, nextStatus: number) => void;
+    isDisabled?: boolean;
+  }) => (
+    <select
+      aria-label={`${statusLabel} ${runCase.caseId}`}
+      disabled={isDisabled}
+      value={String(runCase.status)}
+      onChange={(event) => onStatusChange(runCase, Number(event.target.value))}
+    >
+      <option value="0">Untested</option>
+      <option value="1">Passed</option>
+      <option value="2">Failed</option>
+    </select>
+  ),
+}));
 vi.mock('./TestRunFilter', () => ({
   default: ({
     onFilterChange,
@@ -401,6 +426,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -411,6 +437,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -443,6 +470,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -453,6 +481,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -490,6 +519,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -500,6 +530,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -536,6 +567,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -546,6 +578,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -578,6 +611,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -588,6 +622,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -634,6 +669,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -644,6 +680,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -721,6 +758,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -731,6 +769,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -769,6 +808,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -779,6 +819,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -811,6 +852,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -821,6 +863,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -857,6 +900,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -867,6 +911,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -914,6 +959,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -924,6 +970,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -964,6 +1011,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -974,6 +1022,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -1007,6 +1056,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -1017,6 +1067,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -1064,6 +1115,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -1074,6 +1126,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -1140,6 +1193,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -1150,6 +1204,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -1200,6 +1255,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -1210,6 +1266,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -1278,6 +1335,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -1288,6 +1346,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -1341,6 +1400,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -1351,6 +1411,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -1408,6 +1469,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -1418,6 +1480,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -1491,6 +1554,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -1501,6 +1565,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -1567,6 +1632,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -1577,6 +1643,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -1624,6 +1691,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -1634,6 +1702,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -1674,6 +1743,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -1684,6 +1754,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -1738,6 +1809,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -1748,6 +1820,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -1817,6 +1890,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -1827,6 +1901,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -1887,6 +1962,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -1897,6 +1973,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -1961,6 +2038,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -1971,6 +2049,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -2050,6 +2129,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -2060,6 +2140,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -2138,6 +2219,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -2148,6 +2230,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -2230,6 +2313,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -2240,6 +2324,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -2332,6 +2417,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -2342,6 +2428,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -2427,6 +2514,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -2437,6 +2525,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -2511,6 +2600,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -2521,6 +2611,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -2587,6 +2678,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -2597,6 +2689,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });
@@ -2648,6 +2741,7 @@ describe('RunEditor', () => {
     await act(async () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
+          <RunExecutionProvider>
           <RunEditor
             projectId="1"
             runId="2"
@@ -2658,6 +2752,7 @@ describe('RunEditor', () => {
             testTypeMessages={{ functional: 'Functional' } as never}
             locale="en"
           />
+          </RunExecutionProvider>
         </TokenContext.Provider>
       );
     });

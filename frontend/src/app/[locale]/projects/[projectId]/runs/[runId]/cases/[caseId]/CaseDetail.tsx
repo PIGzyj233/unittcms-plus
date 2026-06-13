@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { Chip } from '@/components/heroui';
 import { templates, testTypes } from '@/config/selection';
 import type { CaseType } from '@/types/case';
@@ -16,6 +17,7 @@ type Props = {
   messages: RunDetailMessages;
   testTypeMessages: TestTypeMessages;
   priorityMessages: PriorityMessages;
+  titleSuffix?: ReactNode;
 };
 
 export default function CaseDetail({
@@ -25,17 +27,21 @@ export default function CaseDetail({
   messages,
   testTypeMessages,
   priorityMessages,
+  titleSuffix,
 }: Props) {
   return (
     <div className="h-full overflow-auto bg-white p-4 text-sm text-neutral-700 dark:bg-neutral-950 dark:text-neutral-300">
       <section className="rounded-lg border border-black/10 bg-neutral-50/70 p-4 dark:border-white/10 dark:bg-neutral-900">
-        <Link
-          href={`/projects/${projectId}/folders/${testCase.folderId}/cases/${testCase.id}`}
-          locale={locale}
-          className={`${NextUiLinkClasses} text-base font-semibold`}
-        >
-          #{testCase.id} {testCase.title}
-        </Link>
+        <div className="flex items-start justify-between gap-3">
+          <Link
+            href={`/projects/${projectId}/folders/${testCase.folderId}/cases/${testCase.id}`}
+            locale={locale}
+            className={`${NextUiLinkClasses} text-base font-semibold`}
+          >
+            #{testCase.id} {testCase.title}
+          </Link>
+          {titleSuffix}
+        </div>
 
         <div className="mt-4">
           <p className="mb-1 text-xs font-semibold uppercase text-neutral-500">{messages.description}</p>

@@ -18,9 +18,9 @@ vi.mock('../../middleware/auth.js', () => ({
   }),
 }));
 
-vi.mock('../../middleware/verifyEditable.js', () => ({
+vi.mock('../../middleware/verifyVisible.js', () => ({
   default: () => ({
-    verifyProjectReporterFromRunId: (req, res, next) => next(),
+    verifyProjectVisibleFromRunId: (req, res, next) => next(),
   }),
 }));
 

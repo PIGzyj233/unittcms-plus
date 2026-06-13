@@ -1,7 +1,7 @@
 import { use } from "react";
 import { useTranslations } from 'next-intl';
 import RunEditor from './RunEditor';
-import ResizablePanes from '@/components/ResizablePane';
+import RunLayoutShell from './RunLayoutShell';
 import { RunMessages } from '@/types/run';
 import { PriorityMessages } from '@/types/priority';
 import { RunStatusMessages, TestRunCaseStatusMessages } from '@/types/status';
@@ -130,7 +130,7 @@ export default function RunLayout(
   };
 
   return (
-    <ResizablePanes
+    <RunLayoutShell
       leftPane={
         <RunEditor
           projectId={projectId}

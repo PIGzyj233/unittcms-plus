@@ -4,6 +4,7 @@ import DetailPane from './DetailPane';
 import type { RunDetailMessages } from '@/types/run';
 import type { PriorityMessages } from '@/types/priority';
 import type { TestTypeMessages } from '@/types/testType';
+import type { TestRunCaseStatusMessages } from '@/types/status';
 
 export default function Page(
   props: {
@@ -18,6 +19,7 @@ export default function Page(
     priority: t('priority'),
     type: t('type'),
     tags: t('tags'),
+    status: t('status'),
     testDetail: t('test_detail'),
     steps: t('steps'),
     preconditions: t('preconditions'),
@@ -53,6 +55,15 @@ export default function Page(
     manual: tt('manual'),
   };
 
+  const rcst = useTranslations('RunCaseStatus');
+  const testRunCaseStatusMessages: TestRunCaseStatusMessages = {
+    untested: rcst('untested'),
+    passed: rcst('passed'),
+    failed: rcst('failed'),
+    retest: rcst('retest'),
+    skipped: rcst('skipped'),
+  };
+
   const ct = useTranslations('Comments');
   const commentMessages = {
     comments: ct('comments'),
@@ -79,6 +90,7 @@ export default function Page(
       messages={messages}
       priorityMessages={priorityMessages}
       testTypeMessages={testTypeMessages}
+      testRunCaseStatusMessages={testRunCaseStatusMessages}
       commentMessages={commentMessages}
     />
   );

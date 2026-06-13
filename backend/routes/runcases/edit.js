@@ -5,7 +5,7 @@ import defineFolder from '../../models/folders.js';
 import defineRunCase from '../../models/runCases.js';
 import defineRun from '../../models/runs.js';
 import authMiddleware from '../../middleware/auth.js';
-import editableMiddleware from '../../middleware/verifyEditable.js';
+import visibleMiddleware from '../../middleware/verifyVisible.js';
 
 function createRunCaseConflict(runCase) {
   const error = new Error('Run Case update conflict');
@@ -17,13 +17,13 @@ function createRunCaseConflict(runCase) {
 export default function (sequelize) {
   const router = express.Router();
   const { verifySignedIn } = authMiddleware(sequelize);
-  const { verifyProjectReporterFromRunId } = editableMiddleware(sequelize);
+  const { verifyProjectVisibleFromRunId } = visibleMiddleware(sequelize);
   const Case = defineCase(sequelize, DataTypes);
   const Folder = defineFolder(sequelize, DataTypes);
   const Run = defineRun(sequelize, DataTypes);
   const RunCase = defineRunCase(sequelize, DataTypes);
 
-  router.post('/update', verifySignedIn, verifyProjectReporterFromRunId, async (req, res) => {
+  router.post('/update', verifySignedIn, verifyProjectVisibleFromRunId, async (req, res) => {
     const runId = req.query.runId;
     const runCases = req.body;
     const t = await sequelize.transaction();
