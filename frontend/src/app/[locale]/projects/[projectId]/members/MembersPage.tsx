@@ -101,27 +101,31 @@ export default function MembersPage({ projectId, messages }: Props) {
   };
 
   return (
-    <div className="container mx-auto max-w-3xl pt-6 px-6 flex-grow">
-      <div className="w-full p-3 flex items-center justify-between">
-        <h3 className="font-bold">{messages.memberManagement}</h3>
-        <Button
-          startContent={<Plus size={16} />}
-          size="sm"
-          color="primary"
-          isDisabled={!context.isProjectManager(Number(projectId))}
-          onPress={() => setIsDialogOpen(true)}
-        >
-          {messages.addMember}
-        </Button>
-      </div>
+    <div className="workspace-page">
+      <section className="workspace-surface overflow-hidden">
+        <div className="workspace-toolbar">
+          <h3 className="workspace-section-title">{messages.memberManagement}</h3>
+          <Button
+            startContent={<Plus size={16} />}
+            size="sm"
+            color="primary"
+            isDisabled={!context.isProjectManager(Number(projectId))}
+            onPress={() => setIsDialogOpen(true)}
+          >
+            {messages.addMember}
+          </Button>
+        </div>
 
-      <MembersTable
-        members={members}
-        isDisabled={!context.isProjectManager(Number(projectId))}
-        onChangeRole={handleChangeRole}
-        onDeleteMember={onDeleteClick}
-        messages={messages}
-      />
+        <div className="workspace-table-wrap">
+          <MembersTable
+            members={members}
+            isDisabled={!context.isProjectManager(Number(projectId))}
+            onChangeRole={handleChangeRole}
+            onDeleteMember={onDeleteClick}
+            messages={messages}
+          />
+        </div>
+      </section>
 
       <AddMemberDialog
         isOpen={isDialogOpen}

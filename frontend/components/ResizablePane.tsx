@@ -54,22 +54,25 @@ export default function ResizablePanes({
   }, [isDragging, minLeftWidth, minRightWidth]);
 
   return (
-    <div ref={containerRef} className="flex h-full min-h-0" style={{ userSelect: isDragging ? 'none' : 'auto' }}>
+    <div
+      ref={containerRef}
+      className="flex h-[calc(100vh-64px)] min-h-0 min-w-0 bg-white dark:bg-neutral-950"
+      style={{ userSelect: isDragging ? 'none' : 'auto' }}
+    >
       <div
-        className="min-h-0 border-r-1 dark:border-neutral-700 overflow-auto"
+        className="min-h-0 min-w-0 overflow-auto border-r border-black/10 bg-neutral-50/70 dark:border-white/10 dark:bg-neutral-950"
         style={{ width: `${leftWidth}%`, minWidth: `${minLeftWidth}%` }}
       >
         {leftPane}
       </div>
 
       <div
-        className="w-1 cursor-col-resize hover:bg-primary/50 active:bg-primary transition-colors"
+        className="w-1 shrink-0 cursor-col-resize bg-black/[0.03] transition-colors hover:bg-neutral-300 active:bg-neutral-400 dark:bg-white/[0.04] dark:hover:bg-neutral-700"
         role="separator"
         onMouseDown={handleMouseDown}
-        style={{ flexShrink: 0 }}
       />
 
-      <div className="min-h-0 flex-1 overflow-auto" style={{ minWidth: `${minRightWidth}%` }}>
+      <div className="min-h-0 min-w-0 flex-1 overflow-auto" style={{ minWidth: `${minRightWidth}%` }}>
         {rightPane}
       </div>
     </div>

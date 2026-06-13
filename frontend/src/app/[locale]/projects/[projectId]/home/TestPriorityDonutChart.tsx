@@ -31,21 +31,41 @@ export default function TestPriorityDonutChart({ priorityCounts, priorityMessage
 
         const labels = priorities.map((entry) => priorityMessages[entry.uid]);
         const colors = priorities.map((entry) => entry.chartColor);
+        const labelColor = theme === 'dark' ? '#d4d4d4' : '#525252';
         const legend = {
           labels: {
-            colors: priorities.map(() => {
-              if (theme === 'light') {
-                return 'black';
-              } else {
-                return 'white';
-              }
-            }),
+            colors: priorities.map(() => labelColor),
+          },
+          position: 'bottom' as const,
+          itemMargin: {
+            horizontal: 8,
+            vertical: 4,
           },
         };
 
         setChartData({
           series,
-          options: { labels, colors, legend },
+          options: {
+            chart: {
+              parentHeightOffset: 0,
+            },
+            dataLabels: {
+              enabled: false,
+            },
+            labels,
+            colors,
+            legend,
+            stroke: {
+              width: 0,
+            },
+            plotOptions: {
+              pie: {
+                donut: {
+                  size: '68%',
+                },
+              },
+            },
+          },
         });
       }
     };

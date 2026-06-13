@@ -85,13 +85,18 @@ export default function TestCaseDetailPane({
   }, [context, caseId, runId]);
 
   if (isFetching || !testCase) {
-    return <div>loading...</div>;
+    return (
+      <div className="flex h-full items-center justify-center bg-white text-sm text-neutral-500 dark:bg-neutral-950">
+        loading...
+      </div>
+    );
   } else {
     return (
-      <div className="flex h-full w-full flex-col p-3">
+      <div className="flex h-full w-full flex-col bg-white p-3 dark:bg-neutral-950">
         <Tabs
           aria-label="Options"
           size="sm"
+          variant="underlined"
           selectedKey={selectedTab}
           onSelectionChange={(key) => setSelectedTab(String(key))}
         >

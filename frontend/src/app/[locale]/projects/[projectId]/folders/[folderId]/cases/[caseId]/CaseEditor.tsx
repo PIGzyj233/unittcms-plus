@@ -6,7 +6,7 @@ import CaseAttachmentsEditor from './CaseAttachmentsEditor';
 import { updateSteps } from './stepControl';
 import { fetchCreateAttachments, fetchDownloadAttachment, fetchDeleteAttachment } from './attachmentControl';
 import CaseTagsEditor from './CaseTagsEditor';
-import { Input, TextArea, Select, SelectItem, Button, Separator, Tooltip, addToast, Badge } from '@/components/heroui';
+import { Input, TextArea, Select, SelectItem, Button, Tooltip, addToast, Badge } from '@/components/heroui';
 import { fetchCase, updateCase } from '@/utils/caseControl';
 import { priorities, testTypes, templates } from '@/config/selection';
 import { useRouter } from '@/src/i18n/routing';
@@ -246,242 +246,265 @@ export default function CaseEditor({
   }, [tokenContext, caseId]);
 
   return (
-    <>
-      <div className="border-b-1 dark:border-neutral-700 w-full p-3 flex items-center justify-between">
-        <div className="flex items-center">
+    <div className="flex min-h-full flex-col bg-[#f6f7f8] dark:bg-neutral-950">
+      <div className="sticky top-0 z-20 flex w-full items-center justify-between gap-3 border-b border-black/10 bg-white/90 px-5 py-3 shadow-sm shadow-black/[0.02] backdrop-blur-xl dark:border-white/10 dark:bg-neutral-950/90">
+        <div className="flex min-w-0 items-center">
           <Tooltip content={messages.backToCases} placement="left">
             <Button
               isIconOnly
               size="sm"
-              className="rounded-full bg-neutral-50 dark:bg-neutral-600"
+              variant="light"
+              className="shrink-0 rounded-full"
               onPress={() => router.push(`/projects/${projectId}/folders/${folderId}/cases`, { locale: locale })}
             >
               <ArrowLeft size={16} />
             </Button>
           </Tooltip>
-          <h3 className="font-bold ms-2">{testCase.title}</h3>
+          <h3 className="ms-2 min-w-0 truncate text-base font-semibold text-neutral-950 dark:text-neutral-50">
+            {testCase.title}
+          </h3>
         </div>
-        <div className="flex items-center">
-          <Button
-            startContent={
-              <Badge isInvisible={!isDirty} color="danger" size="sm" content="" shape="circle">
-                <Save size={16} />
-              </Badge>
-            }
-            size="sm"
-            isDisabled={!tokenContext.isProjectDeveloper(Number(projectId))}
-            color="primary"
-            isLoading={isUpdating}
-            onPress={async () => {
-              setIsUpdating(true);
-              try {
-                await updateCase(tokenContext.token.access_token, testCase);
-                if (testCase.Steps) {
-                  await updateSteps(tokenContext.token.access_token, Number(caseId), testCase.Steps);
-                }
-
-                const tagIds = selectedTags.map((tag) => tag.id);
-                await updateCaseTags(tokenContext.token.access_token, Number(caseId), tagIds, projectId);
-
-                addToast({
-                  title: 'Success',
-                  color: 'success',
-                  description: messages.updatedTestCase,
-                });
-                setIsDirty(false);
-              } catch (error) {
-                logError('Error updating test case', error);
-                addToast({
-                  title: 'Error',
-                  description: messages.errorUpdatingTestCase,
-                  color: 'danger',
-                });
-              } finally {
-                setIsUpdating(false);
+        <Button
+          startContent={
+            <Badge isInvisible={!isDirty} color="danger" size="sm" content="" shape="circle">
+              <Save size={16} />
+            </Badge>
+          }
+          size="sm"
+          isDisabled={!tokenContext.isProjectDeveloper(Number(projectId))}
+          color="primary"
+          isLoading={isUpdating}
+          onPress={async () => {
+            setIsUpdating(true);
+            try {
+              await updateCase(tokenContext.token.access_token, testCase);
+              if (testCase.Steps) {
+                await updateSteps(tokenContext.token.access_token, Number(caseId), testCase.Steps);
               }
-            }}
-          >
-            {isUpdating ? messages.updating : messages.update}
-          </Button>
-        </div>
+
+              const tagIds = selectedTags.map((tag) => tag.id);
+              await updateCaseTags(tokenContext.token.access_token, Number(caseId), tagIds, projectId);
+
+              addToast({
+                title: 'Success',
+                color: 'success',
+                description: messages.updatedTestCase,
+              });
+              setIsDirty(false);
+            } catch (error) {
+              logError('Error updating test case', error);
+              addToast({
+                title: 'Error',
+                description: messages.errorUpdatingTestCase,
+                color: 'danger',
+              });
+            } finally {
+              setIsUpdating(false);
+            }
+          }}
+        >
+          {isUpdating ? messages.updating : messages.update}
+        </Button>
       </div>
 
-      <div className="p-5">
-        <h6 className="font-bold">{messages.basic}</h6>
-        <Input
-          size="sm"
-          type="text"
-          variant="bordered"
-          label={messages.title}
-          value={testCase.title}
-          isInvalid={isTitleInvalid}
-          errorMessage={isTitleInvalid ? messages.pleaseEnterTitle : ''}
-          onChange={(e) => {
-            setTestCase({ ...testCase, title: e.target.value });
-          }}
-          className="mt-3"
-        />
-
-        <TextArea
-          size="sm"
-          variant="bordered"
-          label={messages.description}
-          placeholder={messages.testCaseDescription}
-          value={testCase.description}
-          onValueChange={(changeValue) => {
-            setTestCase({ ...testCase, description: changeValue });
-          }}
-          className="mt-3"
-        />
-
-        <CaseTagsEditor
-          projectId={projectId}
-          selectedTags={selectedTags}
-          onChange={(tags) => {
-            setSelectedTags(tags);
-            setIsDirty(true);
-          }}
-          messages={messages}
-        />
-
-        <div>
-          <Select
-            size="sm"
-            variant="bordered"
-            selectedKeys={[priorities[testCase.priority].uid]}
-            onSelectionChange={(newSelection) => {
-              if (newSelection !== 'all' && newSelection.size !== 0) {
-                const selectedUid = Array.from(newSelection)[0];
-                const index = priorities.findIndex((priority) => priority.uid === selectedUid);
-                setTestCase({ ...testCase, priority: index });
-              }
-            }}
-            startContent={
-              <Circle size={8} color={priorities[testCase.priority].color} fill={priorities[testCase.priority].color} />
-            }
-            label={messages.priority}
-            className="mt-3 max-w-xs"
-          >
-            {priorities.map((priority) => (
-              <SelectItem key={priority.uid}>{priorityMessages[priority.uid]}</SelectItem>
-            ))}
-          </Select>
-        </div>
-
-        <div>
-          <Select
-            size="sm"
-            variant="bordered"
-            selectedKeys={[testTypes[testCase.type].uid]}
-            onSelectionChange={(newSelection) => {
-              if (newSelection !== 'all' && newSelection.size !== 0) {
-                const selectedUid = Array.from(newSelection)[0];
-                const index = testTypes.findIndex((type) => type.uid === selectedUid);
-                setTestCase({ ...testCase, type: index });
-              }
-            }}
-            label={messages.type}
-            className="mt-3 max-w-xs"
-          >
-            {testTypes.map((type) => (
-              <SelectItem key={type.uid}>{testTypeMessages[type.uid]}</SelectItem>
-            ))}
-          </Select>
-        </div>
-
-        <div>
-          <Select
-            size="sm"
-            variant="bordered"
-            selectedKeys={[templates[testCase.template].uid]}
-            onSelectionChange={(newSelection) => {
-              if (newSelection !== 'all' && newSelection.size !== 0) {
-                const selectedUid = Array.from(newSelection)[0];
-                const index = templates.findIndex((template) => template.uid === selectedUid);
-                setTestCase({ ...testCase, template: index });
-              }
-            }}
-            label={messages.template}
-            className="mt-3 max-w-xs"
-          >
-            {templates.map((template) => (
-              <SelectItem key={template.uid}>{messages[template.uid]}</SelectItem>
-            ))}
-          </Select>
-        </div>
-
-        <Separator className="my-6" />
-        {templates[testCase.template].uid === 'text' ? (
-          <div>
-            <h6 className="font-bold">{messages.testDetail}</h6>
-            <div className="flex">
-              <TextArea
+      <div className="mx-auto w-full max-w-6xl space-y-5 p-5 lg:p-6">
+        <section className="workspace-surface overflow-hidden">
+          <div className="border-b border-black/10 px-5 py-4 dark:border-white/10">
+            <h6 className="workspace-section-title">{messages.basic}</h6>
+          </div>
+          <div className="grid gap-5 p-5 md:grid-cols-[minmax(0,1fr)_20rem]">
+            <div className="min-w-0 space-y-4">
+              <Input
                 size="sm"
+                type="text"
                 variant="bordered"
-                label={messages.preconditions}
-                value={testCase.preConditions}
-                onValueChange={(changeValue) => {
-                  setTestCase({ ...testCase, preConditions: changeValue });
+                label={messages.title}
+                value={testCase.title}
+                isInvalid={isTitleInvalid}
+                errorMessage={isTitleInvalid ? messages.pleaseEnterTitle : ''}
+                onChange={(e) => {
+                  setIsDirty(true);
+                  setTestCase({ ...testCase, title: e.target.value });
                 }}
-                className="mt-3 pe-1"
               />
 
               <TextArea
                 size="sm"
                 variant="bordered"
-                label={messages.expectedResult}
-                value={testCase.expectedResults}
+                label={messages.description}
+                placeholder={messages.testCaseDescription}
+                value={testCase.description}
+                minRows={6}
                 onValueChange={(changeValue) => {
-                  setTestCase({ ...testCase, expectedResults: changeValue });
+                  setIsDirty(true);
+                  setTestCase({ ...testCase, description: changeValue });
                 }}
-                className="mt-3 ps-1"
               />
             </div>
+
+            <aside className="workspace-subtle-surface min-w-0 p-4">
+              <CaseTagsEditor
+                projectId={projectId}
+                selectedTags={selectedTags}
+                onChange={(tags) => {
+                  setSelectedTags(tags);
+                  setIsDirty(true);
+                }}
+                messages={messages}
+              />
+
+              <div className="mt-4 grid gap-3">
+                <Select
+                  size="sm"
+                  variant="bordered"
+                  selectedKeys={[priorities[testCase.priority].uid]}
+                  onSelectionChange={(newSelection) => {
+                    if (newSelection !== 'all' && newSelection.size !== 0) {
+                      const selectedUid = Array.from(newSelection)[0];
+                      const index = priorities.findIndex((priority) => priority.uid === selectedUid);
+                      setIsDirty(true);
+                      setTestCase({ ...testCase, priority: index });
+                    }
+                  }}
+                  startContent={
+                    <Circle
+                      size={8}
+                      color={priorities[testCase.priority].color}
+                      fill={priorities[testCase.priority].color}
+                    />
+                  }
+                  label={messages.priority}
+                  className="w-full"
+                >
+                  {priorities.map((priority) => (
+                    <SelectItem key={priority.uid}>{priorityMessages[priority.uid]}</SelectItem>
+                  ))}
+                </Select>
+
+                <Select
+                  size="sm"
+                  variant="bordered"
+                  selectedKeys={[testTypes[testCase.type].uid]}
+                  onSelectionChange={(newSelection) => {
+                    if (newSelection !== 'all' && newSelection.size !== 0) {
+                      const selectedUid = Array.from(newSelection)[0];
+                      const index = testTypes.findIndex((type) => type.uid === selectedUid);
+                      setIsDirty(true);
+                      setTestCase({ ...testCase, type: index });
+                    }
+                  }}
+                  label={messages.type}
+                  className="w-full"
+                >
+                  {testTypes.map((type) => (
+                    <SelectItem key={type.uid}>{testTypeMessages[type.uid]}</SelectItem>
+                  ))}
+                </Select>
+
+                <Select
+                  size="sm"
+                  variant="bordered"
+                  selectedKeys={[templates[testCase.template].uid]}
+                  onSelectionChange={(newSelection) => {
+                    if (newSelection !== 'all' && newSelection.size !== 0) {
+                      const selectedUid = Array.from(newSelection)[0];
+                      const index = templates.findIndex((template) => template.uid === selectedUid);
+                      setIsDirty(true);
+                      setTestCase({ ...testCase, template: index });
+                    }
+                  }}
+                  label={messages.template}
+                  className="w-full"
+                >
+                  {templates.map((template) => (
+                    <SelectItem key={template.uid}>{messages[template.uid]}</SelectItem>
+                  ))}
+                </Select>
+              </div>
+            </aside>
           </div>
-        ) : (
-          <div>
-            <div className="flex items-center mb-3">
-              <h6 className="font-bold">{messages.steps}</h6>
+        </section>
+
+        <section className="workspace-surface overflow-hidden">
+          <div className="flex items-center justify-between gap-3 border-b border-black/10 px-5 py-4 dark:border-white/10">
+            <h6 className="workspace-section-title">
+              {templates[testCase.template].uid === 'text' ? messages.testDetail : messages.steps}
+            </h6>
+            {templates[testCase.template].uid !== 'text' && (
               <Button
                 startContent={<Plus size={16} />}
                 size="sm"
                 isDisabled={!tokenContext.isProjectDeveloper(Number(projectId))}
                 color="primary"
-                className="ms-3"
                 onPress={() => onPlusClick(1)}
               >
                 {messages.newStep}
               </Button>
-            </div>
-            {testCase.Steps && (
-              <CaseStepsEditor
+            )}
+          </div>
+          <div className="p-5">
+            {templates[testCase.template].uid === 'text' ? (
+              <div className="grid gap-4 lg:grid-cols-2">
+                <TextArea
+                  size="sm"
+                  variant="bordered"
+                  label={messages.preconditions}
+                  value={testCase.preConditions}
+                  minRows={8}
+                  onValueChange={(changeValue) => {
+                    setIsDirty(true);
+                    setTestCase({ ...testCase, preConditions: changeValue });
+                  }}
+                />
+
+                <TextArea
+                  size="sm"
+                  variant="bordered"
+                  label={messages.expectedResult}
+                  value={testCase.expectedResults}
+                  minRows={8}
+                  onValueChange={(changeValue) => {
+                    setIsDirty(true);
+                    setTestCase({ ...testCase, expectedResults: changeValue });
+                  }}
+                />
+              </div>
+            ) : (
+              testCase.Steps && (
+                <CaseStepsEditor
+                  isDisabled={!tokenContext.isProjectDeveloper(Number(projectId))}
+                  steps={testCase.Steps}
+                  onStepUpdate={onStepUpdate}
+                  onStepPlus={onPlusClick}
+                  onStepDelete={onDeleteClick}
+                  messages={messages}
+                />
+              )
+            )}
+          </div>
+        </section>
+
+        <section className="workspace-surface overflow-hidden">
+          <div className="border-b border-black/10 px-5 py-4 dark:border-white/10">
+            <h6 className="workspace-section-title">{messages.attachments}</h6>
+          </div>
+          <div className="p-5">
+            {testCase.Attachments && (
+              <CaseAttachmentsEditor
                 isDisabled={!tokenContext.isProjectDeveloper(Number(projectId))}
-                steps={testCase.Steps}
-                onStepUpdate={onStepUpdate}
-                onStepPlus={onPlusClick}
-                onStepDelete={onDeleteClick}
+                attachments={testCase.Attachments}
+                onAttachmentDownload={(attachmentId: number, downloadFileName: string) =>
+                  fetchDownloadAttachment(attachmentId, downloadFileName)
+                }
+                onAttachmentDelete={onAttachmentDelete}
+                onFilesDrop={handleDrop}
+                onFilesInput={handleInput}
                 messages={messages}
               />
             )}
           </div>
-        )}
-
-        <Separator className="my-6" />
-        <h6 className="font-bold">{messages.attachments}</h6>
-        {testCase.Attachments && (
-          <CaseAttachmentsEditor
-            isDisabled={!tokenContext.isProjectDeveloper(Number(projectId))}
-            attachments={testCase.Attachments}
-            onAttachmentDownload={(attachmentId: number, downloadFileName: string) =>
-              fetchDownloadAttachment(attachmentId, downloadFileName)
-            }
-            onAttachmentDelete={onAttachmentDelete}
-            onFilesDrop={handleDrop}
-            onFilesInput={handleInput}
-            messages={messages}
-          />
-        )}
+        </section>
       </div>
-    </>
+    </div>
   );
 }

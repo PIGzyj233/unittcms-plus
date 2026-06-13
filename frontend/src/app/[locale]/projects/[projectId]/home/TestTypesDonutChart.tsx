@@ -30,21 +30,41 @@ export default function TestTypesDonutChart({ typesCounts, testTypeMessages, the
 
         const labels = testTypes.map((entry) => testTypeMessages[entry.uid]);
         const colors = testTypes.map((entry) => entry.chartColor);
+        const labelColor = theme === 'dark' ? '#d4d4d4' : '#525252';
         const legend = {
           labels: {
-            colors: testTypes.map(() => {
-              if (theme === 'light') {
-                return 'black';
-              } else {
-                return 'white';
-              }
-            }),
+            colors: testTypes.map(() => labelColor),
+          },
+          position: 'bottom' as const,
+          itemMargin: {
+            horizontal: 8,
+            vertical: 4,
           },
         };
 
         setChartData({
           series,
-          options: { labels, colors, legend },
+          options: {
+            chart: {
+              parentHeightOffset: 0,
+            },
+            dataLabels: {
+              enabled: false,
+            },
+            labels,
+            colors,
+            legend,
+            stroke: {
+              width: 0,
+            },
+            plotOptions: {
+              pie: {
+                donut: {
+                  size: '68%',
+                },
+              },
+            },
+          },
         });
       }
     };

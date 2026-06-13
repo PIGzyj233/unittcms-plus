@@ -59,17 +59,19 @@ export default function ProjectsPage({ messages, projectDialogMessages, locale }
   };
 
   return (
-    <div className="container mx-auto max-w-3xl pt-16 px-6 flex-grow">
-      <div className="w-full p-3 flex items-center justify-between">
-        <h3 className="font-bold">{messages.projectList}</h3>
-        <div>
+    <div className="workspace-page">
+      <section className="workspace-surface overflow-hidden">
+        <div className="workspace-toolbar">
+          <h3 className="workspace-section-title">{messages.projectList}</h3>
           <Button startContent={<Plus size={16} />} size="sm" color="primary" onPress={openDialogForCreate}>
             {messages.newProject}
           </Button>
         </div>
-      </div>
 
-      <ProjectsTable projects={projects} messages={messages} locale={locale} />
+        <div className="workspace-table-wrap">
+          <ProjectsTable projects={projects} messages={messages} locale={locale} />
+        </div>
+      </section>
 
       <ProjectDialog
         isOpen={isProjectDialogOpen}

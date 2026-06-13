@@ -87,71 +87,78 @@ export default function SettingsPage({ projectId, messages, projectDialogMessage
   };
 
   return (
-    <div className="container mx-auto max-w-3xl pt-6 px-6 flex-grow">
-      <div className="w-full p-3 flex items-center justify-between">
-        <h3 className="font-bold">{messages.projectManagement}</h3>
-        <div>
-          <Button
-            startContent={<Trash size={16} />}
-            size="sm"
-            color="danger"
-            isDisabled={!context.isProjectOwner(Number(projectId))}
-            onPress={() => setIsDeleteConfirmDialogOpen(true)}
-          >
-            {messages.deleteProject}
-          </Button>
-          <Button
-            startContent={<Pencil size={16} />}
-            size="sm"
-            color="primary"
-            isDisabled={!context.isProjectOwner(Number(projectId))}
-            onPress={() => setIsProjectDialogOpen(true)}
-            className="ms-2"
-          >
-            {messages.editProject}
-          </Button>
+    <div className="workspace-page">
+      <section className="workspace-surface overflow-hidden">
+        <div className="workspace-toolbar">
+          <h3 className="workspace-section-title">{messages.projectManagement}</h3>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              startContent={<Trash size={16} />}
+              size="sm"
+              color="danger"
+              isDisabled={!context.isProjectOwner(Number(projectId))}
+              onPress={() => setIsDeleteConfirmDialogOpen(true)}
+            >
+              {messages.deleteProject}
+            </Button>
+            <Button
+              startContent={<Pencil size={16} />}
+              size="sm"
+              color="primary"
+              isDisabled={!context.isProjectOwner(Number(projectId))}
+              onPress={() => setIsProjectDialogOpen(true)}
+            >
+              {messages.editProject}
+            </Button>
+          </div>
         </div>
-      </div>
 
-      <div className="w-full p-3">
-        <Table hideHeader aria-label="Example static collection table">
-          <TableHeader>
-            <TableColumn>dummy</TableColumn>
-            <TableColumn>dummy</TableColumn>
-          </TableHeader>
-          <TableBody>
-            <TableRow key="project-name">
-              <TableCell>{messages.projectName}</TableCell>
-              <TableCell>{project.name}</TableCell>
-            </TableRow>
-            <TableRow key="project-detail">
-              <TableCell>{messages.projectDetail}</TableCell>
-              <TableCell>{project.detail}</TableCell>
-            </TableRow>
-            <TableRow key="project-owner">
-              <TableCell>{messages.projectOwner}</TableCell>
-              <TableCell>
-                <div className="flex gap-2 items-center">
-                  <UserAvatar size={24} username={owner.username} avatarPath={owner.avatarPath} />
-                  <p className="">{owner.username}</p>
-                </div>
-              </TableCell>
-            </TableRow>
-            <TableRow key="project-publicity">
-              <TableCell>{messages.publicity}</TableCell>
-              <TableCell>{project.isPublic ? messages.public : messages.private}</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </div>
+        <div className="w-full p-2">
+          <Table
+            hideHeader
+            aria-label="Example static collection table"
+            classNames={{
+              wrapper: ['max-w-none', 'rounded-none', 'border-0', 'shadow-none', 'bg-transparent'],
+              td: ['border-b', 'border-divider'],
+            }}
+          >
+            <TableHeader>
+              <TableColumn>dummy</TableColumn>
+              <TableColumn>dummy</TableColumn>
+            </TableHeader>
+            <TableBody>
+              <TableRow key="project-name">
+                <TableCell>{messages.projectName}</TableCell>
+                <TableCell>{project.name}</TableCell>
+              </TableRow>
+              <TableRow key="project-detail">
+                <TableCell>{messages.projectDetail}</TableCell>
+                <TableCell>{project.detail}</TableCell>
+              </TableRow>
+              <TableRow key="project-owner">
+                <TableCell>{messages.projectOwner}</TableCell>
+                <TableCell>
+                  <div className="flex gap-2 items-center">
+                    <UserAvatar size={24} username={owner.username} avatarPath={owner.avatarPath} />
+                    <p className="">{owner.username}</p>
+                  </div>
+                </TableCell>
+              </TableRow>
+              <TableRow key="project-publicity">
+                <TableCell>{messages.publicity}</TableCell>
+                <TableCell>{project.isPublic ? messages.public : messages.private}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+      </section>
 
-      <div className="w-full p-3 flex items-center justify-between">
-        <h3 className="font-bold">{messages.tagManagement}</h3>
-      </div>
-
-      <div className="w-full p-3">
+      <section className="mt-6">
+        <div className="mb-3">
+          <h3 className="workspace-section-title">{messages.tagManagement}</h3>
+        </div>
         <ProjectTagsManager projectId={projectId} messages={messages} />
-      </div>
+      </section>
 
       <ProjectDialog
         isOpen={isProjectDialogOpen}

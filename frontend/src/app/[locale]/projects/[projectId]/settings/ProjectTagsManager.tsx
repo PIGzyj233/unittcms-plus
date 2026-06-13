@@ -135,9 +135,9 @@ export default function ProjectTagsManager({ projectId, messages }: ProjectTagsM
   };
 
   return (
-    <Card>
-      <CardBody>
-        <div className="mb-6 flex items-baseline gap-3">
+    <Card className="workspace-surface overflow-hidden">
+      <CardBody className="p-5">
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start">
           <Input
             size="sm"
             type="text"
@@ -154,7 +154,7 @@ export default function ProjectTagsManager({ projectId, messages }: ProjectTagsM
             }}
           />
 
-          <div>
+          <div className="shrink-0">
             <Button
               startContent={<Plus className="w-4 h-4" />}
               color="primary"
@@ -175,7 +175,7 @@ export default function ProjectTagsManager({ projectId, messages }: ProjectTagsM
           {tags.map((tag) => (
             <div
               key={tag.id}
-              className="flex items-center justify-between p-2 hover:bg-gray-100 hover:dark:bg-[#2a2a2a] transition-colors rounded-lg"
+              className="group flex items-center justify-between rounded-md border border-transparent px-3 py-2 transition-colors hover:border-black/10 hover:bg-neutral-50 hover:dark:border-white/10 hover:dark:bg-white/[0.04]"
             >
               {editingTag === tag.id ? (
                 <>
@@ -229,7 +229,7 @@ export default function ProjectTagsManager({ projectId, messages }: ProjectTagsM
                   <div className="flex items-center gap-3">
                     <span className="font-medium">{tag.name}</span>
                   </div>
-                  <div className="flex gap-2 transition-opacity group-hover:opacity-100">
+                  <div className="flex gap-1 transition-opacity group-hover:opacity-100">
                     <Button
                       size="sm"
                       variant="ghost"

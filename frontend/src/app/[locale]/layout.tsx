@@ -10,9 +10,7 @@ import { fontSans } from '@/config/fonts';
 export async function generateMetadata(props: { params: Promise<{ locale: string }> }) {
   const params = await props.params;
 
-  const {
-    locale
-  } = params;
+  const { locale } = params;
 
   const headersList = await headers();
   const host = headersList.get('host');
@@ -47,13 +45,13 @@ export default async function RootLayout(props: { children: React.ReactNode; par
   return (
     <html lang={locale} suppressHydrationWarning>
       <head />
-      <body className={clsx('min-h-[calc(100vh-64px)] bg-background font-sans antialiased', fontSans.variable)}>
+      <body className={clsx('min-h-screen bg-[#f6f7f8] font-sans antialiased dark:bg-neutral-950', fontSans.variable)}>
         <Providers
           intlProps={{ locale: locale, messages: messages }}
           themeProps={{ attribute: 'class', defaultTheme: 'light' }}
           tokenProps={{ toastMessages: toastMessages, locale: locale as LocaleCodeType }}
         >
-          <div className="relative flex flex-col min-h-screen light:bg-neutral-50 dark:bg-neutral-800">
+          <div className="relative flex min-h-screen flex-col">
             <Header locale={locale as LocaleCodeType} />
             <main>{children}</main>
           </div>

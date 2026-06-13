@@ -30,8 +30,8 @@ export default function Sidebar({ messages, locale }: Props) {
 
   const TOGGLE_ICON_STROKE_WIDTH = 1;
   const TOGGLE_ICON_SIZE = 18;
-  const ICON_STROKE_WIDTH = 1;
-  const ICON_SIZE = 26;
+  const ICON_STROKE_WIDTH = 1.8;
+  const ICON_SIZE = 18;
 
   const handleClick = (key: string) => {
     if (key === 'home') {
@@ -102,39 +102,78 @@ export default function Sidebar({ messages, locale }: Props) {
     },
   ];
 
-  return (
-    <div className="border-r-1 dark:border-neutral-700">
-      <div className="w-full flex justify-end">
-        <Tooltip content={messages.toggleSidebar} placement="right">
-          <Button size="lg" isIconOnly variant="light" onPress={() => setIsSideBarOpen(!isSideBarOpen)}>
-            {isSideBarOpen ? (
-              <PanelLeftClose strokeWidth={TOGGLE_ICON_STROKE_WIDTH} size={TOGGLE_ICON_SIZE} />
-            ) : (
-              <PanelLeftOpen strokeWidth={TOGGLE_ICON_STROKE_WIDTH} size={TOGGLE_ICON_SIZE} />
-            )}
-          </Button>
-        </Tooltip>
-      </div>
-
-      <div className="border-t-1 dark:border-neutral-700">
-        {tabItems.map((itr) => (
-          <div key={itr.key}>
-            <Tooltip hidden={isSideBarOpen} content={itr.text} placement="right">
-              <Button
-                size="lg"
-                isIconOnly={!isSideBarOpen}
-                startContent={itr.startContent}
-                isDisabled={itr.key === currentKey}
-                variant="light"
-                className={isSideBarOpen ? 'w-full justify-start' : ''}
-                onPress={() => handleClick(itr.key)}
-              >
-                {isSideBarOpen ? itr.text : ''}
-              </Button>
-            </Tooltip>
-          </div>
-        ))}
-      </div>
+  const renderNavButton = (itr: (typeof tabItems)[number], compact = false) => (
+    <div key={itr.key} className="block w-full">
+      <Tooltip hidden={isSideBarOpen || !compact} content={itr.text} placement="right">
+        <button
+          type="button"
+          aria-current={itr.key === currentKey ? 'page' : undefined}
+          className={[
+            'flex h-10 min-w-0 items-center rounded-md text-sm font-medium transition-colors',
+            compact ? 'mx-auto w-10 justify-center p-0' : 'w-full justify-start gap-3 px-3',
+            itr.key === currentKey
+              ? 'bg-neutral-950 text-white shadow-sm hover:bg-neutral-950 dark:bg-white dark:text-neutral-950 dark:hover:bg-white'
+              : 'text-neutral-600 hover:bg-black/[0.04] hover:text-neutral-950 dark:text-neutral-300 dark:hover:bg-white/[0.06] dark:hover:text-white',
+          ].join(' ')}
+          onClick={() => handleClick(itr.key)}
+        >
+          {itr.startContent}
+          {!compact && <span className="truncate">{itr.text}</span>}
+        </button>
+      </Tooltip>
     </div>
+  );
+
+  return (
+    <>
+      <div className="sticky top-16 z-30 border-b border-black/10 bg-white/90 px-3 py-2 backdrop-blur dark:border-white/10 dark:bg-neutral-950/90 md:hidden">
+        <nav className="flex gap-2 overflow-x-auto">
+          {tabItems.map((itr) => (
+            <Button
+              key={itr.key}
+              size="sm"
+              startContent={itr.startContent}
+              variant="light"
+              aria-current={itr.key === currentKey ? 'page' : undefined}
+              className={[
+                'h-9 shrink-0 rounded-md px-3 text-sm font-medium',
+                itr.key === currentKey
+                  ? 'bg-neutral-950 text-white dark:bg-white dark:text-neutral-950'
+                  : 'text-neutral-600 dark:text-neutral-300',
+              ].join(' ')}
+              onPress={() => handleClick(itr.key)}
+            >
+              {itr.text}
+            </Button>
+          ))}
+        </nav>
+      </div>
+      <aside
+        className={[
+          'sticky top-16 hidden h-[calc(100vh-64px)] shrink-0 border-r border-black/10 bg-white/80 transition-[width] duration-200 dark:border-white/10 dark:bg-neutral-950/70 md:block',
+          isSideBarOpen ? 'w-52' : 'w-16',
+        ].join(' ')}
+      >
+        <div className="flex h-12 items-center justify-end border-b border-black/10 px-2 dark:border-white/10">
+          <Tooltip content={messages.toggleSidebar} placement="right">
+            <Button
+              size="sm"
+              isIconOnly
+              variant="light"
+              className="text-neutral-500 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white"
+              onPress={() => setIsSideBarOpen(!isSideBarOpen)}
+            >
+              {isSideBarOpen ? (
+                <PanelLeftClose strokeWidth={TOGGLE_ICON_STROKE_WIDTH} size={TOGGLE_ICON_SIZE} />
+              ) : (
+                <PanelLeftOpen strokeWidth={TOGGLE_ICON_STROKE_WIDTH} size={TOGGLE_ICON_SIZE} />
+              )}
+            </Button>
+          </Tooltip>
+        </div>
+
+        <nav className="space-y-1 p-2">{tabItems.map((itr) => renderNavButton(itr, !isSideBarOpen))}</nav>
+      </aside>
+    </>
   );
 }

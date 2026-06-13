@@ -22,13 +22,9 @@ export default function SidebarLayout(props: { children: React.ReactNode; params
   };
 
   return (
-    <>
-      <div className="flex border-t-1 dark:border-neutral-700 min-h-[calc(100vh-64px)]">
-        <Sidebar messages={messages} locale={locale} />
-        <div className="flex w-full">
-          <div className="flex-grow">{children}</div>
-        </div>
-      </div>
-    </>
+    <div className="workspace-shell flex flex-col md:flex-row">
+      <Sidebar messages={messages} locale={locale} />
+      <div className="min-w-0 flex-1 overflow-x-hidden">{children}</div>
+    </div>
   );
 }
