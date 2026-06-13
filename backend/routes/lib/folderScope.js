@@ -108,7 +108,8 @@ async function getProjectFolderCaseCounts(sequelize, { projectId }) {
   const Case = caseModel(sequelize);
   const folders = await Folder.findAll({ where: { projectId } });
   const folderIds = folders.map((folder) => folder.id);
-  const cases = folderIds.length > 0 ? await Case.findAll({ attributes: ['folderId'], where: { folderId: folderIds } }) : [];
+  const cases =
+    folderIds.length > 0 ? await Case.findAll({ attributes: ['folderId'], where: { folderId: folderIds } }) : [];
   const { foldersByParentId } = buildFolderIndexes(folders);
   const directCaseCountsByFolderId = new Map();
 

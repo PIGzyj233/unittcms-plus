@@ -13,7 +13,8 @@ vi.mock('@/components/heroui', () => ({
       {children}
     </button>
   ),
-  Modal: ({ children, isOpen }: { children: React.ReactNode; isOpen: boolean }) => (isOpen ? <div>{children}</div> : null),
+  Modal: ({ children, isOpen }: { children: React.ReactNode; isOpen: boolean }) =>
+    isOpen ? <div>{children}</div> : null,
   ModalBody: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   ModalContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   ModalFooter: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -107,8 +108,11 @@ describe('CaseMoveDialog', () => {
     });
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Clone') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Clone'
+        ) as HTMLButtonElement
+      ).click();
     });
 
     expect(cloneCases).toHaveBeenCalledWith('token', [1], 2, 1);

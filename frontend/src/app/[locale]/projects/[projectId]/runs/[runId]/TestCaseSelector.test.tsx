@@ -66,9 +66,17 @@ describe('TestCaseSelector', () => {
     const markup = renderToStaticMarkup(
       <TestCaseSelector
         cases={[
-          testCase({ id: 1, title: 'Saved member', RunCases: [{ id: 1, runId: 2, caseId: 1, status: 0, editState: 'notChanged' }] }),
+          testCase({
+            id: 1,
+            title: 'Saved member',
+            RunCases: [{ id: 1, runId: 2, caseId: 1, status: 0, editState: 'notChanged' }],
+          }),
           testCase({ id: 2, title: 'Outside run', RunCases: [] }),
-          testCase({ id: 3, title: 'New member', RunCases: [{ id: -1, runId: 2, caseId: 3, status: 0, editState: 'new' }] }),
+          testCase({
+            id: 3,
+            title: 'New member',
+            RunCases: [{ id: -1, runId: 2, caseId: 3, status: 0, editState: 'new' }],
+          }),
           testCase({
             id: 4,
             title: 'Removed member',

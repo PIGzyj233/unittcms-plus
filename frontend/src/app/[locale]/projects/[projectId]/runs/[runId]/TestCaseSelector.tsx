@@ -48,8 +48,8 @@ export default function TestCaseSelector({
     return [...cases].sort((a: CaseType, b: CaseType) => {
       const firstValue = a[sortDescriptor.column as keyof CaseType];
       const secondValue = b[sortDescriptor.column as keyof CaseType];
-      const first = Array.isArray(firstValue) ? firstValue.join(' / ') : firstValue ?? '';
-      const second = Array.isArray(secondValue) ? secondValue.join(' / ') : secondValue ?? '';
+      const first = Array.isArray(firstValue) ? firstValue.join(' / ') : (firstValue ?? '');
+      const second = Array.isArray(secondValue) ? secondValue.join(' / ') : (secondValue ?? '');
       const cmp = first < second ? -1 : first > second ? 1 : 0;
 
       return sortDescriptor.direction === 'descending' ? -cmp : cmp;
@@ -143,11 +143,7 @@ export default function TestCaseSelector({
       >
         <TableHeader columns={headerColumns}>
           {(column) => (
-            <TableColumn
-              key={column.uid}
-              align="start"
-              allowsSorting={column.sortable}
-            >
+            <TableColumn key={column.uid} align="start" allowsSorting={column.sortable}>
               {column.name}
             </TableColumn>
           )}

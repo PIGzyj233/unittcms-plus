@@ -1,4 +1,4 @@
-import { use } from "react";
+import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import ProfileSettingsPage from './ProfileSettingsPage';
 import { PageType } from '@/types/base';

@@ -1,4 +1,4 @@
-import { use } from "react";
+import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import ProjectsPage from './ProjectsPage';
 import { PageType } from '@/types/base';

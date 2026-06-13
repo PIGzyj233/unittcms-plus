@@ -92,7 +92,9 @@ describe('POST /runcases/update stale draft handling', () => {
       .send([{ id: 999, runId: 2, caseId: testCase.id, status: 0, editState: 'deleted' }]);
 
     expect(res.status).toBe(409);
-    expect(res.body.failedRunCases).toEqual([expect.objectContaining({ id: 999, caseId: testCase.id, editState: 'deleted' })]);
+    expect(res.body.failedRunCases).toEqual([
+      expect.objectContaining({ id: 999, caseId: testCase.id, editState: 'deleted' }),
+    ]);
     expect(await RunCase.count()).toBe(0);
   });
 
@@ -118,7 +120,9 @@ describe('POST /runcases/update stale draft handling', () => {
       .send([{ id: -1, runId: 2, caseId: otherProjectCase.id, status: 0, editState: 'new' }]);
 
     expect(res.status).toBe(409);
-    expect(res.body.failedRunCases).toEqual([expect.objectContaining({ caseId: otherProjectCase.id, editState: 'new' })]);
+    expect(res.body.failedRunCases).toEqual([
+      expect.objectContaining({ caseId: otherProjectCase.id, editState: 'new' }),
+    ]);
     expect(await RunCase.count()).toBe(0);
   });
 });

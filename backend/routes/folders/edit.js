@@ -29,7 +29,9 @@ export default function (sequelize) {
       res.json(folder);
     } catch (error) {
       console.error(error);
-      res.status(error.status || 500).json(error.status ? { error: error.message } : { error: 'Internal Server Error' });
+      res
+        .status(error.status || 500)
+        .json(error.status ? { error: error.message } : { error: 'Internal Server Error' });
     }
   });
 

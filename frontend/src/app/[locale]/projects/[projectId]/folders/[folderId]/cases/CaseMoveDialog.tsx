@@ -1,7 +1,16 @@
 'use client';
 import { useState } from 'react';
 import { Copy, Forward } from 'lucide-react';
-import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Spinner, addToast } from '@/components/heroui';
+import {
+  Button,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Spinner,
+  addToast,
+} from '@/components/heroui';
 import { CaseType, CasesMessages } from '@/types/case';
 import { moveCases, cloneCases } from '@/utils/caseControl';
 

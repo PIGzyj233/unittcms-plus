@@ -110,9 +110,7 @@ export default function (sequelize) {
           {
             model: Case,
             where: caseWhere,
-            include: [
-              tagInclude,
-            ],
+            include: [tagInclude],
           },
         ],
         order: [['id', 'ASC']],
@@ -148,7 +146,9 @@ export default function (sequelize) {
             Case: plain.Case
               ? {
                   ...plain.Case,
-                  folderPath: scope ? folderPathFor(scope, plain.Case.folderId) : folderPaths.get(plain.Case.folderId) || [],
+                  folderPath: scope
+                    ? folderPathFor(scope, plain.Case.folderId)
+                    : folderPaths.get(plain.Case.folderId) || [],
                 }
               : plain.Case,
           };

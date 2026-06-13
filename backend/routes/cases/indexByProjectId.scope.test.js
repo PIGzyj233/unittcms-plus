@@ -118,7 +118,9 @@ describe('GET /cases/byproject Folder Path', () => {
     await Case.create(casePayload(parent.id, 'Parent login'));
     await Run.create({ id: 1, name: 'Regression', projectId: 1, state: 0 });
 
-    const res = await request(app).get(`/cases/byproject?projectId=1&runId=1&folderId=${parent.id}&includeSubfolders=0`);
+    const res = await request(app).get(
+      `/cases/byproject?projectId=1&runId=1&folderId=${parent.id}&includeSubfolders=0`
+    );
 
     expect(res.status).toBe(400);
     expect(res.body.error).toBe('includeSubfolders must be true or false');

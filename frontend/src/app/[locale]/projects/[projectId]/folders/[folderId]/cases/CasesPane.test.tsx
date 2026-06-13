@@ -175,8 +175,11 @@ describe('CasesPane', () => {
       container.querySelector('button')?.click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'submit') as HTMLButtonElement)
-        ?.click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'submit'
+        ) as HTMLButtonElement
+      )?.click();
     });
     await act(async () => {
       await Promise.resolve();
@@ -192,9 +195,9 @@ describe('CasesPane', () => {
   });
 
   it('refreshes the current Folder Scope query after moving selected Test Cases', async () => {
-    mocks.fetchCases.mockResolvedValueOnce([{ id: 1, folderId: 7, title: 'Mobile login' }]).mockResolvedValueOnce([
-      { id: 1, folderId: 8, title: 'Mobile login' },
-    ]);
+    mocks.fetchCases
+      .mockResolvedValueOnce([{ id: 1, folderId: 7, title: 'Mobile login' }])
+      .mockResolvedValueOnce([{ id: 1, folderId: 8, title: 'Mobile login' }]);
     const container = document.createElement('div');
     document.body.appendChild(container);
     const root = createRoot(container);
@@ -237,8 +240,11 @@ describe('CasesPane', () => {
       emitMoveEvent([1], 8);
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'complete move') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'complete move'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
       await Promise.resolve();
@@ -297,8 +303,11 @@ describe('CasesPane', () => {
     });
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'import') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'import'
+        ) as HTMLButtonElement
+      ).click();
     });
 
     expect(container.textContent).toContain('import folder 7');
@@ -350,8 +359,11 @@ describe('CasesPane', () => {
     });
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'toggle scope') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'toggle scope'
+        ) as HTMLButtonElement
+      ).click();
     });
 
     expect(mocks.push).toHaveBeenCalledWith('/en/projects/1/folders/7/cases?search=login&priority=1', {

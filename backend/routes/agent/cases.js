@@ -310,7 +310,9 @@ export default function (sequelize) {
       res.json({
         cases: cases.map((testcase) => {
           const serialized = serializeCase(testcase);
-          const folderPath = scope ? folderPathFor(scope, serialized.folderId) : projectFolderPaths.get(serialized.folderId) || [];
+          const folderPath = scope
+            ? folderPathFor(scope, serialized.folderId)
+            : projectFolderPaths.get(serialized.folderId) || [];
           return { ...serialized, folderPath };
         }),
       });

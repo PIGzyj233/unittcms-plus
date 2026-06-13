@@ -103,7 +103,9 @@ async function getFolderTree(sequelize, { projectId }) {
       ['name', 'ASC'],
     ],
   });
-  const { caseCountsByFolderId, directCaseCountsByFolderId } = await getProjectFolderCaseCounts(sequelize, { projectId });
+  const { caseCountsByFolderId, directCaseCountsByFolderId } = await getProjectFolderCaseCounts(sequelize, {
+    projectId,
+  });
 
   return folders.map((folder) =>
     serializeFolder(folder, {

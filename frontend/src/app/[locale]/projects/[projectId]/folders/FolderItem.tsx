@@ -50,17 +50,11 @@ export default function FolderItem({
       ? `${directCaseCount} directly placed`
       : undefined;
 
-  const toggleButton =
-    hasChildren ? (
-      <Button
-        size="sm"
-        className="bg-transparent rounded-full h-6 w-6 min-w-4"
-        isIconOnly
-        onPress={() => node.toggle()}
-      >
-        {node.isOpen ? <ChevronDown size={20} color="#F7C24E" /> : <ChevronRight size={20} color="#F7C24E" />}
-      </Button>
-    ) : null;
+  const toggleButton = hasChildren ? (
+    <Button size="sm" className="bg-transparent rounded-full h-6 w-6 min-w-4" isIconOnly onPress={() => node.toggle()}>
+      {node.isOpen ? <ChevronDown size={20} color="#F7C24E" /> : <ChevronRight size={20} color="#F7C24E" />}
+    </Button>
+  ) : null;
 
   const actions = (
     <>

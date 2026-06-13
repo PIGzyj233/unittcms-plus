@@ -60,18 +60,16 @@ describe('POST /agent/case-candidates', () => {
   });
 
   it('requires folderId and string enum UIDs', async () => {
-    const res = await request(app)
-      .post('/agent/case-candidates?projectId=1')
-      .send({
-        title: 'A',
-        priority: 1,
-        type: 'functional',
-        automationStatus: 'automation-not-required',
-        template: 'step',
-        steps: [],
-        tagIds: [],
-        suggestedTags: [],
-      });
+    const res = await request(app).post('/agent/case-candidates?projectId=1').send({
+      title: 'A',
+      priority: 1,
+      type: 'functional',
+      automationStatus: 'automation-not-required',
+      template: 'step',
+      steps: [],
+      tagIds: [],
+      suggestedTags: [],
+    });
 
     expect(res.status).toBe(400);
     expect(res.body.error).toContain('folderId');
@@ -80,16 +78,14 @@ describe('POST /agent/case-candidates', () => {
   it('rejects numeric enum values when folderId is valid', async () => {
     await createProjectFolder();
 
-    const res = await request(app)
-      .post('/agent/case-candidates?projectId=1')
-      .send({
-        title: 'A',
-        folderId: 1,
-        priority: 1,
-        type: 'functional',
-        automationStatus: 'automation-not-required',
-        template: 'step',
-      });
+    const res = await request(app).post('/agent/case-candidates?projectId=1').send({
+      title: 'A',
+      folderId: 1,
+      priority: 1,
+      type: 'functional',
+      automationStatus: 'automation-not-required',
+      template: 'step',
+    });
 
     expect(res.status).toBe(400);
     expect(res.body.error).toContain('priority must be one of');
@@ -98,16 +94,14 @@ describe('POST /agent/case-candidates', () => {
   it('rejects non-string titles', async () => {
     await createProjectFolder();
 
-    const res = await request(app)
-      .post('/agent/case-candidates?projectId=1')
-      .send({
-        title: 123,
-        folderId: 1,
-        priority: 'high',
-        type: 'functional',
-        automationStatus: 'automation-not-required',
-        template: 'step',
-      });
+    const res = await request(app).post('/agent/case-candidates?projectId=1').send({
+      title: 123,
+      folderId: 1,
+      priority: 'high',
+      type: 'functional',
+      automationStatus: 'automation-not-required',
+      template: 'step',
+    });
 
     expect(res.status).toBe(400);
     expect(res.body.error).toContain('title must be a non-empty string');
@@ -116,17 +110,15 @@ describe('POST /agent/case-candidates', () => {
   it('rejects provided non-array steps', async () => {
     await createProjectFolder();
 
-    const res = await request(app)
-      .post('/agent/case-candidates?projectId=1')
-      .send({
-        title: 'A',
-        folderId: 1,
-        priority: 'high',
-        type: 'functional',
-        automationStatus: 'automation-not-required',
-        template: 'step',
-        steps: 'not-array',
-      });
+    const res = await request(app).post('/agent/case-candidates?projectId=1').send({
+      title: 'A',
+      folderId: 1,
+      priority: 'high',
+      type: 'functional',
+      automationStatus: 'automation-not-required',
+      template: 'step',
+      steps: 'not-array',
+    });
 
     expect(res.status).toBe(400);
     expect(res.body.error).toContain('steps must be an array');
@@ -212,16 +204,14 @@ describe('POST /agent/case-candidates', () => {
   it('rejects fractional folder IDs', async () => {
     await createProjectFolder();
 
-    const res = await request(app)
-      .post('/agent/case-candidates?projectId=1')
-      .send({
-        title: 'A',
-        folderId: 1.5,
-        priority: 'high',
-        type: 'functional',
-        automationStatus: 'automation-not-required',
-        template: 'step',
-      });
+    const res = await request(app).post('/agent/case-candidates?projectId=1').send({
+      title: 'A',
+      folderId: 1.5,
+      priority: 'high',
+      type: 'functional',
+      automationStatus: 'automation-not-required',
+      template: 'step',
+    });
 
     expect(res.status).toBe(400);
     expect(res.body.error).toContain('folderId must be a positive integer');
@@ -230,16 +220,14 @@ describe('POST /agent/case-candidates', () => {
   it('creates a draft candidate with normalized defaults', async () => {
     await createProjectFolder();
 
-    const res = await request(app)
-      .post('/agent/case-candidates?projectId=1')
-      .send({
-        title: '  Login works  ',
-        folderId: 1,
-        priority: 'high',
-        type: 'functional',
-        automationStatus: 'automation-not-required',
-        template: 'step',
-      });
+    const res = await request(app).post('/agent/case-candidates?projectId=1').send({
+      title: '  Login works  ',
+      folderId: 1,
+      priority: 'high',
+      type: 'functional',
+      automationStatus: 'automation-not-required',
+      template: 'step',
+    });
 
     expect(res.status).toBe(201);
     expect(res.body.candidate).toMatchObject({
@@ -281,16 +269,14 @@ describe('POST /agent/case-candidates', () => {
       folderId: 1,
     });
 
-    const res = await request(app)
-      .post('/agent/case-candidates?projectId=1')
-      .send({
-        title: ' login   works ',
-        folderId: 1,
-        priority: 'high',
-        type: 'functional',
-        automationStatus: 'automation-not-required',
-        template: 'step',
-      });
+    const res = await request(app).post('/agent/case-candidates?projectId=1').send({
+      title: ' login   works ',
+      folderId: 1,
+      priority: 'high',
+      type: 'functional',
+      automationStatus: 'automation-not-required',
+      template: 'step',
+    });
 
     expect(res.status).toBe(409);
     expect(res.body.error).toContain('duplicates');
@@ -322,17 +308,15 @@ describe('POST /agent/case-candidates', () => {
       folderId: 1,
     });
 
-    const res = await request(app)
-      .post('/agent/case-candidates?projectId=1')
-      .send({
-        title: ' login   works ',
-        folderId: 1,
-        priority: 'high',
-        type: 'functional',
-        automationStatus: 'automation-not-required',
-        template: 'step',
-        allowStrongDuplicate: true,
-      });
+    const res = await request(app).post('/agent/case-candidates?projectId=1').send({
+      title: ' login   works ',
+      folderId: 1,
+      priority: 'high',
+      type: 'functional',
+      automationStatus: 'automation-not-required',
+      template: 'step',
+      allowStrongDuplicate: true,
+    });
 
     expect(res.status).toBe(201);
     expect(res.body.candidate.duplicateMetadata).toMatchObject({
@@ -392,17 +376,15 @@ describe('POST /agent/case-candidates', () => {
       creatorUserId: 7,
     });
 
-    const res = await request(app)
-      .post('/agent/case-candidates?projectId=1')
-      .send({
-        title: ' login   works ',
-        folderId: 1,
-        priority: 'high',
-        type: 'functional',
-        automationStatus: 'automation-not-required',
-        template: 'step',
-        allowStrongDuplicate: true,
-      });
+    const res = await request(app).post('/agent/case-candidates?projectId=1').send({
+      title: ' login   works ',
+      folderId: 1,
+      priority: 'high',
+      type: 'functional',
+      automationStatus: 'automation-not-required',
+      template: 'step',
+      allowStrongDuplicate: true,
+    });
 
     expect(res.status).toBe(201);
     expect(res.body.candidate.duplicateAllowed).toBe(true);
@@ -439,16 +421,14 @@ describe('POST /agent/case-candidates', () => {
       creatorUserId: 7,
     });
 
-    const res = await request(app)
-      .post('/agent/case-candidates?projectId=1')
-      .send({
-        title: ' login   works ',
-        folderId: 1,
-        priority: 'high',
-        type: 'functional',
-        automationStatus: 'automation-not-required',
-        template: 'step',
-      });
+    const res = await request(app).post('/agent/case-candidates?projectId=1').send({
+      title: ' login   works ',
+      folderId: 1,
+      priority: 'high',
+      type: 'functional',
+      automationStatus: 'automation-not-required',
+      template: 'step',
+    });
 
     expect(res.status).toBe(409);
     expect(res.body.duplicateMetadata).toMatchObject({

@@ -1,4 +1,4 @@
-import { use } from "react";
+import { use } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { useTranslations } from 'next-intl';
 import CasesPane from './CasesPane';
@@ -9,9 +9,7 @@ import { LocaleCodeType } from '@/types/locale';
 export async function generateMetadata(props: { params: Promise<{ locale: string }> }) {
   const params = await props.params;
 
-  const {
-    locale
-  } = params;
+  const { locale } = params;
 
   const t = await getTranslations({ locale, namespace: 'Cases' });
   return {
@@ -20,9 +18,7 @@ export async function generateMetadata(props: { params: Promise<{ locale: string
   };
 }
 
-export default function Page(
-  props: { params: Promise<{ projectId: string; folderId: string; locale: string }> }
-) {
+export default function Page(props: { params: Promise<{ projectId: string; folderId: string; locale: string }> }) {
   const params = use(props.params);
   const t = useTranslations('Cases');
   const messages = {

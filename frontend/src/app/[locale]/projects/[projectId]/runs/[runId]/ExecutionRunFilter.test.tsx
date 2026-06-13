@@ -45,7 +45,9 @@ describe('ExecutionRunFilter', () => {
         activeTypeFilters={[]}
         onFilterChange={() => {}}
         priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-        testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
+        testRunCaseStatusMessages={
+          { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+        }
         testTypeMessages={{ functional: 'Functional', security: 'Security' } as never}
       />
     );

@@ -1,4 +1,4 @@
-import { use } from "react";
+import { use } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { useTranslations } from 'next-intl';
 import SettingsPage from './SettingsPage';
@@ -8,9 +8,7 @@ import { SettingsMessages } from '@/types/settings';
 export async function generateMetadata(props: { params: Promise<{ locale: string }> }) {
   const params = await props.params;
 
-  const {
-    locale
-  } = params;
+  const { locale } = params;
 
   const t = await getTranslations({ locale, namespace: 'Settings' });
   return {

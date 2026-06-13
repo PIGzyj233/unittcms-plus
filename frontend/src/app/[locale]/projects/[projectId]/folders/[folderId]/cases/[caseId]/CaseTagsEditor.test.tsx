@@ -10,13 +10,7 @@ import { fetchTags } from '@/utils/tagsControls';
 
 vi.mock('@/components/heroui', () => ({
   addToast: vi.fn(),
-  Chip: ({
-    children,
-    onClose,
-  }: {
-    children: React.ReactNode;
-    onClose?: () => void;
-  }) => (
+  Chip: ({ children, onClose }: { children: React.ReactNode; onClose?: () => void }) => (
     <span data-testid="tag-chip">
       {children}
       {onClose ? (
@@ -51,13 +45,11 @@ vi.mock('@/components/heroui', () => ({
       <div data-testid="combo-items">{children}</div>
     </div>
   ),
-  ComboBoxItem: ({
-    children,
-    textValue,
-  }: {
-    children: React.ReactNode;
-    textValue?: string;
-  }) => <div data-testid="combo-item" data-text-value={textValue}>{children}</div>,
+  ComboBoxItem: ({ children, textValue }: { children: React.ReactNode; textValue?: string }) => (
+    <div data-testid="combo-item" data-text-value={textValue}>
+      {children}
+    </div>
+  ),
 }));
 
 vi.mock('@/utils/tagsControls', () => ({
@@ -108,7 +100,7 @@ function renderEditor(onChange = vi.fn(), selectedTags: { id: number; name: stri
         root.render(
           <TokenContext.Provider value={tokenContext}>
             <CaseTagsEditor projectId="1" selectedTags={selectedTags} onChange={onChange} messages={messages} />
-          </TokenContext.Provider>,
+          </TokenContext.Provider>
         );
       });
     },
@@ -239,7 +231,7 @@ describe('CaseTagsEditor', () => {
             onChange={vi.fn()}
             messages={messages}
           />
-        </TokenContext.Provider>,
+        </TokenContext.Provider>
       );
     });
 

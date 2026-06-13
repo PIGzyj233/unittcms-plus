@@ -28,7 +28,13 @@ type ExecutionRunFilterProps = {
   activeTagFilters: number[];
   activePriorityFilters: number[];
   activeTypeFilters: number[];
-  onFilterChange: (search: string, status: number[], tagIds: number[], priorityIndices: number[], typeIndices: number[]) => void;
+  onFilterChange: (
+    search: string,
+    status: number[],
+    tagIds: number[],
+    priorityIndices: number[],
+    typeIndices: number[]
+  ) => void;
   priorityMessages: PriorityMessages;
   testRunCaseStatusMessages: TestRunCaseStatusMessages;
   testTypeMessages: TestTypeMessages;

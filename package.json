@@ -8,8 +8,8 @@
     "npm": ">=11"
   },
   "scripts": {
-    "format:check": "prettier --no-error-on-unmatched-pattern --check frontend/**/*.{js,ts,jsx,tsx,json} backend/**/*.{js,ts,json}",
-    "format": "prettier --no-error-on-unmatched-pattern --write frontend/**/*.{js,ts,jsx,tsx,json} backend/**/*.{js,ts,json}",
+    "format:check": "prettier --no-error-on-unmatched-pattern --check 'frontend/**/*.{js,ts,jsx,tsx,json}' 'backend/**/*.{js,ts,json}'",
+    "format": "prettier --no-error-on-unmatched-pattern --write 'frontend/**/*.{js,ts,jsx,tsx,json}' 'backend/**/*.{js,ts,json}'",
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "e2e": "playwright test",

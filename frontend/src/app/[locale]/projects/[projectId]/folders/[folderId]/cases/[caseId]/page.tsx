@@ -1,19 +1,17 @@
-import { use } from "react";
+import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import CaseEditor from './CaseEditor';
 import { PriorityMessages } from '@/types/priority';
 import { TestTypeMessages } from '@/types/testType';
 
-export default function Page(
-  props: {
-    params: Promise<{
-      projectId: string;
-      folderId: string;
-      caseId: string;
-      locale: string;
-    }>;
-  }
-) {
+export default function Page(props: {
+  params: Promise<{
+    projectId: string;
+    folderId: string;
+    caseId: string;
+    locale: string;
+  }>;
+}) {
   const params = use(props.params);
   const t = useTranslations('Case');
   const messages = {

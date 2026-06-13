@@ -120,7 +120,9 @@ describe('GET /runcases saved Run Case list', () => {
     const wrongSearchCase = await Case.create(casePayload(folder.id, 'Profile update', { priority: 2, type: 4 }));
     const wrongStatusCase = await Case.create(casePayload(folder.id, 'Checkout card path', { priority: 2, type: 4 }));
     const wrongTagCase = await Case.create(casePayload(folder.id, 'Checkout wallet path', { priority: 2, type: 4 }));
-    const wrongPriorityCase = await Case.create(casePayload(folder.id, 'Checkout coupon path', { priority: 1, type: 4 }));
+    const wrongPriorityCase = await Case.create(
+      casePayload(folder.id, 'Checkout coupon path', { priority: 1, type: 4 })
+    );
     const wrongTypeCase = await Case.create(casePayload(folder.id, 'Checkout guest path', { priority: 2, type: 5 }));
 
     await CaseTag.create({ caseId: matchingCase.id, tagId: smoke.id });
@@ -137,9 +139,7 @@ describe('GET /runcases saved Run Case list', () => {
     await RunCase.create({ runId: 2, caseId: wrongPriorityCase.id, status: 1 });
     await RunCase.create({ runId: 2, caseId: wrongTypeCase.id, status: 1 });
 
-    const res = await request(app).get(
-      `/runcases?runId=2&search=checkout&status=1&tag=${smoke.id}&priority=2&type=4`
-    );
+    const res = await request(app).get(`/runcases?runId=2&search=checkout&status=1&tag=${smoke.id}&priority=2&type=4`);
 
     expect(res.status).toBe(200);
     expect(res.body.map((item) => item.caseId)).toEqual([matchingCase.id]);
@@ -161,10 +161,7 @@ describe('GET /runcases saved Run Case list', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.map((item) => item.caseId)).toEqual([parentCase.id, childCase.id]);
-    expect(res.body.map((item) => item.Case.folderPath)).toEqual([
-      ['Checkout'],
-      ['Checkout', 'Cards'],
-    ]);
+    expect(res.body.map((item) => item.Case.folderPath)).toEqual([['Checkout'], ['Checkout', 'Cards']]);
   });
 
   it('narrows execution Folder Scope to directly placed saved Run Cases when Include Subfolders is false', async () => {

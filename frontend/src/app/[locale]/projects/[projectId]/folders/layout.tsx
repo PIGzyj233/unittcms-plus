@@ -1,19 +1,15 @@
-import { use } from "react";
+import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import FoldersPane from './FoldersPane';
 import ResizablePanes from '@/components/ResizablePane';
 
-export default function FoldersLayout(
-  props: {
-    children: React.ReactNode;
-    params: Promise<{ projectId: string; locale: string }>;
-  }
-) {
+export default function FoldersLayout(props: {
+  children: React.ReactNode;
+  params: Promise<{ projectId: string; locale: string }>;
+}) {
   const params = use(props.params);
 
-  const {
-    children
-  } = props;
+  const { children } = props;
 
   const t = useTranslations('Folders');
   const messages = {

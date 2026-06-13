@@ -1,7 +1,17 @@
 'use client';
 import { useState, useContext, useRef } from 'react';
 import { Globe } from 'lucide-react';
-import { Button, Input, Card, CardHeader, CardBody, addToast, CardFooter, Select, SelectItem } from '@/components/heroui';
+import {
+  Button,
+  Input,
+  Card,
+  CardHeader,
+  CardBody,
+  addToast,
+  CardFooter,
+  Select,
+  SelectItem,
+} from '@/components/heroui';
 import { TokenContext } from '@/utils/TokenProvider';
 import { updateUsername, updatePassword, uploadAvatar, deleteAvatar, updateLocale } from '@/utils/usersControl';
 import { LocaleCodeType } from '@/types/locale';

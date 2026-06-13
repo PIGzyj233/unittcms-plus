@@ -128,7 +128,13 @@ vi.mock('./TestCaseSelector', () => ({
 }));
 
 vi.mock('react-arborist', () => ({
-  Tree: ({ data, children }: { data: Array<Record<string, unknown>>; children: (props: unknown) => React.ReactNode }) => (
+  Tree: ({
+    data,
+    children,
+  }: {
+    data: Array<Record<string, unknown>>;
+    children: (props: unknown) => React.ReactNode;
+  }) => (
     <div data-testid="run-folder-tree">
       {data.map((nodeData) =>
         children({
@@ -381,31 +387,37 @@ describe('RunEditor', () => {
     ]);
     mocks.fetchProjectCases.mockResolvedValue([]);
     mocks.fetchRunCases.mockResolvedValue([]);
-    mocks.includeExcludeTestCases.mockImplementation((isInclude: boolean, keys: number[], runId: number, cases: never[]) =>
-      cases.map((testCase: { id: number; RunCases?: Array<{ id: number; runId: number; status: number; editState: string }> }) => {
-        if (!keys.includes(testCase.id)) {
-          return testCase;
-        }
+    mocks.includeExcludeTestCases.mockImplementation(
+      (isInclude: boolean, keys: number[], runId: number, cases: never[]) =>
+        cases.map(
+          (testCase: {
+            id: number;
+            RunCases?: Array<{ id: number; runId: number; status: number; editState: string }>;
+          }) => {
+            if (!keys.includes(testCase.id)) {
+              return testCase;
+            }
 
-        const runCase = testCase.RunCases?.[0];
-        if (isInclude) {
-          if (!runCase) {
-            return { ...testCase, RunCases: [{ id: -1, runId, status: 0, editState: 'new' }] };
-          }
-          if (runCase.editState === 'deleted') {
-            return { ...testCase, RunCases: [{ ...runCase, editState: runCase.id > 0 ? 'notChanged' : 'new' }] };
-          }
-          return testCase;
-        }
+            const runCase = testCase.RunCases?.[0];
+            if (isInclude) {
+              if (!runCase) {
+                return { ...testCase, RunCases: [{ id: -1, runId, status: 0, editState: 'new' }] };
+              }
+              if (runCase.editState === 'deleted') {
+                return { ...testCase, RunCases: [{ ...runCase, editState: runCase.id > 0 ? 'notChanged' : 'new' }] };
+              }
+              return testCase;
+            }
 
-        if (!runCase || runCase.editState === 'deleted') {
-          return testCase;
-        }
-        if (runCase.editState === 'new' && runCase.id <= 0) {
-          return { ...testCase, RunCases: [] };
-        }
-        return { ...testCase, RunCases: [{ ...runCase, editState: 'deleted' }] };
-      })
+            if (!runCase || runCase.editState === 'deleted') {
+              return testCase;
+            }
+            if (runCase.editState === 'new' && runCase.id <= 0) {
+              return { ...testCase, RunCases: [] };
+            }
+            return { ...testCase, RunCases: [{ ...runCase, editState: 'deleted' }] };
+          }
+        )
     );
     mocks.updateRun.mockResolvedValue({});
     mocks.updateRunCases.mockResolvedValue([]);
@@ -427,16 +439,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -471,16 +485,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -495,7 +511,9 @@ describe('RunEditor', () => {
 
     await act(async () => {
       (
-        Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Execution') as HTMLButtonElement
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Execution'
+        ) as HTMLButtonElement
       ).click();
     });
 
@@ -520,16 +538,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -568,16 +588,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -589,8 +611,11 @@ describe('RunEditor', () => {
     });
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Checkout') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Checkout'
+        ) as HTMLButtonElement
+      ).click();
     });
 
     const params = new URL(window.location.href).searchParams;
@@ -612,16 +637,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -632,7 +659,9 @@ describe('RunEditor', () => {
       await Promise.resolve();
     });
 
-    const includeSubfoldersCheckbox = container.querySelector('input[aria-label="Include subfolders"]') as HTMLInputElement;
+    const includeSubfoldersCheckbox = container.querySelector(
+      'input[aria-label="Include subfolders"]'
+    ) as HTMLInputElement;
     expect(includeSubfoldersCheckbox.checked).toBe(true);
 
     await act(async () => {
@@ -670,16 +699,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -691,8 +722,11 @@ describe('RunEditor', () => {
     });
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'apply filter') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'apply filter'
+        ) as HTMLButtonElement
+      ).click();
     });
 
     let params = new URL(window.location.href).searchParams;
@@ -700,7 +734,9 @@ describe('RunEditor', () => {
 
     await act(async () => {
       (
-        Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'apply included filter') as HTMLButtonElement
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'apply included filter'
+        ) as HTMLButtonElement
       ).click();
     });
 
@@ -759,16 +795,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -809,16 +847,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -831,7 +871,9 @@ describe('RunEditor', () => {
 
     await act(async () => {
       (
-        Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'apply tag filter') as HTMLButtonElement
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'apply tag filter'
+        ) as HTMLButtonElement
       ).click();
     });
 
@@ -853,16 +895,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -901,16 +945,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -960,16 +1006,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -1012,16 +1060,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -1057,16 +1107,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -1116,16 +1168,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -1137,8 +1191,11 @@ describe('RunEditor', () => {
     });
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Checkout') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Checkout'
+        ) as HTMLButtonElement
+      ).click();
     });
 
     let params = new URL(window.location.href).searchParams;
@@ -1146,7 +1203,9 @@ describe('RunEditor', () => {
     expect(params.get('executionFolderId')).toBe('5');
     expect(mocks.fetchRunCases).toHaveBeenLastCalledWith('token', 2, { folderId: 5 });
 
-    const includeSubfoldersCheckbox = container.querySelector('input[aria-label="Include subfolders"]') as HTMLInputElement;
+    const includeSubfoldersCheckbox = container.querySelector(
+      'input[aria-label="Include subfolders"]'
+    ) as HTMLInputElement;
     expect(includeSubfoldersCheckbox.checked).toBe(true);
 
     await act(async () => {
@@ -1194,16 +1253,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -1256,16 +1317,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -1279,17 +1342,25 @@ describe('RunEditor', () => {
     await openSelectionTab(container);
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'select 10') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'select 10'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Include') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Include'
+        ) as HTMLButtonElement
+      ).click();
     });
 
     await act(async () => {
       (
-        Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Save selection') as HTMLButtonElement
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Save selection'
+        ) as HTMLButtonElement
       ).click();
       await Promise.resolve();
       await Promise.resolve();
@@ -1336,16 +1407,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -1357,7 +1430,9 @@ describe('RunEditor', () => {
     });
     await act(async () => {
       (
-        Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Execution') as HTMLButtonElement
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Execution'
+        ) as HTMLButtonElement
       ).click();
     });
     await act(async () => {
@@ -1373,7 +1448,9 @@ describe('RunEditor', () => {
 
     await act(async () => {
       (
-        Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Save execution') as HTMLButtonElement
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Save execution'
+        ) as HTMLButtonElement
       ).click();
       await Promise.resolve();
       await Promise.resolve();
@@ -1401,16 +1478,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -1433,8 +1512,11 @@ describe('RunEditor', () => {
     expect(titleInput.value).toBe('Changed run');
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Discard') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Discard'
+        ) as HTMLButtonElement
+      ).click();
     });
 
     expect((container.querySelector('input[aria-label="Title"]') as HTMLInputElement).value).toBe('Regression');
@@ -1470,16 +1552,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -1506,19 +1590,27 @@ describe('RunEditor', () => {
     expect(container.querySelector('[data-testid="save-dirty-dot"]')).toBeNull();
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'select 10') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'select 10'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Include') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Include'
+        ) as HTMLButtonElement
+      ).click();
     });
 
     expect(container.querySelector('[data-testid="save-dirty-dot"]')).not.toBeNull();
 
     await act(async () => {
       (
-        Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Overview') as HTMLButtonElement
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Overview'
+        ) as HTMLButtonElement
       ).click();
     });
 
@@ -1555,16 +1647,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -1585,16 +1679,24 @@ describe('RunEditor', () => {
     await openSelectionTab(container);
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'select 10') as HTMLButtonElement)
-        .click();
-    });
-    await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Include') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'select 10'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
       (
-        Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Execution') as HTMLButtonElement
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Include'
+        ) as HTMLButtonElement
+      ).click();
+    });
+    await act(async () => {
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Execution'
+        ) as HTMLButtonElement
       ).click();
     });
 
@@ -1633,16 +1735,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -1663,12 +1767,18 @@ describe('RunEditor', () => {
     await openSelectionTab(container);
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'select 10') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'select 10'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Include') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Include'
+        ) as HTMLButtonElement
+      ).click();
     });
 
     const lastGuardCall = mocks.useFormGuard.mock.calls.at(-1);
@@ -1692,16 +1802,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -1744,16 +1856,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -1810,16 +1924,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -1833,31 +1949,41 @@ describe('RunEditor', () => {
     await openSelectionTab(container);
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'select 10') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'select 10'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Include') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Include'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Checkout') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Checkout'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
       await Promise.resolve();
       await Promise.resolve();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Save selection') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Save selection'
+        ) as HTMLButtonElement
+      ).click();
     });
 
-    expect(mocks.updateRunCases).toHaveBeenCalledWith(
-      'token',
-      2,
-      [expect.objectContaining({ id: 10, RunCases: [expect.objectContaining({ editState: 'new' })] })]
-    );
+    expect(mocks.updateRunCases).toHaveBeenCalledWith('token', 2, [
+      expect.objectContaining({ id: 10, RunCases: [expect.objectContaining({ editState: 'new' })] }),
+    ]);
     expect(mocks.fetchRun).toHaveBeenCalledTimes(2);
 
     await act(async () => {
@@ -1891,16 +2017,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -1914,20 +2042,32 @@ describe('RunEditor', () => {
     await openSelectionTab(container);
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'select 10') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'select 10'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Include') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Include'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Discard') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Discard'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Save selection') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Save selection'
+        ) as HTMLButtonElement
+      ).click();
     });
 
     expect(mocks.updateRunCases).not.toHaveBeenCalled();
@@ -1963,16 +2103,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -1986,24 +2128,39 @@ describe('RunEditor', () => {
     await openSelectionTab(container);
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'select 10') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'select 10'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Exclude') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Exclude'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'select 10') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'select 10'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Include') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Include'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Save selection') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Save selection'
+        ) as HTMLButtonElement
+      ).click();
     });
 
     expect(mocks.updateRunCases).not.toHaveBeenCalled();
@@ -2039,16 +2196,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -2062,24 +2221,39 @@ describe('RunEditor', () => {
     await openSelectionTab(container);
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'select 10') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'select 10'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Include') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Include'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'select 10') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'select 10'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Exclude') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Exclude'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Save selection') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Save selection'
+        ) as HTMLButtonElement
+      ).click();
     });
 
     expect(mocks.updateRunCases).not.toHaveBeenCalled();
@@ -2130,16 +2304,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -2153,23 +2329,30 @@ describe('RunEditor', () => {
     await openSelectionTab(container);
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'select all visible') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'select all visible'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Include') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Include'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Save selection') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Save selection'
+        ) as HTMLButtonElement
+      ).click();
     });
 
-    expect(mocks.updateRunCases).toHaveBeenCalledWith(
-      'token',
-      2,
-      [expect.objectContaining({ id: 11, RunCases: [expect.objectContaining({ editState: 'new' })] })]
-    );
+    expect(mocks.updateRunCases).toHaveBeenCalledWith('token', 2, [
+      expect.objectContaining({ id: 11, RunCases: [expect.objectContaining({ editState: 'new' })] }),
+    ]);
 
     await act(async () => {
       root.unmount();
@@ -2220,16 +2403,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -2243,16 +2428,24 @@ describe('RunEditor', () => {
     await openSelectionTab(container);
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'select 10') as HTMLButtonElement)
-        .click();
-    });
-    await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Include') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'select 10'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
       (
-        Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Execution') as HTMLButtonElement
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Include'
+        ) as HTMLButtonElement
+      ).click();
+    });
+    await act(async () => {
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Execution'
+        ) as HTMLButtonElement
       ).click();
     });
     await act(async () => {
@@ -2314,16 +2507,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -2335,7 +2530,9 @@ describe('RunEditor', () => {
     });
     await act(async () => {
       (
-        Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Execution') as HTMLButtonElement
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Execution'
+        ) as HTMLButtonElement
       ).click();
     });
     await act(async () => {
@@ -2353,15 +2550,18 @@ describe('RunEditor', () => {
 
     await act(async () => {
       (
-        Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Save execution') as HTMLButtonElement
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Save execution'
+        ) as HTMLButtonElement
       ).click();
     });
 
-    expect(mocks.updateRunCases).toHaveBeenCalledWith(
-      'token',
-      2,
-      [expect.objectContaining({ id: 20, RunCases: [expect.objectContaining({ id: 100, status: 2, editState: 'changed' })] })]
-    );
+    expect(mocks.updateRunCases).toHaveBeenCalledWith('token', 2, [
+      expect.objectContaining({
+        id: 20,
+        RunCases: [expect.objectContaining({ id: 100, status: 2, editState: 'changed' })],
+      }),
+    ]);
     expect(mocks.updateRunCases).not.toHaveBeenCalledWith(
       'token',
       2,
@@ -2418,16 +2618,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -2439,7 +2641,9 @@ describe('RunEditor', () => {
     });
     await act(async () => {
       (
-        Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Execution') as HTMLButtonElement
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Execution'
+        ) as HTMLButtonElement
       ).click();
     });
     await act(async () => {
@@ -2456,16 +2660,24 @@ describe('RunEditor', () => {
     await openSelectionTab(container);
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'select 10') as HTMLButtonElement)
-        .click();
-    });
-    await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Include') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'select 10'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
       (
-        Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Save selection') as HTMLButtonElement
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Include'
+        ) as HTMLButtonElement
+      ).click();
+    });
+    await act(async () => {
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Save selection'
+        ) as HTMLButtonElement
       ).click();
     });
     await act(async () => {
@@ -2474,7 +2686,9 @@ describe('RunEditor', () => {
     });
     await act(async () => {
       (
-        Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Execution') as HTMLButtonElement
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'Execution'
+        ) as HTMLButtonElement
       ).click();
     });
 
@@ -2515,16 +2729,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -2538,15 +2754,21 @@ describe('RunEditor', () => {
     await openSelectionTab(container);
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'select 10') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'select 10'
+        ) as HTMLButtonElement
+      ).click();
     });
 
     expect(container.textContent).toContain('1 Selected');
 
     await act(async () => {
-      (Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'apply filter') as HTMLButtonElement)
-        .click();
+      (
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'apply filter'
+        ) as HTMLButtonElement
+      ).click();
     });
     await act(async () => {
       await Promise.resolve();
@@ -2601,16 +2823,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -2628,7 +2852,9 @@ describe('RunEditor', () => {
 
     await act(async () => {
       (
-        Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'apply included filter') as HTMLButtonElement
+        Array.from(container.querySelectorAll('button')).find(
+          (button) => button.textContent === 'apply included filter'
+        ) as HTMLButtonElement
       ).click();
     });
     await act(async () => {
@@ -2679,16 +2905,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );
@@ -2742,16 +2970,18 @@ describe('RunEditor', () => {
       root.render(
         <TokenContext.Provider value={tokenContext}>
           <RunExecutionProvider>
-          <RunEditor
-            projectId="1"
-            runId="2"
-            messages={messages}
-            runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
-            testRunCaseStatusMessages={{ untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never}
-            priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
-            testTypeMessages={{ functional: 'Functional' } as never}
-            locale="en"
-          />
+            <RunEditor
+              projectId="1"
+              runId="2"
+              messages={messages}
+              runStatusMessages={{ new: 'New', inProgress: 'In Progress', completed: 'Completed' } as never}
+              testRunCaseStatusMessages={
+                { untested: 'Untested', passed: 'Passed', failed: 'Failed', blocked: 'Blocked' } as never
+              }
+              priorityMessages={{ critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low' }}
+              testTypeMessages={{ functional: 'Functional' } as never}
+              locale="en"
+            />
           </RunExecutionProvider>
         </TokenContext.Provider>
       );

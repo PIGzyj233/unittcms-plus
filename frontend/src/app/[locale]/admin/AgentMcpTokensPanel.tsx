@@ -16,12 +16,7 @@ import {
   addToast,
 } from '@/components/heroui';
 import { AdminMessages } from '@/types/user';
-import {
-  McpTokenRecord,
-  createMcpToken,
-  fetchMcpTokens,
-  revokeMcpToken,
-} from '@/utils/mcpTokenControl';
+import { McpTokenRecord, createMcpToken, fetchMcpTokens, revokeMcpToken } from '@/utils/mcpTokenControl';
 import { logError } from '@/utils/errorHandler';
 
 type Props = {
@@ -134,7 +129,11 @@ export default function AgentMcpTokensPanel({ jwt, messages }: Props) {
       case 'status':
         return (
           <Chip size="sm" color={statusColor(record.status)}>
-            {messages[`mcpTokenStatus${record.status[0].toUpperCase()}${record.status.slice(1)}` as keyof AdminMessages]}
+            {
+              messages[
+                `mcpTokenStatus${record.status[0].toUpperCase()}${record.status.slice(1)}` as keyof AdminMessages
+              ]
+            }
           </Chip>
         );
       case 'lastUsedAt':
@@ -198,7 +197,13 @@ export default function AgentMcpTokensPanel({ jwt, messages }: Props) {
           value={expiresAt}
           onChange={(event) => setExpiresAt(event.target.value)}
         />
-        <Button color="primary" isDisabled={!canCreate} isLoading={isCreating} startContent={<Plus size={16} />} onPress={handleCreate}>
+        <Button
+          color="primary"
+          isDisabled={!canCreate}
+          isLoading={isCreating}
+          startContent={<Plus size={16} />}
+          onPress={handleCreate}
+        >
           {messages.mcpTokenCreate}
         </Button>
       </div>
